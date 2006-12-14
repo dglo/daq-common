@@ -1,0 +1,18 @@
+<project>
+    <name>daq-common</name>
+    <packages default="icecube.daq.common">
+    </packages>
+    <uses>
+        <libs>
+        </libs>
+        <tools>
+        </tools>
+    </uses>
+    <test>
+        <uses>
+            <libs></libs>
+            <tools>
+            </tools>
+        </uses>
+    </test>
+</project>
