@@ -1,4 +1,7 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
     <artifactId>pDAQ</artifactId>
@@ -9,40 +12,10 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>daq-common</artifactId>
   <packaging>jar</packaging>
-  <name>Common utility classes</name>
-  <description>The ${project.name} sub-system of the Surface Data Acquisition system for the IceCube Project.</description>
+  <name>daq-common</name>
 
   <scm>
-    <connection>scm:svn:http://code.icecube.wisc.edu/daq/projects/${project.name}/trunk</connection>
-    <developerConnection>scm:svn:http://code.icecube.wisc.edu/daq/projects/${project.name}/trunk</developerConnection>
-    <tag>HEAD</tag>
-    <url>http://code.icecube.wisc.edu/daq/projects/${project.name}</url>
+    <connection>scm:svn:http://code.icecube.wisc.edu/daq/meta-projects/daq-common/trunk</connection>
   </scm>
 
-  <build>
-   <plugins>
-     <plugin>
-       <groupId>org.apache.maven.plugins</groupId>
-       <artifactId>maven-surefire-plugin</artifactId>
-       <configuration>
-         <argLine>-Xms512m -Xmx512m</argLine>
-       </configuration>
-     </plugin>
-   </plugins>
-  </build>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.jctools</groupId>
-      <artifactId>jctools-core</artifactId>
-    </dependency>
-
-     <dependency>
-       <groupId>com.sun</groupId>
-       <artifactId>tools</artifactId>
-       <version>${daq.jdk}</version>
-       <scope>system</scope>
-       <systemPath>${tools-jar}</systemPath>
-     </dependency>
-  </dependencies>
 </project>
