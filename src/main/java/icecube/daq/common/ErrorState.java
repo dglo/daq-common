@@ -10,7 +10,7 @@ package icecube.daq.common;
  * This class is an enumeration of DAQ error types.
  *
  * @author artur
- * @version $Id: ErrorState.java,v 1.1, Nov 13, 2006 4:02:27 PM artur $
+ * @version $Id: ErrorState.java 2125 2007-10-12 18:27:05Z ksb $
  */
 public class ErrorState {
 
