@@ -1,7 +1,7 @@
 /*
  * class: CmdInterface
  *
- * Version $Id: DAQCmdInterface.java,v 1.19 2006/03/17 23:44:10 artur Exp $
+ * Version $Id: DAQCmdInterface.java 2125 2007-10-12 18:27:05Z ksb $
  *
  * Date: March 8 2004
  *
@@ -13,7 +13,7 @@ package icecube.daq.common;
 /**
  * This class defines constants that are used through the DAQ software.
  *
- * @version $Id: DAQCmdInterface.java,v 1.19 2006/03/17 23:44:10 artur Exp $
+ * @version $Id: DAQCmdInterface.java 2125 2007-10-12 18:27:05Z ksb $
  * @author mcp
  */
 public interface DAQCmdInterface

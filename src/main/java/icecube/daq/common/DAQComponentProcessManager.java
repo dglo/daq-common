@@ -1,7 +1,7 @@
 /*
  * class: DAQComponentProcessManager
  *
- * Version $Id: DAQComponentProcessManager.java,v 1.4 2005/04/25 22:01:42 mcp Exp $
+ * Version $Id: DAQComponentProcessManager.java 2125 2007-10-12 18:27:05Z ksb $
  *
  * Date: March 24 2005
  *
@@ -13,7 +13,7 @@ package icecube.daq.common;
 /**
  * This class ...does what?
  *
- * @version $Id: DAQComponentProcessManager.java,v 1.4 2005/04/25 22:01:42 mcp Exp $
+ * @version $Id: DAQComponentProcessManager.java 2125 2007-10-12 18:27:05Z ksb $
  * @author mcp
  */
 public interface DAQComponentProcessManager

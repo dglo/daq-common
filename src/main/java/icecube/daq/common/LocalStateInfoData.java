@@ -1,7 +1,7 @@
 /*
  * class: LocalStateInfoData
  *
- * Version $Id: LocalStateInfoData.java,v 1.3 2004/07/23 01:17:54 mcp Exp $
+ * Version $Id: LocalStateInfoData.java 2125 2007-10-12 18:27:05Z ksb $
  *
  * Date: March 1 2004
  *
@@ -13,7 +13,7 @@ package icecube.daq.common;
 /**
  * This class ...does what?
  *
- * @version $Id: LocalStateInfoData.java,v 1.3 2004/07/23 01:17:54 mcp Exp $
+ * @version $Id: LocalStateInfoData.java 2125 2007-10-12 18:27:05Z ksb $
  * @author mcp
  */
 public class LocalStateInfoData

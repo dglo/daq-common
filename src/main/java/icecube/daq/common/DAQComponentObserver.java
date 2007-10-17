@@ -10,7 +10,7 @@ package icecube.daq.common;
  * This interface represent the interaction between the input/output engines and the high level
  * component manager
  * @author artur
- * @version $Id: DAQComponentObserver.java, v 1.1, Nov 13, 2006 3:32:14 PM artur $
+ * @version $Id: DAQComponentObserver.java 2125 2007-10-12 18:27:05Z ksb $
  */
 public interface DAQComponentObserver {
 
