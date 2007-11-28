@@ -1,7 +1,7 @@
 /*
  * class: CmdInterface
  *
- * Version $Id: DAQCmdInterface.java 2230 2007-11-02 16:13:07Z dglo $
+ * Version $Id: DAQCmdInterface.java 2334 2007-11-28 23:53:08Z ksb $
  *
  * Date: March 8 2004
  *
@@ -13,7 +13,7 @@ package icecube.daq.common;
 /**
  * This class defines constants that are used through the DAQ software.
  *
- * @version $Id: DAQCmdInterface.java 2230 2007-11-02 16:13:07Z dglo $
+ * @version $Id: DAQCmdInterface.java 2334 2007-11-28 23:53:08Z ksb $
  * @author mcp
  */
 public interface DAQCmdInterface
@@ -56,6 +56,8 @@ public interface DAQCmdInterface
             "RunStart:";
     public static final String DAQ_ONLINE_RUNSTOP_FLAG =
             "RunStop:";
+    public static final String DAQ_ONLINE_SUBRUNSTART_FLAG =
+            "SubrunStart:";
 
     public static final String SOURCE = "source";
     public static final String SINK = "sink";
