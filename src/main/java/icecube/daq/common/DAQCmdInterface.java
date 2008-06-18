@@ -1,7 +1,7 @@
 /*
  * class: CmdInterface
  *
- * Version $Id: DAQCmdInterface.java 2629 2008-02-11 05:48:36Z dglo $
+ * Version $Id: DAQCmdInterface.java 3201 2008-06-18 17:02:59Z dglo $
  *
  * Date: March 8 2004
  *
@@ -13,7 +13,7 @@ package icecube.daq.common;
 /**
  * This class defines constants that are used through the DAQ software.
  *
- * @version $Id: DAQCmdInterface.java 2629 2008-02-11 05:48:36Z dglo $
+ * @version $Id: DAQCmdInterface.java 3201 2008-06-18 17:02:59Z dglo $
  * @author mcp
  */
 public interface DAQCmdInterface
@@ -51,6 +51,8 @@ public interface DAQCmdInterface
             "secondaryBuilders";
     String DAQ_STRING_HUB =
             "stringHub";
+    String DAQ_REPLAY_HUB =
+            "replayHub";
 
     String DAQ_ONLINE_RUNSTART_FLAG =
             "RunStart:";
