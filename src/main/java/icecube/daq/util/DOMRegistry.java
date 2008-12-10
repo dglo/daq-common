@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -83,9 +85,9 @@ public class DOMRegistry extends DefaultHandler
 		return String.format("%2.2d-%2.2d", dom.string, dom.location);
 	}
 
-	public ArrayList<DeployedDOM> getDomsOnString(int string)
+	public Set<DeployedDOM> getDomsOnString(int string)
 	{
-		ArrayList<DeployedDOM> rlist = new ArrayList<DeployedDOM>(60);
+		HashSet<DeployedDOM> rlist = new HashSet<DeployedDOM>(60);
 		for (DeployedDOM dom : doms.values()) if (string == dom.string) rlist.add(dom);
 		return rlist;
 	}
