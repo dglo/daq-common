@@ -1,7 +1,7 @@
 /*
  * class: CmdInterface
  *
- * Version $Id: DAQCmdInterface.java 3201 2008-06-18 17:02:59Z dglo $
+ * Version $Id: DAQCmdInterface.java 4149 2009-05-14 21:06:40Z kael $
  *
  * Date: March 8 2004
  *
@@ -13,12 +13,12 @@ package icecube.daq.common;
 /**
  * This class defines constants that are used through the DAQ software.
  *
- * @version $Id: DAQCmdInterface.java 3201 2008-06-18 17:02:59Z dglo $
+ * @version $Id: DAQCmdInterface.java 4149 2009-05-14 21:06:40Z kael $
  * @author mcp
  */
 public interface DAQCmdInterface
 {
-    int DAQ_MAX_NUM_STRINGS = 80;
+    int DAQ_MAX_NUM_STRINGS = 86;
     int DAQ_MAX_NUM_IDH = 16;
 
     String DAQ_PAYLOAD_INVALID_SOURCE_ID =
