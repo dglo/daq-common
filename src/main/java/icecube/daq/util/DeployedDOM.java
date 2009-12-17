@@ -8,6 +8,7 @@ package icecube.daq.util;
 
 public class DeployedDOM
 {
+	int channelId;
 	String mainboardId;
 	String domId;
 	String name;
@@ -25,7 +26,8 @@ public class DeployedDOM
 	 */
 	DeployedDOM(DeployedDOM dom)
 	{
-		mainboardId = dom.mainboardId;
+		channelId  	= dom.channelId;
+		mainboardId	= dom.mainboardId;
 		domId 		= dom.domId;
 		name  		= dom.name;
 		string 		= dom.string;
@@ -34,6 +36,8 @@ public class DeployedDOM
 		y			= dom.y;
 		z 			= dom.z;
 	}
+
+	public int getChannelId() { return channelId; }
 
 	public String getMainboardId() { return mainboardId; }
 
@@ -52,8 +56,8 @@ public class DeployedDOM
 	@Override
 	public String toString()
 	{
-	    return domId + "[" + mainboardId + "] '" + name + "' at " + 
-            String.format("%02d-%02d", string, location);
+	    return domId + "[" + mainboardId + "]" + channelId + " '" + name +
+                "' at " + String.format("%02d-%02d", string, location);
 	}
 
 	@Override

@@ -1,3 +1,5 @@
+/* -*- mode: java; indent-tabs-mode:t; tab-width:4 -*- */
+
 package icecube.daq.util;
 
 import java.io.File;
@@ -60,6 +62,20 @@ public class DOMRegistry extends DefaultHandler
 	}
 
 	/**
+	 * Lookup channel Id given mainboard Id
+	 * @param mbid input DOM mainboard id - the 12-char hex
+	 * @return channel Id
+	 */
+	public int getChannelId(String mbid)
+	{
+		if (!doms.containsKey(mbid)) {
+			return -1;
+		}
+
+		return doms.get(mbid).channelId;
+	}
+
+	/**
 	 * Lookup Krasberg name of DOM given mainboard Id.
 	 * @param mbid input DOM mainboard id.
 	 * @return DOM name
@@ -83,6 +99,11 @@ public class DOMRegistry extends DefaultHandler
 	{
 		DeployedDOM dom = doms.get(mbid);
 		return String.format("%2.2d-%2.2d", dom.string, dom.location);
+	}
+
+	public Set<String> keys()
+	{
+		return doms.keySet();
 	}
 
 	public Set<DeployedDOM> getDomsOnString(int string)
@@ -113,23 +134,25 @@ public class DOMRegistry extends DefaultHandler
 	{
 		super.endElement(uri, localName, qName);
 		String txt = xmlChars.toString().trim();
-		if (localName.equals("dom"))
+		if (localName.equalsIgnoreCase("dom"))
 			doms.put(currentDOM.mainboardId, new DeployedDOM(currentDOM));
-		else if (localName.equals("position"))
+		else if (localName.equalsIgnoreCase("position"))
 			currentDOM.location = Integer.parseInt(txt);
-		else if (localName.equals("mainBoardId"))
+		else if (localName.equalsIgnoreCase("channelId"))
+			currentDOM.channelId = Integer.parseInt(txt);
+		else if (localName.equalsIgnoreCase("mainBoardId"))
 			currentDOM.mainboardId = txt;
-		else if (localName.equals("name"))
+		else if (localName.equalsIgnoreCase("name"))
 			currentDOM.name = txt;
-		else if (localName.equals("productionId"))
+		else if (localName.equalsIgnoreCase("productionId"))
 			currentDOM.domId = txt;
-		else if (localName.equals("xCoordinate"))
+		else if (localName.equalsIgnoreCase("xCoordinate"))
 			currentDOM.x = Double.parseDouble(txt);
-		else if (localName.equals("yCoordinate"))
+		else if (localName.equalsIgnoreCase("yCoordinate"))
 			currentDOM.y = Double.parseDouble(txt);
-		else if (localName.equals("zCoordinate"))
+		else if (localName.equalsIgnoreCase("zCoordinate"))
 			currentDOM.z = Double.parseDouble(txt);
-		else if (localName.equals("number"))
+		else if (localName.equalsIgnoreCase("number"))
 			currentDOM.string = Integer.parseInt(txt);
 	}
 }
