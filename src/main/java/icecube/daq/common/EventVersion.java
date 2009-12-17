@@ -2,5 +2,5 @@ package icecube.daq.common;
 
 public interface EventVersion
 {
-    int VERSION = 4;
+    int VERSION = 5;
 }
