@@ -52,6 +52,16 @@ public class DOMRegistry extends DefaultHandler
 	}
 
 	/**
+	 * Lookup DOM given mainboard Id
+	 * @param mbid input DOM mainboard id - the 12-char hex
+	 * @return deployed DOM information
+	 */
+	public DeployedDOM getDom(String mbid)
+	{
+		return doms.get(mbid);
+	}
+
+	/**
 	 * Lookup DOM Id given mainboard Id
 	 * @param mbid input DOM mainboard id - the 12-char hex
 	 * @return 8-char DOM Id - like TP5Y0515
