@@ -97,6 +97,10 @@ public class DOMRegistry extends DefaultHandler
 
 	public int getStringMajor(String mbid)
 	{
+		if (!doms.containsKey(mbid)) {
+			return -1;
+		}
+
 		return doms.get(mbid).getStringMajor();
 	}
 
