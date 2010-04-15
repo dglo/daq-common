@@ -72,11 +72,11 @@ public class DOMRegistry extends DefaultHandler
 	}
 
 	/**
-	 * Lookup channel Id given mainboard Id
-	 * @param mbid input DOM mainboard id - the 12-char hex
-	 * @return channel Id
+	 * Lookup channel ID given mainboard ID
+	 * @param mbid input DOM mainboard ID - the 12-char hex
+	 * @return channel Id (or <tt>-1</tt> if mainboard ID was not found)
 	 */
-	public int getChannelId(String mbid)
+	public short getChannelId(String mbid)
 	{
 		if (!doms.containsKey(mbid)) {
 			return -1;
@@ -149,7 +149,7 @@ public class DOMRegistry extends DefaultHandler
 		else if (localName.equalsIgnoreCase("position"))
 			currentDOM.location = Integer.parseInt(txt);
 		else if (localName.equalsIgnoreCase("channelId"))
-			currentDOM.channelId = Integer.parseInt(txt);
+			currentDOM.channelId = Short.parseShort(txt);
 		else if (localName.equalsIgnoreCase("mainBoardId"))
 			currentDOM.mainboardId = txt;
 		else if (localName.equalsIgnoreCase("name"))
