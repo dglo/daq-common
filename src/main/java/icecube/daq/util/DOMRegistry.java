@@ -23,7 +23,9 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author krokodil
  *
  */
-public class DOMRegistry extends DefaultHandler
+public class DOMRegistry
+	extends DefaultHandler
+	implements IDOMRegistry
 {
 	private StringBuffer xmlChars;
 	private HashMap<String, DeployedDOM> doms;
