@@ -21,4 +21,8 @@ public interface IDOMRegistry
      * @return all known mainboard IDs
      */
     Set<String> keys();
+    /**
+     * get distance in meters between pair of DOMs
+     */
+    double distanceBetweenDOMs(String mbid0, String mbid1);
 }

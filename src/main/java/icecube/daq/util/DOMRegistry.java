@@ -29,14 +29,23 @@ public class DOMRegistry
 {
 	private StringBuffer xmlChars;
 	private HashMap<String, DeployedDOM> doms;
+	private DeployedDOM[] domsByChannelId;
 	private DeployedDOM currentDOM;
+	private int currentString;
 	private static final String DEFAULT_DOM_GEOMETRY = "default-dom-geometry.xml";
+    private static final int NCH = 87*64;
+	private double distanceTable[];
+	private double distanceTabXY[];
 
 	protected DOMRegistry()
 	{
 		xmlChars = new StringBuffer();
 		currentDOM = new DeployedDOM();
 		doms = new HashMap<String, DeployedDOM>();
+		domsByChannelId = new DeployedDOM[NCH];
+		/* Only need about 15M pairs */
+		distanceTable = new double[NCH*(NCH-1)/2];
+		distanceTabXY = new double[NCH*(NCH-1)/2];
 	}
 
 	public static DOMRegistry loadRegistry(String path) throws
@@ -50,9 +59,66 @@ public class DOMRegistry
 		SAXParser parser = factory.newSAXParser();
 		DOMRegistry reg = new DOMRegistry();
 		parser.parse(is, reg);
+		
+		reg.tabulateDistances();
+		
 		return reg;
 	}
 
+	/**
+	 * Return the tightly packed pair given reduced channel ID as input
+	 * @param ch1 - reduced channel ID of DOM #1
+	 * @param ch2 - reduced channel ID of DOM #2
+	 */
+	public int pairId(int ch1, int ch2)
+	{
+        if (ch1 < ch2)
+        {
+            int tmp = ch2;
+            ch2 = ch1;
+            ch1 = tmp;
+        }
+	    return ch2 * NCH + ch1 - (ch2+1)*(ch2+2)/2;
+	}
+	
+	public int pairId(String mbid1, String mbid2)
+	{
+        int ch1 = doms.get(mbid1).channelId;
+        int ch2 = doms.get(mbid2).channelId;
+        return pairId(ch1, ch2);
+	}
+	
+	private void tabulateDistances()
+	{
+	    DeployedDOM mlist[] = doms.values().toArray(new DeployedDOM[0]);
+	    for (int ch0 = 0; ch0 < mlist.length; ch0++)
+	    {
+            DeployedDOM d0 = mlist[ch0];
+            if (d0.isRealDOM())
+            {
+                for (int ch1 = 0; ch1 < ch0; ch1++)
+    	        {
+                    DeployedDOM d1 = mlist[ch1];
+                    if (d1.isRealDOM())
+                    {
+        	            int pid = pairId(d0.channelId, d1.channelId);
+        	            if (pid >= NCH*(NCH-1)/2)
+        	            {
+        	                System.err.println("ERROR - d0/d1: " + ch0 + "/" + ch1);
+        	            }
+        	            double dx = d0.x - d1.x;
+        	            double dy = d0.y - d1.y;
+        	            double dz = d0.z - d1.z;
+        	            double rho2 = dx * dx + dy * dy;
+        	            double dist = Math.sqrt(dz * dz + rho2);
+        	            distanceTabXY[pid] = Math.sqrt(rho2);
+        	            distanceTable[pid] = dist;
+                    }
+    	        }
+            }
+	    }
+	}
+	
 	/**
 	 * Lookup DOM given mainboard Id
 	 * @param mbid input DOM mainboard id - the 12-char hex
@@ -61,6 +127,16 @@ public class DOMRegistry
 	public DeployedDOM getDom(String mbid)
 	{
 		return doms.get(mbid);
+	}
+	
+	/**
+	 * Lookup DOM based on channelID
+	 * @param channelId - 64*string + (module-1)
+	 * @return DeployedDOM object
+	 */
+	public DeployedDOM getDom(short ch)
+	{
+	    return domsByChannelId[ch];
 	}
 
 	/**
@@ -151,9 +227,16 @@ public class DOMRegistry
 		super.endElement(uri, localName, qName);
 		String txt = xmlChars.toString().trim();
 		if (localName.equalsIgnoreCase("dom"))
-			doms.put(currentDOM.mainboardId, new DeployedDOM(currentDOM));
+		{
+			doms.put(currentDOM.mainboardId, currentDOM);
+			if (currentDOM.isRealDOM()) domsByChannelId[currentDOM.channelId] = currentDOM;
+			currentDOM = new DeployedDOM();
+		}
 		else if (localName.equalsIgnoreCase("position"))
+		{
 			currentDOM.location = Integer.parseInt(txt);
+			currentDOM.string   = currentString;
+		}
 		else if (localName.equalsIgnoreCase("channelId"))
 			currentDOM.channelId = Short.parseShort(txt);
 		else if (localName.equalsIgnoreCase("mainBoardId"))
@@ -169,6 +252,28 @@ public class DOMRegistry
 		else if (localName.equalsIgnoreCase("zCoordinate"))
 			currentDOM.z = Double.parseDouble(txt);
 		else if (localName.equalsIgnoreCase("number"))
-			currentDOM.string = Integer.parseInt(txt);
+			currentString = Integer.parseInt(txt);
 	}
+
+    public double distanceBetweenDOMs(String mbid0, String mbid1)
+    {
+        if (mbid0.equals(mbid1)) return 0.0;
+        return distanceTable[pairId(mbid0, mbid1)];
+    }
+    
+    public double distanceXY(String mbid0, String mbid1)
+    {
+        if (mbid0.equals(mbid1)) return 0.0;
+        return distanceTabXY[pairId(mbid0, mbid1)];
+    }
+    
+    public double verticalDistance(String mbid0, String mbid1)
+    {
+        if (mbid0.equals(mbid1)) return 0.0;
+        DeployedDOM d0 = doms.get(mbid0);
+        DeployedDOM d1 = doms.get(mbid1);
+        return d1.z - d0.z;
+    }
+    
+    
 }

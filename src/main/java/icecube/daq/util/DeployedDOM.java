@@ -53,6 +53,11 @@ public class DeployedDOM
 	public double getY() { return y; }
 	public double getZ() { return z; }
 	
+	public boolean isRealDOM() 
+	{
+	    return (string >= 1 && string <= 86) || (string >= 201 && string <= 210);
+	}
+	
 	@Override
 	public String toString()
 	{
