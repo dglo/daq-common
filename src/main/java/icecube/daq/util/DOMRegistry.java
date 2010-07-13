@@ -27,6 +27,8 @@ public class DOMRegistry
 	extends DefaultHandler
 	implements IDOMRegistry
 {
+	private static String cachedPath;
+	private static DOMRegistry cachedRegistry;
 	private StringBuffer xmlChars;
 	private HashMap<String, DeployedDOM> doms;
 	private DeployedDOM[] domsByChannelId;
@@ -52,6 +54,12 @@ public class DOMRegistry
 	ParserConfigurationException,
 	SAXException, IOException
 	{
+		if (cachedRegistry != null && cachedPath != null &&
+			path.equals(cachedPath))
+		{
+			return cachedRegistry;
+		}
+
 		File file = new File(path, DEFAULT_DOM_GEOMETRY);
 		FileInputStream is = new FileInputStream(file);
 		SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -61,7 +69,10 @@ public class DOMRegistry
 		parser.parse(is, reg);
 		
 		reg.tabulateDistances();
-		
+
+		cachedPath = path;
+		cachedRegistry = reg;
+
 		return reg;
 	}
 
