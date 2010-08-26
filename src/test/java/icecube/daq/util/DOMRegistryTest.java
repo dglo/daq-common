@@ -13,7 +13,12 @@ public class DOMRegistryTest
     @Before
     public void setUp() throws Exception
     {
-        registry = DOMRegistry.loadRegistry(System.getenv("PDAQ_HOME") + "/config");
+        String homeDir = System.getenv("PDAQ_HOME");
+        if (homeDir == null) {
+            throw new Error("PDAQ_HOME has not been set");
+        }
+
+        registry = DOMRegistry.loadRegistry(homeDir + "/config");
     }
 
     @Test
