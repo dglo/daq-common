@@ -9,29 +9,40 @@ import org.junit.Test;
 public class DOMRegistryTest
 {
     private DOMRegistry registry;
-    
-    @Before
-    public void setUp() throws Exception
+
+    public boolean load()
     {
         String homeDir = System.getenv("PDAQ_HOME");
-        if (homeDir == null) {
-            throw new Error("PDAQ_HOME has not been set");
+
+        if (homeDir.equals("") || homeDir == null ) {
+               System.err.println("PDAQ_HOME has not been set");
+               return false;
         }
 
         registry = DOMRegistry.loadRegistry(homeDir + "/config");
+        return true;
     }
 
     @Test
     public void testGetDom()
     {
+        if (!load()) {
+            return;
+        }
+
         // Get "Cicero's" record
         DeployedDOM dom = registry.getDom("a18ce1e5b29c");
         assertEquals("Cicero", dom.getName());
+
     }
 
     @Test
     public void testGetChannelId()
-    {   
+    {
+        if (!load()) {
+            return;
+        }
+
         // Let's try "Douglas Mawson"
         short chan = registry.getChannelId("5fa9ebf82828");
         assertEquals(701, (int) chan);
@@ -40,32 +51,37 @@ public class DOMRegistryTest
     @Test
     public void testGetStringMajor()
     {
+        if (!load()) {
+            return;
+        }
+
         // for "Sagigake"
         assertEquals(210, registry.getStringMajor("7ce3bc68a2d6"));
-        
     }
 
     @Test
     public void testGetStringMinor()
     {
+        if (!load()) {
+            return;
+        }
+
         // for "Sagigake"
         assertEquals(63, registry.getStringMinor("7ce3bc68a2d6"));
     }
 
     @Test
-    public void testPairID()
-    {
-    }
-    
-    @Test
     public void testDistanceBetweenDOMs()
     {
-        
+        if (!load()) {
+            return;
+        }
+
         for (int ich = 65; ich < 64*87; ich++)
         {
-            
+
             DeployedDOM d1 = registry.getDom((short) ich);
-            if (d1 != null) 
+            if (d1 != null)
             {
             for (int jch = 64; jch < ich; jch++)
                 {
@@ -82,5 +98,4 @@ public class DOMRegistryTest
             }
         }
     }
-
 }
