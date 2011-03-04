@@ -11,6 +11,7 @@ public class DOMRegistryTest
     private DOMRegistry registry;
 
     public boolean load()
+        throws Exception
     {
         String homeDir = System.getenv("PDAQ_HOME");
 
@@ -25,6 +26,7 @@ public class DOMRegistryTest
 
     @Test
     public void testGetDom()
+        throws Exception
     {
         if (!load()) {
             return;
@@ -38,6 +40,7 @@ public class DOMRegistryTest
 
     @Test
     public void testGetChannelId()
+        throws Exception
     {
         if (!load()) {
             return;
@@ -50,6 +53,7 @@ public class DOMRegistryTest
 
     @Test
     public void testGetStringMajor()
+        throws Exception
     {
         if (!load()) {
             return;
@@ -61,6 +65,7 @@ public class DOMRegistryTest
 
     @Test
     public void testGetStringMinor()
+        throws Exception
     {
         if (!load()) {
             return;
@@ -72,6 +77,7 @@ public class DOMRegistryTest
 
     @Test
     public void testDistanceBetweenDOMs()
+        throws Exception
     {
         if (!load()) {
             return;
