@@ -15,7 +15,7 @@ public class DOMRegistryTest
     {
         String homeDir = System.getenv("PDAQ_HOME");
 
-        if (homeDir.equals("") || homeDir == null ) {
+        if (homeDir == null || homeDir.equals("")) {
                System.err.println("PDAQ_HOME has not been set");
                return false;
         }
