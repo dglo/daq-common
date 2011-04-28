@@ -22,4 +22,15 @@
     <url>http://code.icecube.wisc.edu/daq/projects/${project.name}</url>
   </scm>
 
+  <build>
+   <plugins>
+     <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-surefire-plugin</artifactId>
+       <configuration>
+         <argLine>-Xms512m -Xmx512m</argLine>
+       </configuration>
+     </plugin>
+   </plugins>
+  </build>
 </project>

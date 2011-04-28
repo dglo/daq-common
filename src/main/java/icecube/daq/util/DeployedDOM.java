@@ -8,7 +8,7 @@ package icecube.daq.util;
 
 public class DeployedDOM
 {
-	int channelId;
+	short channelId;
 	String mainboardId;
 	String domId;
 	String name;
@@ -37,7 +37,7 @@ public class DeployedDOM
 		z 			= dom.z;
 	}
 
-	public int getChannelId() { return channelId; }
+	public short getChannelId() { return channelId; }
 
 	public String getMainboardId() { return mainboardId; }
 
@@ -52,6 +52,11 @@ public class DeployedDOM
 	public double getX() { return x; }
 	public double getY() { return y; }
 	public double getZ() { return z; }
+	
+	public boolean isRealDOM() 
+	{
+	    return (string >= 1 && string <= 86) || (string >= 201 && string <= 210);
+	}
 	
 	@Override
 	public String toString()
