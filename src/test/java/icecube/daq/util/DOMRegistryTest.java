@@ -14,22 +14,27 @@ public class DOMRegistryTest
     public void testCreate()
 	throws Exception
     {	
-	DOMRegistry dom = new DOMRegistry();
+	final String mbid ="1234";
 
-	assertEquals("Get ChannelID", (short)0, dDOM1.getChannelId());
-	assertEquals("Get MainboardId", null, dDOM1.getMainboardId());
-	assertEquals("Get DomId", null, dDOM1.getDomId());
-	assertEquals("Get Name", null, dDOM1.getName());
-	assertEquals("Get String Major", 0, dDOM1.getStringMajor());
-	assertEquals("Get String Minor", 0, dDOM1.getStringMinor());
-	assertEquals("Get X", (double)0, dDOM1.getX());
-	assertEquals("Get Y", (double)0, dDOM1.getY());
-	assertEquals("Get Z", (double)0, dDOM1.getZ());
-	assertEquals("Is real DOM", false, dDOM1.isRealDOM());
-	//assertEquals("Get hash code", 0, dDOM1.hashCode());
-	//assertEquals("Equals", true, dDOM1.equals(dDOM1));	
-	assertNotNull("String", dDOM1.toString());
+	DOMRegistry dom = new DOMRegistry();
+	DeployedDOM dDOM ;
+	DeployedDOM dDOM1 = new DeployedDOM(dDOM);
 	
+	//assertEquals("Get hash code", 0, dDOM1.hashCode());
+	assertEquals("Pair ID", 1, dom.pairId( 1, 1));	
+	assertEquals("Pair ID", 1, dom.pairId( null, null));	
+	assertNotNull("DOM Registry", dom.loadRegistry( null));
+
+	//dom.tabulateDistances();
+
+	dDOM = dom.getDom( "1234");
+	assertNotNull("Deployed DOM", dom.getDom((short)1));
+	assertEquals("get Dom Id", "1234", dom.getDomId(mbid));
+	assertEquals("get Channel Id", (short)0, dom.getChannelId(mbid));
+	assertEquals("Get Name", null, dom.getName(mbid));
+	assertEquals("Get String Major", 0, dom.getStringMajor(mbid));
+	assertEquals("Get String Minor", 0, dom.getStringMinor(mbid));
+	assertEquals("Get DeploymentLocation", 0, dom.getDeploymentLocation(mbid));
     }
    
 }
