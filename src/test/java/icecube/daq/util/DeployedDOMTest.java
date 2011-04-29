@@ -7,15 +7,16 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import junit.framework.*;
 
-public class DOMRegistryTest
+public class DeployedDOMTest
 	
 {
     @Test
     public void testCreate()
 	throws Exception
     {	
-	DOMRegistry dom = new DOMRegistry();
-
+	DeployedDOM dDOM = new DeployedDOM();
+	DeployedDOM dDOM1 = new DeployedDOM(dDOM);
+	
 	assertEquals("Get ChannelID", (short)0, dDOM1.getChannelId());
 	assertEquals("Get MainboardId", null, dDOM1.getMainboardId());
 	assertEquals("Get DomId", null, dDOM1.getDomId());
