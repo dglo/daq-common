@@ -6,19 +6,23 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.util.HashMap;
+import java.lang.reflect.Field;
+import org.xml.sax.helpers.DefaultHandler;
 
 import org.junit.Test;
 import junit.framework.*;
+import java.util.Set;
 
 class MockDOMRegistry
+    extends DefaultHandler
     implements IDOMRegistry
 {
-    private HashMap<String, DeployedDOM> doms = new HashMap<String, DeployedDOM>();
+    private HashMap<String, DeployedDOM> map = new HashMap<String, DeployedDOM>();
 
-    public void addEntry(long domId, int chanId)
+    public void addEntry(DeployedDOM dDOM,DeployedDOM dDOM1)
     {
-	doms.put("1234", dDOM);
-        doms.put("2345", dDOM1);
+	map.put("1234", dDOM);
+        map.put("2345", dDOM1);
 	
     }
 
@@ -29,11 +33,8 @@ class MockDOMRegistry
 
     public short getChannelId(String mbid)
     {
-        if (!map.containsKey(mbid)) {
-            return -1;
-        }
-
-        return map.get(mbid).shortValue();
+       return -1;
+        
     }
 
     public int getStringMajor(String mbid)
@@ -72,23 +73,16 @@ public class DOMRegistryTest
 	dDOM.channelId = chanId;
 	dDOM1.channelId = chanId;
 
-	HashMap<String, DeployedDOM> doms = new HashMap<String, DeployedDOM>()
-	    {
-		{
-		    put("1234", dDOM);
-		    put("2345", dDOM1);
-		}
-            };
-
 	DOMRegistry dom = new DOMRegistry();
+	Field field = DOMRegistry.class.getDeclaredField("doms");
+	field.setAccessible(true);
+	field.set(field.put("1234",dDOM));
 
-	//dom.doms = doms;
+	
 	
 	assertEquals("Pair ID", 5567, dom.pairId( 1, 2));	
-	assertEquals("Pair ID", 1, dom.pairId( null, null));	
-	assertNotNull("DOM Registry", dom.loadRegistry("/home/pavithra/pdaq/config"));
-
-	//dom.tabulateDistances();
+	//assertEquals("Pair ID", 1, dom.pairId( null, null));	
+	//assertNotNull("DOM Registry", dom.loadRegistry("/home/pavithra/pdaq/config"));
 
 	assertNull("Deployed DOM", dom.getDom( mbid));
 	assertNull("Deployed DOM", dom.getDom((short)1));
