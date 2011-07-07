@@ -7,24 +7,41 @@ import org.junit.Test;
 import junit.framework.*;
 
 public class RealTimeRateMeterTest
-	
 {
+    private double computeRate(double sum, long interval)
+    {
+        return sum / interval * 1.0E10;
+    }
+
+    private long computeTime(long utc, long interval)
+    {
+        return (utc / interval * interval) - interval;
+    }
+
     @Test
     public void testCreate()
 	throws Exception
     {
-        final long interval = 1234L;
-	final long utc = 2468L;
-	final double wt = 50.00;
-	
+        final long interval = 3L;
+
 	RealTimeRateMeter rtm = new RealTimeRateMeter(interval);
 
-	rtm.recordEvent( utc, wt);
-	rtm.recordEvent( utc);
+	assertEquals("Get rate0", 0.00, rtm.getRate());
+	assertEquals("Get Time0", 0L - interval, rtm.getTime());
 
-	assertEquals("Get rate", 0.00, rtm.getRate());
-	assertEquals("Get Time", interval, rtm.getTime());
-	
+	final long utc = 2468L;
+	final double wt = 50.00;
+
+	rtm.recordEvent(utc, wt);
+
+	assertEquals("Get rate1", computeRate(0.00, interval), rtm.getRate());
+	assertEquals("Get Time1", computeTime(utc, interval), rtm.getTime());
+
+        final long utc2 = utc + 1000L;
+
+	rtm.recordEvent(utc2);
+
+	assertEquals("Get rate2", computeRate(wt, interval), rtm.getRate());
+	assertEquals("Get Time2", computeTime(utc2, interval), rtm.getTime());
     }
-   
 }

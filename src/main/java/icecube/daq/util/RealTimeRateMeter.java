@@ -1,7 +1,7 @@
 package icecube.daq.util;
 
 /**
- * A super-simple class which will track DAQ stream rates based 
+ * A super-simple class which will track DAQ stream rates based
  * not on wall-clock time but rather the time embedded in the
  * data packets.  Because of buffering in the DAQ system, the
  * rates based on wall-clock time are not very accurate.
@@ -14,14 +14,14 @@ public class RealTimeRateMeter
     long   interval;
     long   lastTime;
     double rate;
-    
+
     public RealTimeRateMeter(long interval)
     {
         this.interval   = interval;
         sum             = 0.0;
-        lastTime        = 0L; 
+        lastTime        = 0L;
     }
-    
+
     public void recordEvent(long utc, double wt)
     {
         long dt = utc - lastTime;
@@ -33,14 +33,14 @@ public class RealTimeRateMeter
         }
         sum += wt;
     }
-    
+
     public void recordEvent(long utc)
     {
         recordEvent(utc, 1.0);
     }
-    
+
     /**
-     * Obtain the rate in units of 
+     * Obtain the rate in units of
      * @return
      */
     public double getRate()
@@ -56,5 +56,4 @@ public class RealTimeRateMeter
     {
         return lastTime - interval;
     }
-    
 }

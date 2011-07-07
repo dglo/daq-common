@@ -1,86 +1,107 @@
 package icecube.daq.util;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
-import java.util.HashMap;
-import java.lang.reflect.Method;
-import java.lang.reflect.Field;
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.Attributes;
-
+import org.junit.Before;
 import org.junit.Test;
-import junit.framework.*;
-import java.util.Set;
 
 public class DOMRegistryTest
-	
 {
-    @Test
-    public void testCreate()
-	throws Exception,IllegalAccessException
-    {	
-	final String mbid = "1234";
-	final String mbid1 = "2345";
-	final short chanId = 1;
-	final char[] ch = {'1','2'};
-	Attributes attributes ;
+    private DOMRegistry registry;
 
-	final DeployedDOM dDOM = new DeployedDOM();
-	final DeployedDOM dDOM1 = new DeployedDOM();
-	DeployedDOM[] dDOMs = new DeployedDOM[2];
-	dDOM.channelId = chanId;
-	dDOM1.channelId = chanId;
-	dDOMs[1] = dDOM; 
+    public boolean load()
+        throws Exception
+    {
+        String homeDir = System.getenv("PDAQ_HOME");
 
-	HashMap<String, DeployedDOM> map = new HashMap<String, DeployedDOM>();
-	map.put(mbid, dDOM);
-        map.put(mbid1, dDOM1);
+        if (homeDir == null || homeDir.equals("")) {
+               System.err.println("PDAQ_HOME has not been set");
+               return false;
+        }
 
-	DOMRegistry dom = new DOMRegistry();
-	Field field = DOMRegistry.class.getDeclaredField("doms");
-	field.setAccessible(true);
-	field.set(dom,map);
-
-	Field field1 = DOMRegistry.class.getDeclaredField("domsByChannelId");
-	field1.setAccessible(true);
-	field1.set(dom,dDOMs);
-
-	Method method = DOMRegistry.class.getDeclaredMethod("tabulateDistances");
-	method.setAccessible(true);
-	method.invoke(dom);
-	
-	assertEquals("Pair ID", 5567, dom.pairId( 1, 2));	
-	assertEquals("Pair ID", 5566, dom.pairId( mbid, mbid1));	
-	//assertNotNull("DOM Registry", dom.loadRegistry("/home/pavithra/pdaq/config"));
-
-	assertNotNull("Deployed DOM", dom.getDom( mbid));
-	assertNotNull("Deployed DOM", dom.getDom((short)chanId));
-	assertEquals("get Dom Id", null, dom.getDomId(mbid));
-	assertEquals("get Channel Id", (short)1, dom.getChannelId(mbid));
-	assertEquals("Get Name", null, dom.getName(mbid));
-	assertEquals("Get String Major", 0, dom.getStringMajor(mbid));
-	assertEquals("Get String Minor", 0, dom.getStringMinor(mbid));
-	//assertNotNull("Get DeploymentLocation", dom.getDeploymentLocation(mbid));
-	assertNotNull("Get Keys", dom.keys());
-	assertNotNull("Get Keys", dom.getDomsOnString(1234));
-	assertEquals("distance Between DOMs", 0.0 , dom.distanceBetweenDOMs( mbid, mbid1));
-	assertEquals("distance Between DOMs", 0.0 , dom.distanceXY( mbid, mbid1));
-	assertEquals("distance Between DOMs", 0.0 , dom.verticalDistance( mbid, mbid1));
-	dom.characters(ch, 0, 1);
-	dom.endElement(null,"dom","dom");	
-	dom.endElement(null,"position","dom");
-	dom.endElement(null,"channelId","dom");
-	dom.endElement(null,"mainBoardId","dom");
-	dom.endElement(null,"name","dom");
-	dom.endElement(null,"productionId","dom");
-	dom.endElement(null,"xCoordinate","dom");
-	dom.endElement(null,"yCoordinate","dom");
-	dom.endElement(null,"zCoordinate","dom");
-	dom.endElement(null,"number","dom");
-	dom.startElement(null, "dom", "dom", null);
+        registry = DOMRegistry.loadRegistry(homeDir + "/config");
+        return true;
     }
-   
+
+    @Test
+    public void testGetDom()
+        throws Exception
+    {
+        if (!load()) {
+            return;
+        }
+
+        // Get "Cicero's" record
+        DeployedDOM dom = registry.getDom("a18ce1e5b29c");
+        assertEquals("Cicero", dom.getName());
+
+    }
+
+    @Test
+    public void testGetChannelId()
+        throws Exception
+    {
+        if (!load()) {
+            return;
+        }
+
+        // Let's try "Douglas Mawson"
+        short chan = registry.getChannelId("5fa9ebf82828");
+        assertEquals(701, (int) chan);
+    }
+
+    @Test
+    public void testGetStringMajor()
+        throws Exception
+    {
+        if (!load()) {
+            return;
+        }
+
+        // for "Sagigake"
+        assertEquals(210, registry.getStringMajor("7ce3bc68a2d6"));
+    }
+
+    @Test
+    public void testGetStringMinor()
+        throws Exception
+    {
+        if (!load()) {
+            return;
+        }
+
+        // for "Sagigake"
+        assertEquals(63, registry.getStringMinor("7ce3bc68a2d6"));
+    }
+
+    @Test
+    public void testDistanceBetweenDOMs()
+        throws Exception
+    {
+        if (!load()) {
+            return;
+        }
+
+        for (int ich = 65; ich < 64*87; ich++)
+        {
+
+            DeployedDOM d1 = registry.getDom((short) ich);
+            if (d1 != null)
+            {
+            for (int jch = 64; jch < ich; jch++)
+                {
+                    DeployedDOM d2 = registry.getDom((short) jch);
+                    if (d2 != null)
+                    {
+                        double dx = d2.x - d1.x;
+                        double dy = d2.y - d1.y;
+                        double dz = d2.z - d1.z;
+                        double dist = Math.sqrt(dx*dx+dy*dy+dz*dz);
+                        assertEquals(dist, registry.distanceBetweenDOMs(d1.mainboardId, d2.mainboardId), 0.001);
+                    }
+                }
+            }
+        }
+    }
 }
