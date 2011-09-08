@@ -8,73 +8,105 @@ package icecube.daq.util;
 
 public class DeployedDOM
 {
-	short channelId;
-	String mainboardId;
-	String domId;
-	String name;
-	int string;
-	int location;
-	double x;
-	double y;
-	double z;
+    short channelId;
+    String mainboardId;
+    String domId;
+    String name;
+    int string;
+    int location;
+    double x;
+    double y;
+    double z;
 
-	/** Constructor only for package peers */
-	DeployedDOM() { }
+    /** Constructor only for package peers */
+    DeployedDOM() 
+    { 
+    }
 
-	/**
-	 * Copy construtor.
-	 */
-	DeployedDOM(DeployedDOM dom)
-	{
-		channelId  	= dom.channelId;
-		mainboardId	= dom.mainboardId;
-		domId 		= dom.domId;
-		name  		= dom.name;
-		string 		= dom.string;
-		location 	= dom.location;
-		x			= dom.x;
-		y			= dom.y;
-		z 			= dom.z;
-	}
+    /**
+     * Copy construtor.
+     */
+    DeployedDOM(DeployedDOM dom)
+    {
+        channelId      = dom.channelId;
+        mainboardId    = dom.mainboardId;
+        domId         = dom.domId;
+        name          = dom.name;
+        string         = dom.string;
+        location     = dom.location;
+        x            = dom.x;
+        y            = dom.y;
+        z             = dom.z;
+    }
 
-	public short getChannelId() { return channelId; }
+    public short getChannelId() 
+    {
+        return channelId; 
+    }
 
-	public String getMainboardId() { return mainboardId; }
+    public String getMainboardId() 
+    { 
+        return mainboardId; 
+    }
 
-	public String getDomId() { return domId; }
+    public String getDomId() 
+    { 
+        return domId; 
+    }
 
-	public String getName() { return name; }
+    public String getName() 
+    {
+        return name; 
+    }
 
-	public int getStringMajor() { return string; }
+    public int getStringMajor()  
+    { 
+        return string; 
+    }
 
-	public int getStringMinor() { return location; }
+    public int getStringMinor()
+    { 
+        return location; 
+    }
 
-	public double getX() { return x; }
-	public double getY() { return y; }
-	public double getZ() { return z; }
-	
-	public boolean isRealDOM() 
-	{
-	    return (string >= 1 && string <= 86) || (string >= 201 && string <= 210);
-	}
-	
-	@Override
-	public String toString()
-	{
-	    return domId + "[" + mainboardId + "]" + channelId + " '" + name +
+    public double getX() 
+    { 
+        return x; 
+    }
+
+    public double getY() 
+    { 
+        return y; 
+    }
+
+    public double getZ() 
+    { 
+        return z; 
+    }
+    
+    public boolean isRealDOM() 
+    {
+        return (string >= 1 && string <= 86) || 
+            (string >= 201 && string <= 210);
+    }
+    
+    @Override
+    public String toString()
+    {
+        return domId + "[" + mainboardId + "]" + channelId + " '" + name +
                 "' at " + String.format("%02d-%02d", string, location);
-	}
+    }
 
-	@Override
-	public boolean equals(Object obj)
-	{
-	    return (obj instanceof DeployedDOM && 
-	            ((DeployedDOM) obj).mainboardId.equals(mainboardId));
-	}
-	
-	@Override
-	public int hashCode()
-	{
-	     return mainboardId.hashCode();
-	}
+    @Override
+    public boolean equals(Object obj)
+    {
+        return (obj instanceof DeployedDOM && 
+                ((DeployedDOM) obj).mainboardId.equals(mainboardId));
+    }
+    
+    @Override
+    public int hashCode()
+    {
+        return mainboardId.hashCode();
+    }
 }
