@@ -52,12 +52,12 @@ public class DeployedDOM
 	public double getX() { return x; }
 	public double getY() { return y; }
 	public double getZ() { return z; }
-	
-	public boolean isRealDOM() 
+
+	public boolean isRealDOM()
 	{
-	    return (string >= 1 && string <= 86) || (string >= 201 && string <= 210);
+	    return (string >= 1 && string <= 86) || (string >= 201 && string <= 211);
 	}
-	
+
 	@Override
 	public String toString()
 	{
@@ -68,10 +68,10 @@ public class DeployedDOM
 	@Override
 	public boolean equals(Object obj)
 	{
-	    return (obj instanceof DeployedDOM && 
+	    return (obj instanceof DeployedDOM &&
 	            ((DeployedDOM) obj).mainboardId.equals(mainboardId));
 	}
-	
+
 	@Override
 	public int hashCode()
 	{
