@@ -1,7 +1,7 @@
 /*
  * class: CmdInterface
  *
- * Version $Id: DAQCmdInterface.java 13359 2011-09-15 22:29:34Z dglo $
+ * Version $Id: DAQCmdInterface.java 12415 2010-11-30 03:55:58Z dglo $
  *
  * Date: March 8 2004
  *
@@ -13,7 +13,7 @@ package icecube.daq.common;
 /**
  * This class defines constants that are used through the DAQ software.
  *
- * @version $Id: DAQCmdInterface.java 13359 2011-09-15 22:29:34Z dglo $
+ * @version $Id: DAQCmdInterface.java 12415 2010-11-30 03:55:58Z dglo $
  * @author mcp
  */
 public interface DAQCmdInterface
@@ -57,6 +57,13 @@ public interface DAQCmdInterface
             "simHub";
     String DAQ_TRACK_ENGINE =
             "trackEngine";
+
+    String DAQ_ONLINE_RUNSTART_FLAG =
+            "RunStart:";
+    String DAQ_ONLINE_RUNSTOP_FLAG =
+            "RunStop:";
+    String DAQ_ONLINE_SUBRUNSTART_FLAG =
+            "SubrunStart:";
 
     String SOURCE = "source";
     String SINK = "sink";

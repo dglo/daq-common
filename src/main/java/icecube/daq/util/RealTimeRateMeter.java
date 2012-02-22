@@ -25,7 +25,8 @@ public class RealTimeRateMeter
     public void recordEvent(long utc, double wt)
     {
         long dt = utc - lastTime;
-        if (dt > interval) {
+        if (dt > interval)
+        {
             rate     = sum / interval * 1.0E10;
             lastTime = utc / interval * interval;
             sum      = 0.0;
