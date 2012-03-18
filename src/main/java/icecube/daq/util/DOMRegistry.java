@@ -264,6 +264,8 @@ public class DOMRegistry
 			currentDOM.z = Double.parseDouble(txt);
 		else if (localName.equalsIgnoreCase("number"))
 			currentString = Integer.parseInt(txt);
+		else if (localName.equals("originalString"))
+		    currentString = Integer.parseInt(txt);
 	}
 
     public double distanceBetweenDOMs(String mbid0, String mbid1)
