@@ -240,17 +240,20 @@ public class DOMRegistry
 		String txt = xmlChars.toString().trim();
 		if (localName.equalsIgnoreCase("dom"))
 		{
-			doms.put(currentDOM.mainboardId, currentDOM);
-			if (currentDOM.isRealDOM()) domsByChannelId[currentDOM.channelId] = currentDOM;
-			currentDOM = new DeployedDOM();
-		}
-		else if (localName.equalsIgnoreCase("position"))
-		{
-			currentDOM.location   = Integer.parseInt(txt);
 			if (originalString > 0)
 				currentDOM.string = originalString;
 			else
 				currentDOM.string = currentString;
+
+			doms.put(currentDOM.mainboardId, currentDOM);
+			if (currentDOM.isRealDOM()) domsByChannelId[currentDOM.channelId] = currentDOM;
+
+			currentDOM = new DeployedDOM();
+			originalString = 0;
+		}
+		else if (localName.equalsIgnoreCase("position"))
+		{
+			currentDOM.location   = Integer.parseInt(txt);
 		}
 		else if (localName.equalsIgnoreCase("channelId"))
 			currentDOM.channelId = Short.parseShort(txt);
