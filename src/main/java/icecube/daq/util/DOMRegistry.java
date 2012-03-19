@@ -34,6 +34,7 @@ public class DOMRegistry
 	private DeployedDOM[] domsByChannelId;
 	private DeployedDOM currentDOM;
 	private int currentString;
+	private int originalString;
 	private static final String DEFAULT_DOM_GEOMETRY = "default-dom-geometry.xml";
     private static final int NCH = 87*64;
 	private double distanceTable[];
@@ -245,8 +246,11 @@ public class DOMRegistry
 		}
 		else if (localName.equalsIgnoreCase("position"))
 		{
-			currentDOM.location = Integer.parseInt(txt);
-			currentDOM.string   = currentString;
+			currentDOM.location   = Integer.parseInt(txt);
+			if (originalString > 0)
+				currentDOM.string = originalString;
+			else
+				currentDOM.string = currentString;
 		}
 		else if (localName.equalsIgnoreCase("channelId"))
 			currentDOM.channelId = Short.parseShort(txt);
@@ -265,7 +269,7 @@ public class DOMRegistry
 		else if (localName.equalsIgnoreCase("number"))
 			currentString = Integer.parseInt(txt);
 		else if (localName.equals("originalString"))
-		    currentString = Integer.parseInt(txt);
+		    originalString = Integer.parseInt(txt);
 	}
 
     public double distanceBetweenDOMs(String mbid0, String mbid1)
