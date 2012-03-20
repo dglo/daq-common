@@ -35,7 +35,7 @@ public class DOMRegistryTest
         // Get "Cicero's" record
         DeployedDOM dom = registry.getDom("a18ce1e5b29c");
         assertEquals("Cicero", dom.getName());
-
+        assertEquals(0xa18ce1e5b29cL, dom.getNumericMainboardId());
     }
 
     @Test
@@ -59,8 +59,8 @@ public class DOMRegistryTest
             return;
         }
 
-        // for "Sagigake"
-        assertEquals(210, registry.getStringMajor("7ce3bc68a2d6"));
+        // for "Sakigake"
+        assertEquals(51, registry.getStringMajor("7ce3bc68a2d6"));
     }
 
     @Test
@@ -71,8 +71,15 @@ public class DOMRegistryTest
             return;
         }
 
-        // for "Sagigake"
+        // for "Sakigake"
         assertEquals(63, registry.getStringMinor("7ce3bc68a2d6"));
+    }
+    
+    @Test
+    public void testGetHubId() throws Exception
+    {
+        if (!load()) return;
+        assertEquals(210, registry.getDom("7ce3bc68a2d6").getHubId());
     }
 
     @Test

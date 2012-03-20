@@ -33,7 +33,7 @@ public class DOMRegistry
 	private HashMap<String, DeployedDOM> doms;
 	private DeployedDOM[] domsByChannelId;
 	private DeployedDOM currentDOM;
-	private int currentString;
+	private int currentHubId;
 	private int originalString;
 	private static final String DEFAULT_DOM_GEOMETRY = "default-dom-geometry.xml";
     private static final int NCH = 87*64;
@@ -240,10 +240,12 @@ public class DOMRegistry
 		String txt = xmlChars.toString().trim();
 		if (localName.equalsIgnoreCase("dom"))
 		{
+		    currentDOM.hubId = currentHubId;
+		    
 			if (originalString > 0)
 				currentDOM.string = originalString;
 			else
-				currentDOM.string = currentString;
+				currentDOM.string = currentHubId;
 
 			doms.put(currentDOM.mainboardId, currentDOM);
 			if (currentDOM.isRealDOM()) domsByChannelId[currentDOM.channelId] = currentDOM;
@@ -258,7 +260,10 @@ public class DOMRegistry
 		else if (localName.equalsIgnoreCase("channelId"))
 			currentDOM.channelId = Short.parseShort(txt);
 		else if (localName.equalsIgnoreCase("mainBoardId"))
+		{
 			currentDOM.mainboardId = txt;
+			currentDOM.numericMainboardId = Long.parseLong(currentDOM.mainboardId, 16);
+		}
 		else if (localName.equalsIgnoreCase("name"))
 			currentDOM.name = txt;
 		else if (localName.equalsIgnoreCase("productionId"))
@@ -270,7 +275,7 @@ public class DOMRegistry
 		else if (localName.equalsIgnoreCase("zCoordinate"))
 			currentDOM.z = Double.parseDouble(txt);
 		else if (localName.equalsIgnoreCase("number"))
-			currentString = Integer.parseInt(txt);
+			currentHubId = Integer.parseInt(txt);
 		else if (localName.equals("originalString"))
 		    originalString = Integer.parseInt(txt);
 	}
