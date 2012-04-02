@@ -68,7 +68,7 @@ public class DOMRegistry
 		SAXParser parser = factory.newSAXParser();
 		DOMRegistry reg = new DOMRegistry();
 		parser.parse(is, reg);
-		
+
 		reg.tabulateDistances();
 
 		cachedPath = path;
@@ -92,14 +92,14 @@ public class DOMRegistry
         }
 	    return ch2 * NCH + ch1 - (ch2+1)*(ch2+2)/2;
 	}
-	
+
 	public int pairId(String mbid1, String mbid2)
 	{
         int ch1 = doms.get(mbid1).channelId;
         int ch2 = doms.get(mbid2).channelId;
         return pairId(ch1, ch2);
 	}
-	
+
 	private void tabulateDistances()
 	{
 	    DeployedDOM mlist[] = doms.values().toArray(new DeployedDOM[0]);
@@ -130,7 +130,7 @@ public class DOMRegistry
             }
 	    }
 	}
-	
+
 	/**
 	 * Lookup DOM given mainboard Id
 	 * @param mbid input DOM mainboard id - the 12-char hex
@@ -140,7 +140,7 @@ public class DOMRegistry
 	{
 		return doms.get(mbid);
 	}
-	
+
 	/**
 	 * Lookup DOM based on channelID
 	 * @param channelId - 64*string + (module-1)
@@ -210,10 +210,10 @@ public class DOMRegistry
 		return doms.keySet();
 	}
 
-	public Set<DeployedDOM> getDomsOnString(int string)
+	public Set<DeployedDOM> getDomsOnHub(int hubId)
 	{
 		HashSet<DeployedDOM> rlist = new HashSet<DeployedDOM>(60);
-		for (DeployedDOM dom : doms.values()) if (string == dom.string) rlist.add(dom);
+		for (DeployedDOM dom : doms.values()) if (hubId == dom.hubId) rlist.add(dom);
 		return rlist;
 	}
 
@@ -241,7 +241,7 @@ public class DOMRegistry
 		if (localName.equalsIgnoreCase("dom"))
 		{
 		    currentDOM.hubId = currentHubId;
-		    
+
 			if (originalString > 0)
 				currentDOM.string = originalString;
 			else
@@ -285,13 +285,13 @@ public class DOMRegistry
         if (mbid0.equals(mbid1)) return 0.0;
         return distanceTable[pairId(mbid0, mbid1)];
     }
-    
+
     public double distanceXY(String mbid0, String mbid1)
     {
         if (mbid0.equals(mbid1)) return 0.0;
         return distanceTabXY[pairId(mbid0, mbid1)];
     }
-    
+
     public double verticalDistance(String mbid0, String mbid1)
     {
         if (mbid0.equals(mbid1)) return 0.0;
@@ -299,6 +299,6 @@ public class DOMRegistry
         DeployedDOM d1 = doms.get(mbid1);
         return d1.z - d0.z;
     }
-    
-    
+
+
 }
