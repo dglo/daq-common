@@ -1,5 +1,7 @@
 package icecube.daq.util;
 
+import java.io.File;
+
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -7,17 +9,23 @@ import org.junit.Test;
 
 public class leapsecondsTest {
     private static String homeDir = System.getenv("PDAQ_HOME");
-    private static String config_path;
 
-    public leapseconds load(String fname, int year) throws IllegalArgumentException {
-	if (homeDir == null || homeDir.equals("")) {
-	    System.err.println("PDAQ_HOME has not been set");
-	    homeDir="~/";
-	}
+    public leapseconds load(String fname, int year)
+        throws IllegalArgumentException
+    {
+        if (homeDir == null || homeDir.equals("")) {
+            System.err.println("PDAQ_HOME has not been set");
+            return null;
+        }
 
-	config_path = homeDir + "/config/nist";
+        File config_file =
+            new File(new File(new File(homeDir, "config"), "nist"), fname);
+        if (!config_file.exists()) {
+            throw new IllegalArgumentException("Cannot file \"" + fname +
+                                               "\"");
+        }
 
-	return new leapseconds(config_path+fname, year);
+        return new leapseconds(config_file.getPath(), year);
     }
 
     public leapsecondsTest() {
@@ -31,11 +39,14 @@ public class leapsecondsTest {
         boolean pass=false;
         try {
             leapseconds test = load("/junk1234156", 1972);
+            if (test == null) {
+                return;
+            }
         } catch (IllegalArgumentException e) {
             pass=true;
         }
         assertTrue(pass);
-   }
+    }
 
     /* test that the get_days_in_year method works
      */
@@ -48,6 +59,9 @@ public class leapsecondsTest {
                         2003, 2002, 2001, 1999, 1998, 1997, 1995, 1994, 1993 };
 
         leapseconds test = load("/leap-seconds.3535228800", 1972);
+        if (test == null) {
+            return;
+        }
 
         for(int index=0; index< leap_years.length; index++) {
             assertTrue(test.get_days_in_year(leap_years[index])==366);
@@ -66,6 +80,9 @@ public class leapsecondsTest {
         boolean pass=false;
         try {
             leapseconds test = load("/leap-seconds.3535228800", 1960);
+            if (test == null) {
+                return;
+            }
         } catch (IllegalArgumentException e) {
             pass=true;
         }
@@ -80,6 +97,9 @@ public class leapsecondsTest {
         boolean pass=false;
         try {
             leapseconds test = load("/leap-seconds.3535228800", 3020);
+            if (test == null) {
+                return;
+            }
         } catch (IllegalArgumentException e) {
             pass=true;
         }
@@ -117,6 +137,9 @@ public class leapsecondsTest {
             int year = years[index];
 
             leapseconds test = load("/leap-seconds.3535228800", year);
+            if (test == null) {
+                return;
+            }
 
             int limit = test.get_days_in_year(year)+1;
             for(int index2=0; index2<limit; index2++) {
@@ -132,6 +155,9 @@ public class leapsecondsTest {
     @Test
     public void test2012() {
         leapseconds test = load("/leap-seconds.3535228800", 2012);
+        if (test == null) {
+            return;
+        }
 
         double jan1mjd = test.mjd(2012, 1, 1.0);
         double jul1mjd = test.mjd(2012, 7, 1.);
@@ -161,6 +187,9 @@ public class leapsecondsTest {
     @Test
     public void test_seconds_in_year() {
         leapseconds test = load("/leap-seconds.3535228800", 1972);
+        if (test == null) {
+            return;
+        }
 
         assertTrue(test.seconds_in_year(2008)==31622401L);
         assertTrue(test.seconds_in_year(2011)==31536000L);
@@ -194,6 +223,9 @@ public class leapsecondsTest {
     @Test
     public void test1972() {
         leapseconds test = load("/leap-seconds.3535228800", 1972);
+        if (test == null) {
+            return;
+        }
 
         /* calculate the interesting day of year numbers */
         double jan1mjd = test.mjd(1972, 1, 1.);
