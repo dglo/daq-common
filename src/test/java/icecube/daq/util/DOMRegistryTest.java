@@ -1,5 +1,7 @@
 package icecube.daq.util;
 
+import java.io.File;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -20,7 +22,7 @@ public class DOMRegistryTest
                return false;
         }
 
-        registry = DOMRegistry.loadRegistry(homeDir + "/config");
+        registry = DOMRegistry.loadRegistry(new File(homeDir, "config"));
         return true;
     }
 

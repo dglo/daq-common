@@ -4,6 +4,7 @@ package icecube.daq.util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +28,7 @@ public class DOMRegistry
 	extends DefaultHandler
 	implements IDOMRegistry
 {
-	private static String cachedPath;
+	private static File cachedPath;
 	private static DOMRegistry cachedRegistry;
 	private StringBuffer xmlChars;
 	private HashMap<String, DeployedDOM> doms;
@@ -51,9 +52,20 @@ public class DOMRegistry
 		distanceTabXY = new double[NCH*(NCH-1)/2];
 	}
 
-	public static DOMRegistry loadRegistry(String path) throws
-	ParserConfigurationException,
-	SAXException, IOException
+	public static DOMRegistry loadRegistry(String path)
+		throws ParserConfigurationException, SAXException, IOException
+	{
+		File f = new File(path);
+		if (!f.exists()) {
+			throw new FileNotFoundException("Registry does not exist in \"" +
+											path + "\"");
+		}
+
+		return loadRegistry(f);
+	}
+
+	public static DOMRegistry loadRegistry(File path)
+		throws ParserConfigurationException, SAXException, IOException
 	{
 		if (cachedRegistry != null && cachedPath != null &&
 			path.equals(cachedPath))
