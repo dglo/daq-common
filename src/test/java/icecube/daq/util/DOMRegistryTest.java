@@ -74,7 +74,7 @@ public class DOMRegistryTest
         // for "Sakigake"
         assertEquals(63, registry.getStringMinor("7ce3bc68a2d6"));
     }
-    
+
     @Test
     public void testGetHubId() throws Exception
     {
