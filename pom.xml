@@ -33,4 +33,11 @@
      </plugin>
    </plugins>
   </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.zeromq</groupId>
+      <artifactId>jzmq</artifactId>
+    </dependency>
+  </dependencies>
 </project>
