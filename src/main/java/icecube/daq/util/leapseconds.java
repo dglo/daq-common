@@ -35,7 +35,7 @@ public class leapseconds {
 
     // year for which the offset list is good
     public int offset_year;
-    
+
     private static leapseconds instance = null;
 
     private static final String CONFIG_DIR_PROPERTY = "icecube.daq.component.configDir";
@@ -47,8 +47,8 @@ public class leapseconds {
     /*
      * singleton pattern
      * get an instance of the leapseconds class
-     * assumes that the caller will only be interested in 
-     * the year the first time getInstance was called. 
+     * assumes that the caller will only be interested in
+     * the year the first time getInstance was called.
      * this is an assumption dave g. approbed
      */
     public static synchronized leapseconds getInstance() {
@@ -60,7 +60,7 @@ public class leapseconds {
 		String joinedPath = new File(configDir, NIST_CONFIG_FILE).toString();
 		instance = new leapseconds(joinedPath);
 	    } catch (IllegalArgumentException e) {
-		// okay, no file under the system property, try the 
+		// okay, no file under the system property, try the
 		// PDAQ_HOME
 		String pdaq_home = System.getenv(PDAQ_HOME_ENV);
 		if (pdaq_home==null) {
@@ -69,7 +69,7 @@ public class leapseconds {
 
 		String joinedPath = new File(pdaq_home, "config").toString();
 		joinedPath = new File(joinedPath, NIST_CONFIG_FILE).toString();
-		
+
 		instance = new leapseconds(joinedPath);
 	    }
 	}
@@ -112,7 +112,7 @@ public class leapseconds {
     }
 
 
-    
+
     /* figure out how many days until this leapsecond file expires
      *
      * @returns double - decimal days till leap second file expires
@@ -120,8 +120,8 @@ public class leapseconds {
     public double daysTillExpiry() {
 	return mjd_expiry - mjd_today();
     }
-    
-    
+
+
     /* Take a date given in year, month, day format
      * and return the modified julian date for that day.
      * The algorithm for the calculation came from:
@@ -132,10 +132,10 @@ public class leapseconds {
      * @param year - integer year (ie 2012 )
      * @param month - integer month ( jan = 1 )
      * @param day - day of month + fraction of day ( 1.5 = noon on first day )
-     * @return modified julian date 
+     * @return modified julian date
      */
     public double mjd(int year, int month, double day) {
-	
+
 	if (month==1 || month==2) {
 	    year = year - 1;
 	    month = month + 12;
@@ -148,7 +148,7 @@ public class leapseconds {
 	// the a/4 is supposed to be integer division
 	// hopefully this works
 	int b = 2 - a + ((int)a/4);
-	
+
 	// continuing with the same assumption
 	// year will not be negative
 	int c = (int)(365.25 * year);
@@ -166,7 +166,7 @@ public class leapseconds {
     }
 
 
-    /* 
+    /*
      * Calculates the number of seconds in a year including the
      * number of leap seconds
      *
@@ -187,17 +187,17 @@ public class leapseconds {
 	    throw new IllegalArgumentException("leap second information expires before jan 1 of "+(year+1));
 	}
 
-	return (long)((mjd2-mjd1)*3600*24 + 
-		      (get_tai_offset(nist_offset_array, mjd2) - 
+	return (long)((mjd2-mjd1)*3600*24 +
+		      (get_tai_offset(nist_offset_array, mjd2) -
 		       get_tai_offset(nist_offset_array, mjd1)));
 
     }
 
-    
 
-    /* 
+
+    /*
      * Converts an ntp timestamp into an modified julian date
-     * An ntp timestamp is in seconds since 1900.  The calculation 
+     * An ntp timestamp is in seconds since 1900.  The calculation
      * comes from the NIST supplied leap-seconds file.
      *
      * @param ntp_timestamp - long a timestamp in seconds since 1900
@@ -217,7 +217,7 @@ public class leapseconds {
      * @return double modified julian date
      */
     private double mjd_today() {
-	
+
 	TimeZone utc_zone = TimeZone.getTimeZone("GMT");
 	Calendar now = Calendar.getInstance(utc_zone);
 
@@ -236,10 +236,10 @@ public class leapseconds {
     }
 
     /*
-     * Take a modified julian date and convert it to a 
+     * Take a modified julian date and convert it to a
      * java calendar object.  The algorithm to make this calculate
-     * comes from <i>Practical Astronomy With Your Calculator</i> 
-     * third edition. 
+     * comes from <i>Practical Astronomy With Your Calculator</i>
+     * third edition.
      *
      * @param mjd - double modified julian date
      * @return Calendar object ( assumes gmt timezone ) representing mjd
@@ -252,7 +252,7 @@ public class leapseconds {
 	jd = jd + 0.5;
 	int i = (int)jd;
 	double f = jd % 1;
-	
+
 	// step 2
 	int b;
 	if (i>2299160) {
@@ -267,15 +267,15 @@ public class leapseconds {
 
 	// step 4
 	int d = (int)( (c-122.1)/365.25);
-	
+
 	// step 5
 	int e = (int)(365.25 * d);
-	
+
 	// step 6
 	int g = (int)( (c-e)/30.6001);
 
 	double day = c - e + f - (int)(30.6001 * g);
-	
+
 	double m;
 	if(g<13.5) {
 	    m = g - 1;
@@ -338,7 +338,7 @@ public class leapseconds {
 			// found some data
 			double pt_mjd = ntp_to_mjd(Long.parseLong(data_match.group(1)));
 			long tai_offset = Long.parseLong(data_match.group(2));
-			
+
 			mjd_to_tai_map.put(pt_mjd, tai_offset);
 			mjd_list.add(pt_mjd);
 		    }
@@ -348,19 +348,19 @@ public class leapseconds {
     }
 
 
-    /* 
+    /*
      * A utility function used with the parse_nist_leapseconds
      * file above.  Given a modifid julian date, search through
      * the dates of leap seconds in the file, find out where
      * the mjd lands, and get the tai offset at that point.
      *
-     * TAI = Temps Atomique International or international atomic time 
+     * TAI = Temps Atomique International or international atomic time
      * UTC and TAI where syned in ~1958 and have drifted apart since
      * NO leapseconds in TAI
      *
      * @param mjd_array
      * @param mjd
-     * @returns tai offset at the given mjd 
+     * @returns tai offset at the given mjd
      */
     private long get_tai_offset(Double[] mjd_array, double mjd) {
 	int offset_index;
@@ -376,7 +376,7 @@ public class leapseconds {
 	    // GREATER than the mjd given, we want one less
 	    int index_pt = -1 * (offset_index+1);
 
-	    // assume that the icecube detector will not 
+	    // assume that the icecube detector will not
 	    // be operating in the past
 	    mjd_pt = mjd_array[index_pt-1];
 	}
@@ -385,7 +385,7 @@ public class leapseconds {
     }
 
 
-    /* 
+    /*
      * For the given year, use the information from the NIST leapseconds file
      * to generate an array of leap second offsets for that year ( indexed by day )
      * either generate an array that covers the entire year or until the leap second
@@ -407,14 +407,14 @@ public class leapseconds {
 
 	// get an array of the mjd data from the list
 	// config file.  This is used for the binary search
-	nist_offset_array = mjd_list.toArray(new Double[]{}); 
+	nist_offset_array = mjd_list.toArray(new Double[]{});
 
-	
+
 	// get initial TAI offset
 	long initial_offset;
 	initial_offset = get_tai_offset(nist_offset_array, mjd_this_year);
 
-	
+
 	int offset_array_size = (int)Math.ceil(mjd_next_year - mjd_this_year + 2.0);
 	offset_array = new Long[(int)offset_array_size];
 	// initialize the offset array to zero
@@ -434,23 +434,23 @@ public class leapseconds {
 	    // we don't have data to the end of the year
 	    // however, make the detector consistent
 	    long value_to_copy = offset_array[mjd_data_limit-1];
-	
+
 	    for(int index = mjd_data_limit; index<offset_array_size; index++) {
 		offset_array[index] = value_to_copy;
 	    }
 	}
-    
+
     }
 
 
-    /* 
+    /*
      * toString
      * @returns string A string representation of this calss
      */
     public String toString() {
 	StringBuilder result = new StringBuilder();
 	String NEW_LINE = System.getProperty("line.separator");
-	
+
 	result.append(this.getClass().getName() + NEW_LINE);
 	result.append("Year: "+offset_year+NEW_LINE);
 
@@ -459,18 +459,18 @@ public class leapseconds {
 	for(int index=1; index<offset_array.length; index++) {
 	    Calendar cal_day = mjd_to_cal(curr_mjd);
 	    curr_mjd += 1.0;
-	    
+
 	    int year = cal_day.get(Calendar.YEAR);
 	    int month = cal_day.get(Calendar.MONTH)+1;
 	    int day = cal_day.get(Calendar.DAY_OF_MONTH);
-	    
+
 	    result.append(month+"/"+day+"/"+year+" offset: "+offset_array[index]+NEW_LINE);
 	}
 
 	return result.toString();
-	
+
     }
-    /* 
+    /*
      * Constructor - only for testing
      * Note that this constructor is mainly for testing as it lets you specify a year
      * we know that there where two leap seconds in 1975, no leap second in 1984
@@ -478,7 +478,7 @@ public class leapseconds {
      * @param leapsecond_name - path to the nist leapsecond file
      * @param year - year for which to generate the offset list
      * @throws IllegalArgumentException - if the file cannot be found or is expired for year 'year'
-     * 
+     *
      */
     protected leapseconds(String leapsecond_name, int year) throws IllegalArgumentException {
 	init(leapsecond_name, year);
@@ -495,8 +495,8 @@ public class leapseconds {
     public leapseconds(String leapsecond_name) throws IllegalArgumentException {
 	TimeZone utc_zone = TimeZone.getTimeZone("GMT");
 	Calendar now = Calendar.getInstance(utc_zone);
-	int year = now.get(Calendar.YEAR);	
-	
+	int year = now.get(Calendar.YEAR);
+
 	init(leapsecond_name, year);
     }
 
@@ -509,8 +509,8 @@ public class leapseconds {
     public boolean has_expired() {
 	TimeZone utc_zone = TimeZone.getTimeZone("GMT");
 	Calendar now = Calendar.getInstance(utc_zone);
-	int current_year = now.get(Calendar.YEAR);	
-	
+	int current_year = now.get(Calendar.YEAR);
+
 	Calendar expiry_cal = mjd_to_cal(mjd_expiry);
 	int expiry_year = expiry_cal.get(Calendar.YEAR);
 
@@ -520,15 +520,15 @@ public class leapseconds {
 		return true;
 	    }
 	    return false;
-	} else if(expiry_year>offset_year) { 
+	} else if(expiry_year>offset_year) {
 	    return false;
-	} 
+	}
 
 	return true;
     }
 
-    /* 
-     * actually the main body of the constructor, just seperated out 
+    /*
+     * actually the main body of the constructor, just seperated out
      * to allow for multiple constructors
      *
      * @param leapsecond_name - filename and path to the nist leapsecond file
@@ -542,13 +542,13 @@ public class leapseconds {
 	    // nist does not provide information prior to 1972
 	    throw new IllegalArgumentException("Nist does not provide leap second info prior to 1972");
 	}
-	
+
 	mjd_expiry = 0.0;
 
 	// a hash map from mjd to tai offset
 	mjd_to_tai_map = new HashMap<Double, Long>();
     	// array list of mjd's with offset information
-	mjd_list = new ArrayList<Double>();	
+	mjd_list = new ArrayList<Double>();
 
 	// parse the leapseconds file filling in the above
 	try {
