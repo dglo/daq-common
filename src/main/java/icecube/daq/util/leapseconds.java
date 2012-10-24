@@ -53,8 +53,8 @@ public class leapseconds {
 	    // combine the config dir and the config file
 	    String joinedPath =
                 new File(configDir, NIST_CONFIG_FILE).toString();
-		instance = new leapseconds(joinedPath);
-	    }
+	    instance = new leapseconds(joinedPath);
+	}
 	return instance;
     }
 
