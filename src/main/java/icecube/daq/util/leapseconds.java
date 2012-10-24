@@ -34,7 +34,6 @@ public class leapseconds {
 
     private static leapseconds instance = null;
 
-    private static final String CONFIG_DIR_PROPERTY = "icecube.daq.component.configDir";
     private static final String NIST_CONFIG_FILE = "nist/leapseconds-latest";
     private static final String PDAQ_HOME_ENV = "PDAQ_HOME";
 
@@ -49,26 +48,13 @@ public class leapseconds {
      */
     public static synchronized leapseconds getInstance() {
 	if (instance == null) {
-	    try {
-		// try looking for the config file under the system property
-		String configDir = System.getProperty(CONFIG_DIR_PROPERTY);
-		// combine the config dir and the config file
-		String joinedPath = new File(configDir, NIST_CONFIG_FILE).toString();
-		instance = new leapseconds(joinedPath);
-	    } catch (IllegalArgumentException e) {
-		// okay, no file under the system property, try the
-		// PDAQ_HOME
-		String pdaq_home = System.getenv(PDAQ_HOME_ENV);
-		if (pdaq_home==null) {
-		    throw e;
-		}
+	    File configDir = LocatePDAQ.findConfigDirectory();
 
-		String joinedPath = new File(pdaq_home, "config").toString();
-		joinedPath = new File(joinedPath, NIST_CONFIG_FILE).toString();
-
+	    // combine the config dir and the config file
+	    String joinedPath =
+                new File(configDir, NIST_CONFIG_FILE).toString();
 		instance = new leapseconds(joinedPath);
 	    }
-	}
 	return instance;
     }
 

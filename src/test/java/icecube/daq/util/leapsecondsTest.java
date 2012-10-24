@@ -8,18 +8,14 @@ import org.junit.Test;
 
 
 public class leapsecondsTest {
-    private static String homeDir = System.getenv("PDAQ_HOME");
+    private static final File config_dir = LocatePDAQ.findConfigDirectory();
 
     public leapseconds load(String fname, int year)
         throws IllegalArgumentException
     {
-        if (homeDir == null || homeDir.equals("")) {
-            System.err.println("PDAQ_HOME has not been set");
-            return null;
-        }
+        File config_dir = LocatePDAQ.findConfigDirectory();
 
-        File config_file =
-            new File(new File(new File(homeDir, "config"), "nist"), fname);
+        File config_file = new File(new File(config_dir, "nist"), fname);
         if (!config_file.exists()) {
             throw new IllegalArgumentException("Cannot find file \"" + fname +
                                                "\"");

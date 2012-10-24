@@ -15,14 +15,8 @@ public class DOMRegistryTest
     public boolean load()
         throws Exception
     {
-        String homeDir = System.getenv("PDAQ_HOME");
-
-        if (homeDir == null || homeDir.equals("")) {
-               System.err.println("PDAQ_HOME has not been set");
-               return false;
-        }
-
-        registry = DOMRegistry.loadRegistry(new File(homeDir, "config"));
+        File configDir = LocatePDAQ.findConfigDirectory();
+        registry = DOMRegistry.loadRegistry(configDir);
         return true;
     }
 
