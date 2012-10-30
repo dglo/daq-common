@@ -17,17 +17,15 @@ public class leapseconds {
 
     // a hash map from mjd to tai offset
     private HashMap<Double, Long> mjd_to_tai_map;
-    // array list of mjd's with offset information
-    private ArrayList<Double> mjd_list;
 
     // date current leapseconds file expires
     private double mjd_expiry;
 
     // array from day of year to leap second offset
-    private Long offset_array[];
+    private int offset_array[];
 
     // data from the nist file
-    private Double nist_offset_array[];
+    private double nist_offset_array[];
 
     // year for which the offset list is good
     public int offset_year;
@@ -84,12 +82,12 @@ public class leapseconds {
      * @returns long - number of leapseconds that have occured since the
      *                 beginning of the year
      */
-    public long get_leap_offset(int day_of_year) {
+    public int get_leap_offset(int day_of_year) {
 	if (day_of_year > 0 && day_of_year < offset_array.length) {
 	    return offset_array[day_of_year];
 	} else {
 	    // if there is an array index error just return 0
-	    return 0L;
+	    return 0;
 	}
     }
 
@@ -290,7 +288,10 @@ public class leapseconds {
      * @param the file name and path to the nist file to parse
      * @throws FileNotFoundException throws exception if the file name argument cannot be found
      */
-    private void parse_nist_leapseconds(String leapsecond_name) throws FileNotFoundException {
+    private void parse_nist_leapseconds(String leapsecond_name,
+                                        ArrayList<Double> mjd_list)
+        throws FileNotFoundException
+    {
 
 	// expiry regexp
 	// '#@  3565641600'
@@ -344,7 +345,7 @@ public class leapseconds {
      * @param mjd
      * @returns tai offset at the given mjd
      */
-    private long get_tai_offset(Double[] mjd_array, double mjd) {
+    private long get_tai_offset(double[] mjd_array, double mjd) {
 	int offset_index;
 	offset_index = Arrays.binarySearch(mjd_array, mjd);
 	// binary search returns >=0 iff the key is found
@@ -375,7 +376,7 @@ public class leapseconds {
      *
      * @param year - int year ( includes century - ie 2012 )
      */
-    private void init_offset_array(int year) {
+    private void init_offset_array(int year, ArrayList<Double> mjd_list) {
 
 	// jan 2'nd next year
 	double mjd_this_year = mjd(year, 1, 1);
@@ -389,8 +390,10 @@ public class leapseconds {
 
 	// get an array of the mjd data from the list
 	// config file.  This is used for the binary search
-	nist_offset_array = mjd_list.toArray(new Double[]{});
-
+        nist_offset_array = new double[mjd_list.size()];
+        for (int i = 0; i < mjd_list.size(); i++) {
+            nist_offset_array[i] = mjd_list.get(i).doubleValue();
+        }
 
 	// get initial TAI offset
 	long initial_offset;
@@ -398,24 +401,24 @@ public class leapseconds {
 
 
 	int offset_array_size = (int)Math.ceil(mjd_next_year - mjd_this_year + 2.0);
-	offset_array = new Long[(int)offset_array_size];
+	offset_array = new int[offset_array_size];
 	// initialize the offset array to zero
 	for(int index=0; index<offset_array_size; index++) {
-	    offset_array[index] = 0L;
+	    offset_array[index] = 0;
 	}
 
 
 	double mjd_day = mjd_this_year;
 	for(int index=1; index<mjd_data_limit; index++) {
 	    long tmp_offset = get_tai_offset(nist_offset_array, mjd_day);
-	    offset_array[index] = tmp_offset - initial_offset;
+            offset_array[index] = (int) (tmp_offset - initial_offset);
 	    mjd_day +=1.0;
 	}
 
 	if(mjd_data_limit!=offset_array_size) {
 	    // we don't have data to the end of the year
 	    // however, make the detector consistent
-	    long value_to_copy = offset_array[mjd_data_limit-1];
+	    int value_to_copy = offset_array[mjd_data_limit-1];
 
 	    for(int index = mjd_data_limit; index<offset_array_size; index++) {
 		offset_array[index] = value_to_copy;
@@ -530,11 +533,11 @@ public class leapseconds {
 	// a hash map from mjd to tai offset
 	mjd_to_tai_map = new HashMap<Double, Long>();
     	// array list of mjd's with offset information
-	mjd_list = new ArrayList<Double>();
+        ArrayList<Double> mjd_list = new ArrayList<Double>();
 
 	// parse the leapseconds file filling in the above
 	try {
-	    parse_nist_leapseconds(leapsecond_name);
+            parse_nist_leapseconds(leapsecond_name, mjd_list);
 	} catch(FileNotFoundException e) {
 	    throw new IllegalArgumentException("leapscond file not found: '"+leapsecond_name+"'!");
 	}
@@ -548,7 +551,7 @@ public class leapseconds {
 	// the current calendar year to either the
 	// expiry date of the leap second file OR jan 2 of next year
 	// whichever is sooner
-	init_offset_array(year);
+        init_offset_array(year, mjd_list);
     }
 
 }
