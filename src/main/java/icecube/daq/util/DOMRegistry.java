@@ -213,7 +213,7 @@ public class DOMRegistry
 	public String getDeploymentLocation(String mbid)
 	{
 		DeployedDOM dom = doms.get(mbid);
-		return String.format("%2.2d-%2.2d", dom.string, dom.location);
+		return String.format("%2d-%2d", dom.string, dom.location);
 	}
 
 	public Set<String> keys()
