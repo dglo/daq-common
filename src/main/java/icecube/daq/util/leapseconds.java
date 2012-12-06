@@ -492,7 +492,6 @@ public class leapseconds {
      * @returns boolean - true if the leapsecond file is expired for the year of interest
      */
     public boolean has_expired() {
-	TimeZone utc_zone = TimeZone.getTimeZone("GMT");
 	
 	Calendar expiry_cal = mjd_to_cal(mjd_expiry);
 	int expiry_year = expiry_cal.get(Calendar.YEAR);
