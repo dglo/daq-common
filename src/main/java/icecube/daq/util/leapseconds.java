@@ -493,9 +493,7 @@ public class leapseconds {
      */
     public boolean has_expired() {
 	TimeZone utc_zone = TimeZone.getTimeZone("GMT");
-	Calendar now = Calendar.getInstance(utc_zone);
-	int current_year = now.get(Calendar.YEAR);
-
+	
 	Calendar expiry_cal = mjd_to_cal(mjd_expiry);
 	int expiry_year = expiry_cal.get(Calendar.YEAR);
 
