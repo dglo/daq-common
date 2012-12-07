@@ -74,18 +74,21 @@ public class DOMRegistry
 
 		File file = new File(path, DEFAULT_DOM_GEOMETRY);
 		FileInputStream is = new FileInputStream(file);
-		SAXParserFactory factory = SAXParserFactory.newInstance();
-		factory.setNamespaceAware(true);
-		SAXParser parser = factory.newSAXParser();
-		DOMRegistry reg = new DOMRegistry();
-		parser.parse(is, reg);
-
-		reg.tabulateDistances();
-
-		cachedPath = path;
-		cachedRegistry = reg;
-
-		return reg;
+		try {
+			SAXParserFactory factory = SAXParserFactory.newInstance();
+			factory.setNamespaceAware(true);
+			SAXParser parser = factory.newSAXParser();
+			DOMRegistry reg = new DOMRegistry();
+			parser.parse(is, reg);
+			reg.tabulateDistances();
+			
+			cachedPath = path;
+			cachedRegistry = reg;
+			
+			return reg;
+		} finally {
+			is.close();
+		}
 	}
 
 	/**
