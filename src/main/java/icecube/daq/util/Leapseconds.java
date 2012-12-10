@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-public class leapseconds {
+public class Leapseconds {
 
     // a hash map from mjd to tai offset
     private HashMap<Double, Long> mjd_to_tai_map;
@@ -30,7 +30,7 @@ public class leapseconds {
     // year for which the offset list is good
     public int offset_year;
 
-    private static leapseconds instance = null;
+    private static Leapseconds instance = null;
 
     private static final String NIST_CONFIG_FILE = "nist/leapseconds-latest";
     private static final String PDAQ_HOME_ENV = "PDAQ_HOME";
@@ -44,14 +44,14 @@ public class leapseconds {
      * the year the first time getInstance was called.
      * this is an assumption dave g. approbed
      */
-    public static synchronized leapseconds getInstance() {
+    public static synchronized Leapseconds getInstance() {
 	if (instance == null) {
 	    File configDir = LocatePDAQ.findConfigDirectory();
 
 	    // combine the config dir and the config file
 	    String joinedPath =
                 new File(configDir, NIST_CONFIG_FILE).toString();
-	    instance = new leapseconds(joinedPath);
+	    instance = new Leapseconds(joinedPath);
 	}
 	return instance;
     }
@@ -465,7 +465,7 @@ public class leapseconds {
      * @throws IllegalArgumentException - if the file cannot be found or is expired for year 'year'
      *
      */
-    protected leapseconds(String leapsecond_name, int year) throws IllegalArgumentException {
+    protected Leapseconds(String leapsecond_name, int year) throws IllegalArgumentException {
 	init(leapsecond_name, year);
     }
 
@@ -477,7 +477,7 @@ public class leapseconds {
      * @param leapsecond_name - path to the nist leapsecond file
      * @throws IllegalArgumentException if the file cannot be found or is expired
      */
-    public leapseconds(String leapsecond_name) throws IllegalArgumentException {
+    public Leapseconds(String leapsecond_name) throws IllegalArgumentException {
 	TimeZone utc_zone = TimeZone.getTimeZone("GMT");
 	Calendar now = Calendar.getInstance(utc_zone);
 	int year = now.get(Calendar.YEAR);
