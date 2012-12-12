@@ -10,7 +10,7 @@ import org.junit.Test;
 public class leapsecondsTest {
     private static final File config_dir = LocatePDAQ.findConfigDirectory();
 
-    public leapseconds load(String fname, int year)
+    public Leapseconds load(String fname, int year)
         throws IllegalArgumentException
     {
         File config_dir = LocatePDAQ.findConfigDirectory();
@@ -21,7 +21,7 @@ public class leapsecondsTest {
                                                "\"");
         }
 
-        return new leapseconds(config_file.getPath(), year);
+        return new Leapseconds(config_file.getPath(), year);
     }
 
     public leapsecondsTest() {
@@ -34,7 +34,7 @@ public class leapsecondsTest {
     public void testMissingFile() {
         boolean pass=false;
         try {
-            leapseconds test = load("junk1234156", 1972);
+            Leapseconds test = load("junk1234156", 1972);
             if (test == null) {
                 return;
             }
@@ -54,7 +54,7 @@ public class leapsecondsTest {
         int years[] = { 2015, 2014, 2013, 2011, 2010, 2009, 2007, 2006, 2005,
                         2003, 2002, 2001, 1999, 1998, 1997, 1995, 1994, 1993 };
 
-        leapseconds test = load("leap-seconds.3535228800", 1972);
+        Leapseconds test = load("leap-seconds.3535228800", 1972);
         if (test == null) {
             return;
         }
@@ -75,7 +75,7 @@ public class leapsecondsTest {
     public void testOldYear() {
         boolean pass=false;
         try {
-            leapseconds test = load("leap-seconds.3535228800", 1960);
+            Leapseconds test = load("leap-seconds.3535228800", 1960);
             if (test == null) {
                 return;
             }
@@ -92,7 +92,7 @@ public class leapsecondsTest {
     public void testFutureYear() {
         boolean pass=false;
         try {
-            leapseconds test = load("leap-seconds.3535228800", 3020);
+            Leapseconds test = load("leap-seconds.3535228800", 3020);
             if (test == null) {
                 return;
             }
@@ -132,7 +132,7 @@ public class leapsecondsTest {
         for(int index=0; index< years.length; index++) {
             int year = years[index];
 
-            leapseconds test = load("leap-seconds.3535228800", year);
+            Leapseconds test = load("leap-seconds.3535228800", year);
             if (test == null) {
                 return;
             }
@@ -150,7 +150,7 @@ public class leapsecondsTest {
      */
     @Test
     public void test2012() {
-        leapseconds test = load("leap-seconds.3535228800", 2012);
+        Leapseconds test = load("leap-seconds.3535228800", 2012);
         if (test == null) {
             return;
         }
@@ -182,7 +182,7 @@ public class leapsecondsTest {
 
     @Test
     public void test_seconds_in_year() {
-        leapseconds test = load("leap-seconds.3535228800", 1972);
+        Leapseconds test = load("leap-seconds.3535228800", 1972);
         if (test == null) {
             return;
         }
@@ -218,7 +218,7 @@ public class leapsecondsTest {
      */
     @Test
     public void test1972() {
-        leapseconds test = load("leap-seconds.3535228800", 1972);
+        Leapseconds test = load("leap-seconds.3535228800", 1972);
         if (test == null) {
             return;
         }
