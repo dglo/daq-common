@@ -14,6 +14,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -27,6 +30,8 @@ public class DOMRegistry
 	extends DefaultHandler
 	implements IDOMRegistry
 {
+	private static final Log LOG = LogFactory.getLog(DOMRegistry.class);
+
 	private static File cachedPath;
 	private static DOMRegistry cachedRegistry;
 	private StringBuffer xmlChars;
@@ -162,7 +167,12 @@ public class DOMRegistry
 	 */
 	public DeployedDOM getDom(short ch)
 	{
-	    return domsByChannelId[ch];
+		if (ch < 0 || ch >= domsByChannelId.length) {
+			LOG.error("Cannot fetch DOM entry for channel " + ch +
+					  " (domsByChannelId*" + domsByChannelId.length + ")");
+			return null;
+		}
+		return domsByChannelId[ch];
 	}
 
 	/**
@@ -172,7 +182,14 @@ public class DOMRegistry
 	 */
 	public String getDomId(String mbid)
 	{
-		return doms.get(mbid).domId;
+		DeployedDOM dom = doms.get(mbid);
+		if (dom == null) {
+			LOG.error("Cannot fetch DOM entry for " + mbid + " (doms=" +
+					  doms.size() + ")");
+			return null;
+		}
+
+		return dom.domId;
 	}
 
 	/**
@@ -182,11 +199,14 @@ public class DOMRegistry
 	 */
 	public short getChannelId(String mbid)
 	{
-		if (!doms.containsKey(mbid)) {
+		DeployedDOM dom = doms.get(mbid);
+		if (dom == null) {
+			LOG.error("Cannot fetch DOM entry for " + mbid + " (doms=" +
+					  doms.size() + ")");
 			return -1;
 		}
 
-		return doms.get(mbid).channelId;
+		return dom.channelId;
 	}
 
 	/**
@@ -196,26 +216,49 @@ public class DOMRegistry
 	 */
 	public String getName(String mbid)
 	{
-		return doms.get(mbid).name;
+		DeployedDOM dom = doms.get(mbid);
+		if (dom == null) {
+			LOG.error("Cannot fetch DOM entry for " + mbid + " (doms=" +
+					  doms.size() + ")");
+			return null;
+		}
+
+		return dom.name;
 	}
 
 	public int getStringMajor(String mbid)
 	{
-		if (!doms.containsKey(mbid)) {
+		DeployedDOM dom = doms.get(mbid);
+		if (dom == null) {
+			LOG.error("Cannot fetch DOM entry for " + mbid + " (doms=" +
+					  doms.size() + ")");
 			return -1;
 		}
 
-		return doms.get(mbid).getStringMajor();
+		return dom.getStringMajor();
 	}
 
 	public int getStringMinor(String mbid)
 	{
-		return doms.get(mbid).getStringMinor();
+		DeployedDOM dom = doms.get(mbid);
+		if (dom == null) {
+			LOG.error("Cannot fetch DOM entry for " + mbid + " (doms=" +
+					  doms.size() + ")");
+			return -1;
+		}
+
+		return dom.getStringMinor();
 	}
 
 	public String getDeploymentLocation(String mbid)
 	{
 		DeployedDOM dom = doms.get(mbid);
+		if (dom == null) {
+			LOG.error("Cannot fetch DOM entry for " + mbid + " (doms=" +
+					  doms.size() + ")");
+			return null;
+		}
+
 		return String.format("%2d-%2d", dom.string, dom.location);
 	}
 
@@ -227,7 +270,12 @@ public class DOMRegistry
 	public Set<DeployedDOM> getDomsOnHub(int hubId)
 	{
 		HashSet<DeployedDOM> rlist = new HashSet<DeployedDOM>(60);
-		for (DeployedDOM dom : doms.values()) if (hubId == dom.hubId) rlist.add(dom);
+		for (DeployedDOM dom : doms.values()) {
+			if (hubId == dom.hubId) {
+				rlist.add(dom);
+			}
+		}
+
 		return rlist;
 	}
 
