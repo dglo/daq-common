@@ -46,17 +46,17 @@ public final class LocatePDAQ
                 }
                 break;
             case 2:
-                // check home directory
-                final String homeDir = System.getenv("HOME");
-                if (homeDir != null && homeDir.length() > 0) {
-                    dir = new File(homeDir, "config");
-                }
-                break;
-            case 3:
                 // check user-specified pDAQ distribution directory
                 File tmpFile = findTrunk("config");
                 if (tmpFile != null) {
                     dir = tmpFile;
+                }
+                break;
+            case 3:
+                // check home directory
+                final String homeDir = System.getenv("HOME");
+                if (homeDir != null && homeDir.length() > 0) {
+                    dir = new File(homeDir, "config");
                 }
                 break;
             case 4:
