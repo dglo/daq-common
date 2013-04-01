@@ -10,9 +10,14 @@ public class DeployedDOM
 {
 	short channelId;
 	String mainboardId;
+	long numericMainboardId;
 	String domId;
 	String name;
+	/** component ID of the hub to which this channel is connected */
+	int hubId;     
+	/** Logical string ID - note can be > 86 for test system and sim DOMs */ 
 	int string;
+	/** Modules' location along the string */
 	int location;
 	double x;
 	double y;
@@ -28,8 +33,10 @@ public class DeployedDOM
 	{
 		channelId  	= dom.channelId;
 		mainboardId	= dom.mainboardId;
+		numericMainboardId = dom.numericMainboardId;
 		domId 		= dom.domId;
 		name  		= dom.name;
+		hubId       = dom.hubId;
 		string 		= dom.string;
 		location 	= dom.location;
 		x			= dom.x;
@@ -40,11 +47,15 @@ public class DeployedDOM
 	public short getChannelId() { return channelId; }
 
 	public String getMainboardId() { return mainboardId; }
+	
+	public long getNumericMainboardId() { return numericMainboardId; }
 
 	public String getDomId() { return domId; }
 
 	public String getName() { return name; }
 
+	public int getHubId() { return hubId; }
+	
 	public int getStringMajor() { return string; }
 
 	public int getStringMinor() { return location; }
@@ -55,7 +66,7 @@ public class DeployedDOM
 
 	public boolean isRealDOM()
 	{
-	    return (string >= 1 && string <= 86) || (string >= 201 && string <= 211);
+	    return (string >= 1 && string <= 86);
 	}
 
 	@Override

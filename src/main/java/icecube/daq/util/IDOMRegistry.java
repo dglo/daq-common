@@ -11,6 +11,12 @@ public interface IDOMRegistry
      */
     short getChannelId(String mbid);
     /**
+     * Lookup DOM based on channelID
+     * @param channelId - 64*string + (module-1)
+     * @return DeployedDOM object
+     */
+    DeployedDOM getDom(short channelId);
+    /**
      * Look up string number given mainboard ID
      * @param mbid DOM 12-char hexadecimal mainboard ID
      * @return string number (or <tt>-1</tt> if mainboard ID was not found)
