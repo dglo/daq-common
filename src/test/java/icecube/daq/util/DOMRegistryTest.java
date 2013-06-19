@@ -3,6 +3,7 @@ package icecube.daq.util;
 import java.io.File;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import org.junit.Before;
@@ -10,26 +11,36 @@ import org.junit.Test;
 
 public class DOMRegistryTest
 {
-    private DOMRegistry registry;
+    private static DOMRegistry registry;
 
-    public boolean load()
+    @Before
+    public void setUp()
         throws Exception
     {
-        File configDir = LocatePDAQ.findConfigDirectory();
-        registry = DOMRegistry.loadRegistry(configDir);
-        return true;
+        if (registry == null) {
+            //File configDir = LocatePDAQ.findConfigDirectory();
+            File configDir =
+                new File(getClass().getResource("/config").getPath());
+            if (!configDir.exists()) {
+                final String msg = "Cannot find config directory";
+                throw new IllegalArgumentException(msg);
+            }
+
+            registry = DOMRegistry.loadRegistry(configDir);
+        }
     }
 
     @Test
     public void testGetDom()
         throws Exception
     {
-        if (!load()) {
-            return;
-        }
+        assertNotNull("Registry is null", registry);
 
         // Get "Cicero's" record
-        DeployedDOM dom = registry.getDom("a18ce1e5b29c");
+        final String idStr = "a18ce1e5b29c";
+        DeployedDOM dom = registry.getDom(idStr);
+        assertNotNull("Could not find " + idStr, dom);
+
         assertEquals("Cicero", dom.getName());
         assertEquals(0xa18ce1e5b29cL, dom.getNumericMainboardId());
     }
@@ -38,9 +49,7 @@ public class DOMRegistryTest
     public void testGetChannelId()
         throws Exception
     {
-        if (!load()) {
-            return;
-        }
+        assertNotNull("Registry is null", registry);
 
         // Let's try "Douglas Mawson"
         short chan = registry.getChannelId("5fa9ebf82828");
@@ -51,9 +60,7 @@ public class DOMRegistryTest
     public void testGetStringMajor()
         throws Exception
     {
-        if (!load()) {
-            return;
-        }
+        assertNotNull("Registry is null", registry);
 
         // for "Sakigake"
         assertEquals(51, registry.getStringMajor("7ce3bc68a2d6"));
@@ -63,9 +70,7 @@ public class DOMRegistryTest
     public void testGetStringMinor()
         throws Exception
     {
-        if (!load()) {
-            return;
-        }
+        assertNotNull("Registry is null", registry);
 
         // for "Sakigake"
         assertEquals(63, registry.getStringMinor("7ce3bc68a2d6"));
@@ -74,17 +79,20 @@ public class DOMRegistryTest
     @Test
     public void testGetHubId() throws Exception
     {
-        if (!load()) return;
-        assertEquals(210, registry.getDom("7ce3bc68a2d6").getHubId());
+        assertNotNull("Registry is null", registry);
+
+        final String idStr = "7ce3bc68a2d6";
+        DeployedDOM dom = registry.getDom(idStr);
+        assertNotNull("Could not find " + idStr, dom);
+
+        assertEquals(210, dom.getHubId());
     }
 
     @Test
     public void testDistanceBetweenDOMs()
         throws Exception
     {
-        if (!load()) {
-            return;
-        }
+        assertNotNull("Registry is null", registry);
 
         for (int ich = 65; ich < 64*87; ich++)
         {

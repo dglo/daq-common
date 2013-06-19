@@ -30,13 +30,34 @@ public class Leapseconds {
     // year for which the offset list is good
     public int offset_year;
 
-    private static Leapseconds instance = null;
+    private static Leapseconds instance;
+
+    private static File CONFIG_DIR;
 
     private static final String NIST_CONFIG_FILE = "nist/leapseconds-latest";
     private static final String PDAQ_HOME_ENV = "PDAQ_HOME";
 
     private static final int LEAP_YEAR=366;
     private static final int YEAR=365;
+
+    public static void setConfigDirectory(File dir)
+    {
+	if (!dir.isDirectory()) {
+	    throw new IllegalArgumentException("Bad config directory " + dir);
+	}
+
+	CONFIG_DIR = dir;
+    }
+
+    public static File getConfigDirectory()
+    {
+	if (CONFIG_DIR == null) {
+	    CONFIG_DIR = LocatePDAQ.findConfigDirectory();
+	}
+
+	return CONFIG_DIR;
+    }
+
     /*
      * singleton pattern
      * get an instance of the leapseconds class
@@ -46,11 +67,9 @@ public class Leapseconds {
      */
     public static synchronized Leapseconds getInstance() {
 	if (instance == null) {
-	    File configDir = LocatePDAQ.findConfigDirectory();
-
 	    // combine the config dir and the config file
 	    String joinedPath =
-                new File(configDir, NIST_CONFIG_FILE).toString();
+                new File(getConfigDirectory(), NIST_CONFIG_FILE).toString();
 	    instance = new Leapseconds(joinedPath);
 	}
 	return instance;
@@ -492,7 +511,7 @@ public class Leapseconds {
      * @returns boolean - true if the leapsecond file is expired for the year of interest
      */
     public boolean has_expired() {
-	
+
 	Calendar expiry_cal = mjd_to_cal(mjd_expiry);
 	int expiry_year = expiry_cal.get(Calendar.YEAR);
 

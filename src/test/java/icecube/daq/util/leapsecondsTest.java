@@ -4,28 +4,41 @@ import java.io.File;
 
 import static org.junit.Assert.*;
 
+import org.junit.Before;
 import org.junit.Test;
 
 
 public class leapsecondsTest {
-    private static final File config_dir = LocatePDAQ.findConfigDirectory();
+    private static File nist_dir;
+
+    @Before
+    public void setUp()
+    {
+        File config_dir = new File(getClass().getResource("/config").getPath());
+        if (!config_dir.exists()) {
+            throw new IllegalArgumentException("Cannot find config" +
+                                               " directory under " +
+                                               getClass().getResource("/"));
+        }
+
+        nist_dir = new File(config_dir, "nist");
+        if (!nist_dir.exists()) {
+            throw new IllegalArgumentException("Cannot find config/nist" +
+                                               " directory under " +
+                                               getClass().getResource("/"));
+        }
+    }
 
     public Leapseconds load(String fname, int year)
         throws IllegalArgumentException
     {
-        File config_dir = LocatePDAQ.findConfigDirectory();
-
-        File config_file = new File(new File(config_dir, "nist"), fname);
+        File config_file = new File(nist_dir, fname);
         if (!config_file.exists()) {
             throw new IllegalArgumentException("Cannot find file \"" + fname +
                                                "\"");
         }
 
         return new Leapseconds(config_file.getPath(), year);
-    }
-
-    public leapsecondsTest() {
-
     }
 
     /* test that you get an exception if the leapseconds file is missing
