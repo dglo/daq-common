@@ -182,9 +182,13 @@ public class Leapseconds {
 	    throw new IllegalArgumentException("Cannot calculate before 1972, not enough information");
 	}
 
-	if(mjd2>mjd_expiry) {
-	    throw new IllegalArgumentException("leap second information expires before jan 1 of "+(year+1));
-	}
+	
+	// The behaviour of this class is changing.
+	// If the leapseconds file has expired we are to assume that there have been no leapseconds
+	// ----------------------------------------------------------------------------------------
+	//if(mjd2>mjd_expiry) {
+	//    throw new IllegalArgumentException("leap second information expires before jan 1 of "+(year+1));
+	//}
 
 	return (long)((mjd2-mjd1)*3600*24 +
 		      (get_tai_offset(nist_offset_array, mjd2) -
@@ -403,7 +407,12 @@ public class Leapseconds {
 
 
 	// calculate how far into the future our data extends
-	double mjd_limit = Math.min(mjd_expiry, mjd_next_year);
+	// NOTE: the haviour of this class has changed.
+	// DO NOT complain about the file expiring, simply assume
+	// that there have been no leapseconds past the end of the time
+	// where we have information
+	// ------------------------------------------------------------
+	double mjd_limit = mjd_next_year;
 	int mjd_data_limit = (int)Math.ceil(mjd_limit - mjd_this_year + 2.);
 
 
@@ -449,7 +458,7 @@ public class Leapseconds {
 
     /*
      * toString
-     * @returns string A string representation of this calss
+     * @returns string A string representation of this class
      */
     public String toString() {
 	StringBuilder result = new StringBuilder();
@@ -481,7 +490,7 @@ public class Leapseconds {
      *
      * @param leapsecond_name - path to the nist leapsecond file
      * @param year - year for which to generate the offset list
-     * @throws IllegalArgumentException - if the file cannot be found or is expired for year 'year'
+     * @throws IllegalArgumentException - if the file cannot be found 
      *
      */
     protected Leapseconds(String leapsecond_name, int year) throws IllegalArgumentException {
@@ -494,7 +503,7 @@ public class Leapseconds {
      * calendar year
      *
      * @param leapsecond_name - path to the nist leapsecond file
-     * @throws IllegalArgumentException if the file cannot be found or is expired
+     * @throws IllegalArgumentException if the file cannot be found 
      */
     public Leapseconds(String leapsecond_name) throws IllegalArgumentException {
 	TimeZone utc_zone = TimeZone.getTimeZone("GMT");
@@ -534,8 +543,7 @@ public class Leapseconds {
      *
      * @param leapsecond_name - filename and path to the nist leapsecond file
      * @param year - year for which to generate the offset array
-     * @throws IllegalArgumentException - if the year is before 1972, the leapsecond file is not found or
-     *         not valid for the given year
+     * @throws IllegalArgumentException - if the year is before 1972, the leapsecond file is not found
      */
     private void init(String leapsecond_name, int year) throws IllegalArgumentException {
 
@@ -559,9 +567,16 @@ public class Leapseconds {
 	}
 
 	offset_year = year;
-	if (this.has_expired()) {
-	    throw new IllegalArgumentException("leapsecond file not valid for "+year);
-	}
+
+	// The desired behavior of this class is changing
+	// Do NOT complain about an expired leapseconds file, simply assume that there
+	// has been no leapsecond in the time range for which we have no information
+	// This is per a discussion with Dave G.
+	// The pdaq dash code will complain about an expired and/or expiring file 
+	// ------------------------------------------------------------------
+	//if (this.has_expired()) {
+	//    throw new IllegalArgumentException("leapsecond file not valid for "+year);
+	//}
 
 	// generate an array of offsets from the beginning of
 	// the current calendar year to either the

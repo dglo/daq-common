@@ -99,18 +99,22 @@ public class leapsecondsTest {
     }
 
 
-    /* test that you get an exception for a future year
+    /* This USED to thrown an exception for a future year
+     * It's supposed to assume no leapseconds have occurred in time
+     * for which we have no information.  make sure that we 
+     * do NOT get an exception
+     * 
      */
     @Test
     public void testFutureYear() {
-        boolean pass=false;
+        boolean pass=true;
         try {
             Leapseconds test = load("leap-seconds.3535228800", 3020);
             if (test == null) {
-                return;
+                assertTrue(false);
             }
         } catch (IllegalArgumentException e) {
-            pass=true;
+            pass=false;
         }
         assertTrue(pass);
     }
@@ -181,10 +185,10 @@ public class leapsecondsTest {
         }
 
         /* should go from 0 to 1 from june 30 to jul 1
-         * and stay there until jan 1 of 1973
+         * and stay there until jan 1 of 2013
          */
         int limit_jan1 = (int)(jan1mjd2013 - jan1mjd)+1;
-        for(int index=limit; index<limit_jan1; index++) {
+        for(int index=limit; index<=limit_jan1; index++) {
             assertTrue(test.get_leap_offset(index)==1L);
         }
     }
@@ -215,6 +219,11 @@ public class leapsecondsTest {
 
         assertTrue(caught_exception);
 
+	// the desired behaviour of the leapsecond class has changed
+	// we are supposed to assume no leap second has occurred past
+	// the end of a file expiration, test that we don't get an
+	// exception for a future year
+
         caught_exception=false;
         try {
             test.seconds_in_year(2020);
@@ -222,7 +231,7 @@ public class leapsecondsTest {
             caught_exception=true;
         }
 
-        assertTrue(caught_exception);
+        assertFalse(caught_exception);
     }
 
 
