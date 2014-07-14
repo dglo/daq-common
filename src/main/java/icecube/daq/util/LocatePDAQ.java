@@ -20,8 +20,11 @@ public final class LocatePDAQ
      * Find the pDAQ run configuration directory.
      *
      * @return configuration directory
+     *
+     * @throws IllegalArgumentException if config directory is not found
      */
     public static final File findConfigDirectory()
+        throws IllegalArgumentException
     {
         if (CONFIG_DIR != null) {
             return CONFIG_DIR;
