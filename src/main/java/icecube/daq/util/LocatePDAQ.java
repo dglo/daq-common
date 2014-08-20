@@ -23,7 +23,7 @@ public final class LocatePDAQ
      *
      * @throws IllegalArgumentException if config directory is not found
      */
-    public static final File findConfigDirectory()
+    public static File findConfigDirectory()
         throws IllegalArgumentException
     {
         if (CONFIG_DIR != null) {
@@ -91,7 +91,7 @@ public final class LocatePDAQ
      *
      * @return top-level directory
      */
-    public static final File findTrunk()
+    public static File findTrunk()
     {
         if (META_DIR != null) {
             return META_DIR;
@@ -116,7 +116,7 @@ public final class LocatePDAQ
      * @return pDAQ subdirectory (or <tt>null</tt> if trunk or subdirectory
      *                            is not found)
      */
-    public static final File findTrunk(String subdir)
+    public static File findTrunk(String subdir)
     {
         boolean done = false;
         for (int i = 0; !done; i++) {
@@ -182,7 +182,7 @@ public final class LocatePDAQ
      *
      * @param dir path to configuration directory
      */
-    public static final void setConfigDirectory(String path)
+    public static void setConfigDirectory(String path)
     {
         if (path == null || path.equals("")) {
             throw new IllegalArgumentException("Path argument is not set");

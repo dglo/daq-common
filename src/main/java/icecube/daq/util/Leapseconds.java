@@ -22,10 +22,10 @@ public class Leapseconds {
     private double mjd_expiry;
 
     // array from day of year to leap second offset
-    private int offset_array[];
+    private int[] offset_array;
 
     // data from the nist file
-    private double nist_offset_array[];
+    private double[] nist_offset_array;
 
     // year for which the offset list is good
     public int offset_year;

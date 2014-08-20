@@ -43,8 +43,8 @@ public class DOMRegistry
 	private static final String DEFAULT_DOM_GEOMETRY =
 		"default-dom-geometry.xml";
 	private static final int NCH = 87*64;
-	private double distanceTable[];
-	private double distanceTabXY[];
+	private double[] distanceTable;
+	private double[] distanceTabXY;
 
 	protected DOMRegistry()
 	{
@@ -122,7 +122,7 @@ public class DOMRegistry
 
 	private void tabulateDistances()
 	{
-		DeployedDOM mlist[] = doms.values().toArray(new DeployedDOM[0]);
+		DeployedDOM[] mlist = doms.values().toArray(new DeployedDOM[0]);
 		for (int ch0 = 0; ch0 < mlist.length; ch0++)
 		{
 			DeployedDOM d0 = mlist[ch0];
