@@ -34,7 +34,7 @@ public class DOMRegistry
 
 	private static File cachedPath;
 	private static DOMRegistry cachedRegistry;
-	private StringBuffer xmlChars;
+	private StringBuilder xmlChars;
 	private HashMap<String, DeployedDOM> doms;
 	private DeployedDOM[] domsByChannelId;
 	private DeployedDOM currentDOM;
@@ -48,7 +48,7 @@ public class DOMRegistry
 
 	protected DOMRegistry()
 	{
-		xmlChars = new StringBuffer();
+		xmlChars = new StringBuilder();
 		currentDOM = new DeployedDOM();
 		doms = new HashMap<String, DeployedDOM>();
 		domsByChannelId = new DeployedDOM[NCH];
