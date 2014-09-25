@@ -30,4 +30,11 @@
      </plugin>
    </plugins>
   </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>javax.xml.parsers</groupId>
+      <artifactId>jaxp-api</artifactId>
+    </dependency>
+  </dependencies>
 </project>
