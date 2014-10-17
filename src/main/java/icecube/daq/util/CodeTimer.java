@@ -147,18 +147,28 @@ public class CodeTimer
     }
 
     /**
-     * Get the accumulated times for each section.
+     * Get the accumulated counts for each section.
      *
-     * @return map of names to times
+     * @return map of names to counts
      */
-    public Map<String, Long> getTimes()
+    public Map<String, Long> getCounts()
+    {
+        return getTimes("Count");
+    }
+
+    /**
+     * Get the accumulated counts for each section.
+     *
+     * @return map of names to counts
+     */
+    public Map<String, Long> getCounts(String prefix)
     {
         HashMap<String, Long> map = new HashMap<String, Long>();
 
         // find last non-zero field
-        int lastIdx = timeAccum.length - 1;
+        int lastIdx = numAccum.length - 1;
         while (lastIdx >= 0) {
-            if (timeAccum[lastIdx] > 0) {
+            if (numAccum[lastIdx] > 0) {
                 break;
             }
 
@@ -166,8 +176,45 @@ public class CodeTimer
         }
 
         // build list of fields
-        for (int i = 0; i < timeAccum.length; i++) {
-            map.put(Integer.toString(i), timeAccum[i]);
+        for (int i = 0; i <= lastIdx; i++) {
+            map.put(String.format("%s#%d", prefix, i), numAccum[i]);
+        }
+
+        return map;
+    }
+
+    /**
+     * Get the accumulated times for each section.
+     *
+     * @return map of names to times
+     */
+    public Map<String, Long> getTimes()
+    {
+        return getTimes("Section");
+    }
+
+    /**
+     * Get the accumulated times for each section.
+     *
+     * @return map of names to times
+     */
+    public Map<String, Long> getTimes(String prefix)
+    {
+        HashMap<String, Long> map = new HashMap<String, Long>();
+
+        // find last non-zero field
+        int lastIdx = numAccum.length - 1;
+        while (lastIdx >= 0) {
+            if (numAccum[lastIdx] > 0) {
+                break;
+            }
+
+            lastIdx--;
+        }
+
+        // build list of fields
+        for (int i = 0; i <= lastIdx; i++) {
+            map.put(String.format("%s#%d", prefix, i), timeAccum[i]);
         }
 
         return map;
