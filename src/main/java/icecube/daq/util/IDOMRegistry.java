@@ -6,16 +6,16 @@ public interface IDOMRegistry
 {
     /**
      * Look up channel ID given mainboard ID
-     * @param mbid DOM 12-char hexadecimal mainboard ID
+     * @param mbid DOM mainboard ID
      * @return channel Id (or <tt>-1</tt> if mainboard ID was not found)
      */
-    short getChannelId(String mbid);
+    short getChannelId(long mbid);
     /**
      * Lookup DOM given mainboard Id
-     * @param mbid input DOM mainboard id - the 12-char hex
+     * @param mbid DOM mainboard id
      * @return deployed DOM information
      */
-    DeployedDOM getDom(String mbId);
+    DeployedDOM getDom(long mbId);
     /**
      * Lookup DOM based on channelID
      * @param channelId - 64*string + (module-1)
@@ -24,17 +24,28 @@ public interface IDOMRegistry
     DeployedDOM getDom(short channelId);
     /**
      * Look up string number given mainboard ID
-     * @param mbid DOM 12-char hexadecimal mainboard ID
+     * @param mbid DOM mainboard ID
      * @return string number (or <tt>-1</tt> if mainboard ID was not found)
      */
-    int getStringMajor(String mbid);
+    int getStringMajor(long mbid);
+    /**
+     * Look up position number given mainboard ID
+     * @param mbid DOM mainboard ID
+     * @return position number (or <tt>-1</tt> if mainboard ID was not found)
+     */
+    int getStringMinor(long mbid);
     /**
      * get the set of all known mainboard IDs
      * @return all known mainboard IDs
      */
-    Set<String> keys();
+    Set<Long> keys();
+    /**
+     * get the number of known mainboard IDs
+     * @return number of known mainboard IDs
+     */
+    int size();
     /**
      * get distance in meters between pair of DOMs
      */
-    double distanceBetweenDOMs(String mbid0, String mbid1);
+    double distanceBetweenDOMs(long mbid0, long mbid1);
 }

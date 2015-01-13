@@ -28,7 +28,6 @@ public class DeployedDOM
 	/** Public constructor */
 	public DeployedDOM(long mbId, int string, int location)
 	{
-		mainboardId = String.format("%012x", mbId);
 		numericMainboardId = mbId;
 		this.string = string;
 		this.location = location;
@@ -57,7 +56,14 @@ public class DeployedDOM
 
 	public short getChannelId() { return channelId; }
 
-	public String getMainboardId() { return mainboardId; }
+	public String getMainboardId()
+	{
+		if (mainboardId == null) {
+			mainboardId = String.format("%012x", numericMainboardId);
+		}
+
+		return mainboardId;
+	}
 
 	public long getNumericMainboardId() { return numericMainboardId; }
 
@@ -88,20 +94,20 @@ public class DeployedDOM
 	@Override
 	public String toString()
 	{
-	    return domId + "[" + mainboardId + "]" + channelId + " '" + name +
+		return domId + "[" + getMainboardId() + "]" + channelId + " '" + name +
                 "' at " + String.format("%02d-%02d", string, location);
 	}
 
 	@Override
 	public boolean equals(Object obj)
 	{
-	    return (obj instanceof DeployedDOM &&
-	            ((DeployedDOM) obj).mainboardId.equals(mainboardId));
+	    return obj instanceof DeployedDOM &&
+			((DeployedDOM) obj).numericMainboardId == numericMainboardId;
 	}
 
 	@Override
 	public int hashCode()
 	{
-	     return mainboardId.hashCode();
+		return (int) (numericMainboardId ^ (numericMainboardId >> 32));
 	}
 }

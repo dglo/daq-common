@@ -35,7 +35,7 @@ public class DOMRegistry
 	private static File cachedPath;
 	private static DOMRegistry cachedRegistry;
 	private StringBuilder xmlChars;
-	private HashMap<String, DeployedDOM> doms;
+	private HashMap<Long, DeployedDOM> doms;
 	private DeployedDOM[] domsByChannelId;
 	private DeployedDOM currentDOM;
 	private int currentHubId;
@@ -50,7 +50,7 @@ public class DOMRegistry
 	{
 		xmlChars = new StringBuilder();
 		currentDOM = new DeployedDOM();
-		doms = new HashMap<String, DeployedDOM>();
+		doms = new HashMap<Long, DeployedDOM>();
 		domsByChannelId = new DeployedDOM[NCH];
 		/* Only need about 15M pairs */
 		distanceTable = new double[NCH*(NCH-1)/2];
@@ -102,10 +102,10 @@ public class DOMRegistry
 	 * @param ch1 - reduced channel ID of DOM #1
 	 * @param ch2 - reduced channel ID of DOM #2
 	 */
-	public int pairId(int ch1, int ch2)
+	private int pairId(int ch1, int ch2)
 	{
-		if (ch1 < ch2)
-		{
+		if (ch1 < ch2) {
+			// swap ch1 and ch2
 			int tmp = ch2;
 			ch2 = ch1;
 			ch1 = tmp;
@@ -113,7 +113,7 @@ public class DOMRegistry
 		return ch2 * NCH + ch1 - (ch2+1)*(ch2+2)/2;
 	}
 
-	public int pairId(String mbid1, String mbid2)
+	private int pairId(long mbid1, long mbid2)
 	{
 		int ch1 = doms.get(mbid1).channelId;
 		int ch2 = doms.get(mbid2).channelId;
@@ -156,9 +156,20 @@ public class DOMRegistry
 	 * @param mbid input DOM mainboard id - the 12-char hex
 	 * @return deployed DOM information
 	 */
-	public DeployedDOM getDom(String mbid)
+	public DeployedDOM getDom(long mbid)
 	{
 		return doms.get(mbid);
+	}
+
+	/**
+	 * Lookup DOM given string and position.
+	 * @param major string number
+	 * @param minor dom position (1-64)
+	 * @return deployed DOM information
+	 */
+	public DeployedDOM getDom(int major, int minor)
+	{
+		return getDom((short) ((major % 1000) * 64 + (minor - 1)));
 	}
 
 	/**
@@ -178,15 +189,17 @@ public class DOMRegistry
 
 	/**
 	 * Lookup DOM Id given mainboard Id
-	 * @param mbid input DOM mainboard id - the 12-char hex
+	 * @param mbid DOM mainboard id
 	 * @return 8-char DOM Id - like TP5Y0515
 	 */
-	public String getDomId(String mbid)
+	public String getDomId(long mbid)
 	{
 		DeployedDOM dom = doms.get(mbid);
 		if (dom == null) {
-			LOG.error("Cannot fetch DOM entry for " + mbid + " (doms=" +
-					  doms.size() + ")");
+			final String errmsg =
+				String.format("Cannot fetch DOM entry for %012x (doms=%d)",
+							  mbid, doms.size());
+			LOG.error(errmsg);
 			return null;
 		}
 
@@ -195,15 +208,17 @@ public class DOMRegistry
 
 	/**
 	 * Lookup channel ID given mainboard ID
-	 * @param mbid input DOM mainboard ID - the 12-char hex
+	 * @param mbid DOM mainboard ID
 	 * @return channel Id (or <tt>-1</tt> if mainboard ID was not found)
 	 */
-	public short getChannelId(String mbid)
+	public short getChannelId(long mbid)
 	{
 		DeployedDOM dom = doms.get(mbid);
 		if (dom == null) {
-			LOG.error("Cannot fetch DOM entry for " + mbid + " (doms=" +
-					  doms.size() + ")");
+			final String errmsg =
+				String.format("Cannot find channel for %012x (doms=%d)",
+							  mbid, doms.size());
+			LOG.error(errmsg);
 			return -1;
 		}
 
@@ -211,61 +226,78 @@ public class DOMRegistry
 	}
 
 	/**
-	 * Lookup Krasberg name of DOM given mainboard Id.
-	 * @param mbid input DOM mainboard id.
+	 * Lookup name of DOM given mainboard Id.
+	 * @param mbid DOM mainboard id.
 	 * @return DOM name
 	 */
-	public String getName(String mbid)
+	public String getName(long mbid)
 	{
 		DeployedDOM dom = doms.get(mbid);
 		if (dom == null) {
-			LOG.error("Cannot fetch DOM entry for " + mbid + " (doms=" +
-					  doms.size() + ")");
+			final String errmsg =
+				String.format("Cannot find name for %012x (doms=%d)",
+							  mbid, doms.size());
+			LOG.error(errmsg);
 			return null;
 		}
 
 		return dom.name;
 	}
 
-	public int getStringMajor(String mbid)
+	public int getStringMajor(long mbid)
 	{
 		DeployedDOM dom = doms.get(mbid);
 		if (dom == null) {
-			LOG.error("Cannot fetch DOM entry for " + mbid + " (doms=" +
-					  doms.size() + ")");
+			final String errmsg =
+				String.format("Cannot find string major for %012x (doms=%d)",
+							  mbid, doms.size());
+			LOG.error(errmsg);
 			return -1;
 		}
 
 		return dom.getStringMajor();
 	}
 
-	public int getStringMinor(String mbid)
+	public int getStringMinor(long mbid)
 	{
 		DeployedDOM dom = doms.get(mbid);
 		if (dom == null) {
-			LOG.error("Cannot fetch DOM entry for " + mbid + " (doms=" +
-					  doms.size() + ")");
+			final String errmsg =
+				String.format("Cannot find string minor for %012x (doms=%d)",
+							  mbid, doms.size());
+			LOG.error(errmsg);
 			return -1;
 		}
 
 		return dom.getStringMinor();
 	}
 
-	public String getDeploymentLocation(String mbid)
+	public String getDeploymentLocation(long mbid)
 	{
 		DeployedDOM dom = doms.get(mbid);
 		if (dom == null) {
-			LOG.error("Cannot fetch DOM entry for " + mbid + " (doms=" +
-					  doms.size() + ")");
+			final String errmsg =
+				String.format("Cannot find location for %012x (doms=%d)",
+							  mbid, doms.size());
+			LOG.error(errmsg);
 			return null;
 		}
 
 		return String.format("%2d-%2d", dom.string, dom.location);
 	}
 
-	public Set<String> keys()
+	public Set<Long> keys()
 	{
 		return doms.keySet();
+	}
+
+	/**
+     * get the number of known mainboard IDs
+     * @return number of known mainboard IDs
+     */
+	public int size()
+	{
+		return doms.size();
 	}
 
 	public Set<DeployedDOM> getDomsOnHub(int hubId)
@@ -310,8 +342,9 @@ public class DOMRegistry
 			else
 				currentDOM.string = currentHubId;
 
-			doms.put(currentDOM.mainboardId, currentDOM);
-			if (currentDOM.isRealDOM()) domsByChannelId[currentDOM.channelId] = currentDOM;
+			doms.put(currentDOM.numericMainboardId, currentDOM);
+			if (currentDOM.isRealDOM())
+				domsByChannelId[currentDOM.channelId] = currentDOM;
 
 			currentDOM = new DeployedDOM();
 			originalString = 0;
@@ -325,7 +358,8 @@ public class DOMRegistry
 		else if (localName.equalsIgnoreCase("mainBoardId"))
 		{
 			currentDOM.mainboardId = txt;
-			currentDOM.numericMainboardId = Long.parseLong(currentDOM.mainboardId, 16);
+			currentDOM.numericMainboardId =
+				Long.parseLong(currentDOM.mainboardId, 16);
 		}
 		else if (localName.equalsIgnoreCase("name"))
 			currentDOM.name = txt;
@@ -343,23 +377,29 @@ public class DOMRegistry
 			originalString = Integer.parseInt(txt);
 	}
 
-	public double distanceBetweenDOMs(String mbid0, String mbid1)
+	public double distanceBetweenDOMs(long mbid0, long mbid1)
 	{
-		if (mbid0.equals(mbid1)) return 0.0;
+		if (mbid0 == mbid1) return 0.0;
 		return distanceTable[pairId(mbid0, mbid1)];
 	}
 
-	public double distanceXY(String mbid0, String mbid1)
+	private double distanceXY(long mbid0, long mbid1)
 	{
-		if (mbid0.equals(mbid1)) return 0.0;
+		if (mbid0 == mbid1) return 0.0;
 		return distanceTabXY[pairId(mbid0, mbid1)];
 	}
 
-	public double verticalDistance(String mbid0, String mbid1)
+	private double verticalDistance(long mbid0, long mbid1)
 	{
-		if (mbid0.equals(mbid1)) return 0.0;
-		DeployedDOM d0 = doms.get(mbid0);
-		DeployedDOM d1 = doms.get(mbid1);
+		if (mbid0 == mbid1) return 0.0;
+
+		final DeployedDOM d0 = doms.get(mbid0);
+		final DeployedDOM d1 = doms.get(mbid1);
+		if (d0 == null || d1 == null) {
+			LOG.error("Cannot compute DOM vertical distance for " +
+					  String.format("%012x and %012x", mbid0, mbid1));
+			return Long.MAX_VALUE;
+		}
 		return d1.z - d0.z;
 	}
 }

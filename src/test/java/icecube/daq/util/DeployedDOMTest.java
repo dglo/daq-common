@@ -18,7 +18,8 @@ public class DeployedDOMTest
 	DeployedDOM dDOM = new DeployedDOM();
 
 	assertEquals("Get ChannelID", (short)0, dDOM.getChannelId());
-	assertEquals("Get MainboardId", null, dDOM.getMainboardId());
+	assertEquals("Get MainboardId", "000000000000",
+                     dDOM.getMainboardId());
 	assertEquals("Get DomId", null, dDOM.getDomId());
 	assertEquals("Get Name", null, dDOM.getName());
 	assertEquals("Get String Major", 0, dDOM.getStringMajor());
