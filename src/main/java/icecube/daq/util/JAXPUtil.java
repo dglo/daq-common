@@ -137,7 +137,7 @@ public abstract class JAXPUtil
     {
         try {
             return (NodeList) xpath.evaluate(pathExpr, topNode,
-                                         XPathConstants.NODESET);
+                                             XPathConstants.NODESET);
         } catch (XPathExpressionException xpex) {
             throw new JAXPUtilException("Bad xpath " + pathExpr, xpex);
         }
@@ -184,6 +184,21 @@ public abstract class JAXPUtil
             }
         }
 
+        return loadXMLDocument(xmlFile);
+    }
+
+    /**
+     * Load a file as an XML document.
+     *
+     * @param xmlFile file to load
+     *
+     * @return XML Document object
+     *
+     * @throws JAXPUtilException if there is a problem
+     */
+    public static Document loadXMLDocument(File xmlFile)
+        throws JAXPUtilException
+    {
         DocumentBuilder bldr;
         try {
             bldr = DocumentBuilderFactory.newInstance().newDocumentBuilder();
