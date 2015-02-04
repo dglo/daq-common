@@ -548,7 +548,9 @@ public class Leapseconds {
 
         if (year<1972) {
             // nist does not provide information prior to 1972
-            throw new IllegalArgumentException("Nist does not provide leap second info prior to 1972");
+            final String err =
+                "Nist does not provide leap second info prior to 1972";
+            throw new ExceptionInInitializerError(err);
         }
 
         mjd_expiry = 0.0;
@@ -562,7 +564,9 @@ public class Leapseconds {
         try {
             parse_nist_leapseconds(leapsecond_name, mjd_list);
         } catch(FileNotFoundException e) {
-            throw new IllegalArgumentException("leapscond file not found: '"+leapsecond_name+"'!");
+            throw new ExceptionInInitializerError("leapsecond file '" +
+                                                  leapsecond_name +
+                                                  "' not found");
         }
 
         offset_year = year;
@@ -574,7 +578,8 @@ public class Leapseconds {
         // The pdaq dash code will complain about an expired and/or expiring file
         // ------------------------------------------------------------------
         //if (this.has_expired()) {
-        //    throw new IllegalArgumentException("leapsecond file not valid for "+year);
+        //    final String err = "leapsecond file not valid for " + year;
+        //    throw new ExceptionInInitializerError(err);
         //}
 
         // generate an array of offsets from the beginning of

@@ -92,7 +92,7 @@ public class leapsecondsTest {
             if (test == null) {
                 return;
             }
-        } catch (IllegalArgumentException e) {
+        } catch (ExceptionInInitializerError e) {
             pass=true;
         }
         assertTrue(pass);
