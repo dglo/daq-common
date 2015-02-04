@@ -17,6 +17,18 @@ public final class LocatePDAQ
         "icecube.daq.component.configDir";
 
     /**
+     * Clear all cached paths.
+     *
+     * NOTE: This is intended for use in unit tests and should probably not
+     * be used in normal operation.
+     */
+    public static final void clearCache()
+    {
+        CONFIG_DIR = null;
+        META_DIR = null;
+    }
+
+    /**
      * Find the pDAQ run configuration directory.
      *
      * @return configuration directory
