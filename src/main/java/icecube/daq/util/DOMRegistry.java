@@ -174,7 +174,7 @@ public class DOMRegistry
 
 	/**
 	 * Lookup DOM based on channelID
-	 * @param channelId - 64*string + (module-1)
+	 * @param ch channel ID - 64*string + (module-1)
 	 * @return DeployedDOM object
 	 */
 	public DeployedDOM getDom(short ch)

@@ -12,7 +12,7 @@ public interface IDOMRegistry
     short getChannelId(long mbid);
     /**
      * Lookup DOM given mainboard Id
-     * @param mbid DOM mainboard id
+     * @param mbId DOM mainboard id
      * @return deployed DOM information
      */
     DeployedDOM getDom(long mbId);

@@ -192,7 +192,7 @@ public final class LocatePDAQ
     /**
      * Set the configuration directory location.
      *
-     * @param dir path to configuration directory
+     * @param path path to configuration directory
      */
     public static void setConfigDirectory(String path)
     {
