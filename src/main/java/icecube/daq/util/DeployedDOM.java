@@ -9,6 +9,7 @@ package icecube.daq.util;
  */
 
 public class DeployedDOM
+	implements Comparable<DeployedDOM>
 {
 	short channelId;
 	String mainboardId;
@@ -52,6 +53,15 @@ public class DeployedDOM
 		x			= dom.x;
 		y			= dom.y;
 		z 			= dom.z;
+	}
+
+	public int compareTo(DeployedDOM dom)
+	{
+		int diff = string - dom.string;
+		if (diff == 0) {
+			diff = location - dom.location;
+		}
+		return diff;
 	}
 
 	public short getChannelId() { return channelId; }
