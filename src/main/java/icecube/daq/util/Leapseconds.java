@@ -3,6 +3,8 @@ package icecube.daq.util;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileNotFoundException;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -13,6 +15,36 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+/**
+ * <pre>
+ * Provides knowledge of leap second insertions, both historical
+ * and pending. Information is obtained from the NIST leap second
+ * file provided by the configuration.
+ *
+ * The primary function of this class is get_leap_offset() which provides an
+ * offset value that can be used to translate a UTC point-in-time (which does
+ * not enumerate leap seconds) to an ICL point in time which is based on the
+ * number of seconds since the beginning of a year.
+ *
+ * In general use, the singleton instance of this class will be initialized
+ * with the default year equal to the current year at initialization. This
+ * allows for unqualified use for time values related to the current year.
+ * Clients which desire a lookup from a different year can specify the year.
+ *
+ * Use of this class should be restricted to times occurring from 1972
+ * through to the expiration of the configured NIST file. Usage beyond the
+ * expiration date is not prohibited, but will produce inaccurate offsets
+ * for times occurring after a published leap second.
+ *
+ * NOTE: The information provided by this class is only as good as the
+ *       information provided by the configured NIST file. Specifically,
+ *       if this class is used to look up offset data or duration data
+ *       beyond the expiration date of the NIST file, there is a potential
+ *       for inaccurate data to be returned. Maintenance of the NIST file
+ *       is a system responsibility and is not enforced directly by this
+ *       class.
+ *</pre>
+ */
 public class Leapseconds {
 
     // a hash map from mjd to tai offset
@@ -21,14 +53,17 @@ public class Leapseconds {
     // date current leapseconds file expires
     private double mjd_expiry;
 
-    // array from day of year to leap second offset
-    private int[] offset_array;
+    // pre-calculated array of day to leap second offset
+    // for supported years. Generally this will include 1972
+    // through the present if the NIST file is maintained.
+    private Map<Integer,int[]> precalculatedOffsets;
+
+    // default year for lookups that do not specify the year,
+    // in normal usage this will be the current year.
+    public int defaultYear;
 
     // data from the nist file
     private double[] nist_offset_array;
-
-    // year for which the offset list is good
-    public int offset_year;
 
     private static Leapseconds instance;
 
@@ -38,6 +73,9 @@ public class Leapseconds {
 
     private static final int LEAP_YEAR=366;
     private static final int YEAR=365;
+
+    /** A reasonable bound on the span of years that can be precalculated */
+    private static final int MAX_PRECALCULATE_SPAN = 100;
 
     public static void setConfigDirectory(File dir)
     {
@@ -93,18 +131,47 @@ public class Leapseconds {
     }
 
 
-    /* get the leapsecond offset for a specified day of year
-     * assume that the year has not changed
+    /**
+     * Get the leap second offset for a specific day of the default year.
+     * Generally this will be the year in which the application was
+     * initialized.
      *
-     * @param int - day of year
-     * @returns long - number of leapseconds that have occured since the
-     *                 beginning of the year
+     * It is assumed that the year has not changed during the lifetime of
+     * an instance.
+     *
+     * @param day_of_year A day in the year, one-based.
+     * @returns long - number of leap seconds that have occurred since the
+     *                 beginning of the year.
      */
     public int get_leap_offset(int day_of_year) {
-        if (day_of_year > 0 && day_of_year < offset_array.length) {
-            return offset_array[day_of_year];
-        } else {
-            // if there is an array index error just return 0
+        return get_leap_offset(defaultYear, day_of_year);
+    }
+
+    /**
+     *  Get the leap second offset for a specific day of a specific
+     * year. Callers should be aware of the general limitations of
+     * this class for years prior to 1972 and years beyond the expiration
+     * of the NIST file.
+     *
+     * @param year The operative year.
+     * @param day_of_year A day in the specified year, one-based.
+     * @returns The number of leap seconds that have occurred since the
+     *          beginning of the operative year, or zero for years outside
+     *          the capabilities of this class.
+     */
+    public int get_leap_offset(final int year, final int day_of_year) {
+        if(precalculatedOffsets.containsKey(year))
+        {
+            final int[] precalculatedOffsets = this.precalculatedOffsets.get(year);
+            if (day_of_year > 0 && day_of_year < precalculatedOffsets.length) {
+                return precalculatedOffsets[day_of_year];
+            } else {
+                // if there is an array index error just return 0
+                return 0;
+            }
+        }
+        else
+        {
             return 0;
         }
     }
@@ -390,31 +457,71 @@ public class Leapseconds {
     }
 
 
-    /*
-     * For the given year, use the information from the NIST leapseconds file
-     * to generate an array of leap second offsets for that year ( indexed by day )
-     * either generate an array that covers the entire year or until the leap second
-     * expiry date ( as specified inside the nist leapseconds file )
+    /**
+     * Initialize the pre-calculated map of offsets.
      *
-     * @param year - int year ( includes century - ie 2012 )
+     * For each year, an array of leap second offsets, indexed by day of year
+     * will be generated.
+     *
+     * If the NIST file expires within a year, the offset at expiration will
+     * be propagated to the end of the year.
+     *
+     * If the NIST file expires prior to a year, an offset array of zeros will
+     * be generated.
+     *
+     * @param firstYear The earliest year to auto-generate.
+     * @param finalYear The latest year to auto-generate.
+     * @param defaultYear This year will always be populated.
      */
-    private void init_offset_array(int year, ArrayList<Double> mjd_list) {
+    private void init_offset_array(final int firstYear, final int finalYear,
+                                   final int defaultYear, ArrayList<Double> mjd_list) {
 
-        // jan 2'nd next year
-        double mjd_this_year = mjd(year, 1, 1);
-        double mjd_next_year = mjd(year+1, 1, 2);
+        List<Integer> targetYears = new ArrayList<Integer>(finalYear-firstYear);
+
+        // NOTE: The contract of this class allows usage for years beyond the
+        // NIST expiry.
+        if(defaultYear > finalYear)
+        {
+            targetYears.add(defaultYear);
+        }
+
+        for (int year = firstYear; year <= finalYear; year++)
+        {
+            targetYears.add(year);
+        }
+
+        // Prevent memory utilization errors by respecting a bound on
+        // the number of pre-calulated years.
+        if(targetYears.size() > MAX_PRECALCULATE_SPAN)
+        {
+            String msg =
+                    String.format("Nist file spans too many years:[%d-%d]",
+                            firstYear, finalYear);
+            throw new Error(msg);
+        }
+
+        // pre-calculate offsets for the requested year as well as
+        // all years available in the NIST file. By convention, the offset
+        // for years not covered in the NIST file will be reported as zero.
+        precalculatedOffsets = init_offset_array(targetYears, mjd_list);
+    }
 
 
-        // calculate how far into the future our data extends
-        // NOTE: the haviour of this class has changed.
-        // DO NOT complain about the file expiring, simply assume
-        // that there have been no leapseconds past the end of the time
-        // where we have information
-        // ------------------------------------------------------------
-        double mjd_limit = mjd_next_year;
-        int mjd_data_limit = (int)Math.ceil(mjd_limit - mjd_this_year + 2.);
+    /**
+     * Generate a pre-calculated leap second offset array for a list
+     * of years.
+     *
+     * @param years The list of years to pre-calculate.
+     * @param mjd_list A list of times at which leap seconds insertions
+     *                 have been or will be inserted.
+     * @return A map of offsets indexed by the operative year.
+     */
+    private Map<Integer, int[]> init_offset_array(final List<Integer> years,
+                                                  ArrayList<Double> mjd_list) {
 
 
+        // NOTE: side-effect, the nist_offset_array is populated
+        //       for later use by seconds_in_year()
         // get an array of the mjd data from the list
         // config file.  This is used for the binary search
         nist_offset_array = new double[mjd_list.size()];
@@ -422,36 +529,58 @@ public class Leapseconds {
             nist_offset_array[i] = mjd_list.get(i).doubleValue();
         }
 
-        // get initial TAI offset
-        long initial_offset;
-        initial_offset = get_tai_offset(nist_offset_array, mjd_this_year);
+        // generate a list of offsets for every year
+        Map<Integer, int[]> offsetMap =
+                new HashMap<Integer, int[]>(years.size());
+        for (int year : years)
+        {
+            // jan 2'nd next year
+            double mjd_this_year = mjd(year, 1, 1);
+            double mjd_next_year = mjd(year+1, 1, 2);
 
+            // calculate how far into the future our data extends
+            // NOTE: the behaviour of this class has changed.
+            // DO NOT complain about the file expiring, simply assume
+            // that there have been no leapseconds past the end of the time
+            // where we have information
+            // ------------------------------------------------------------
+            double mjd_limit = mjd_next_year;
+            int mjd_data_limit = (int)Math.ceil(mjd_limit - mjd_this_year + 2.);
 
-        int offset_array_size = (int)Math.ceil(mjd_next_year - mjd_this_year + 2.0);
-        offset_array = new int[offset_array_size];
-        // initialize the offset array to zero
-        for(int index=0; index<offset_array_size; index++) {
-            offset_array[index] = 0;
-        }
+            // get initial TAI offset
+            long initial_offset;
+            initial_offset = get_tai_offset(nist_offset_array, mjd_this_year);
 
-
-        double mjd_day = mjd_this_year;
-        for(int index=1; index<mjd_data_limit; index++) {
-            long tmp_offset = get_tai_offset(nist_offset_array, mjd_day);
-            offset_array[index] = (int) (tmp_offset - initial_offset);
-            mjd_day +=1.0;
-        }
-
-        if(mjd_data_limit!=offset_array_size) {
-            // we don't have data to the end of the year
-            // however, make the detector consistent
-            int value_to_copy = offset_array[mjd_data_limit-1];
-
-            for(int index = mjd_data_limit; index<offset_array_size; index++) {
-                offset_array[index] = value_to_copy;
+            int currentOffsetsSize = (int)Math.ceil(mjd_next_year - mjd_this_year + 2.0);
+            int[] currentOffsets = new int[currentOffsetsSize];
+            // initialize the offset array to zero
+            for(int index=0; index<currentOffsets.length; index++) {
+                currentOffsets[index] = 0;
             }
+
+
+            double mjd_day = mjd_this_year;
+            for(int index=1; index<mjd_data_limit; index++) {
+                long tmp_offset = get_tai_offset(nist_offset_array, mjd_day);
+                currentOffsets[index] = (int) (tmp_offset - initial_offset);
+                mjd_day +=1.0;
+            }
+
+            if(mjd_data_limit!=currentOffsetsSize) {
+                // we don't have data to the end of the year
+                // however, make the detector consistent
+                int value_to_copy = currentOffsets[mjd_data_limit-1];
+
+                for(int index = mjd_data_limit; index<currentOffsetsSize; index++) {
+                    currentOffsets[index] = value_to_copy;
+                }
+            }
+
+            offsetMap.put(year, currentOffsets);
         }
 
+
+        return offsetMap;
     }
 
 
@@ -464,11 +593,12 @@ public class Leapseconds {
         String NEW_LINE = System.getProperty("line.separator");
 
         result.append(this.getClass().getName() + NEW_LINE);
-        result.append("Year: "+offset_year+NEW_LINE);
+        result.append("Year: "+ defaultYear +NEW_LINE);
 
-        double jan1_mjd = mjd(offset_year, 1, 1.);
+        double jan1_mjd = mjd(defaultYear, 1, 1.);
         double curr_mjd = jan1_mjd;
-        for(int index=1; index<offset_array.length; index++) {
+        int[] defaultYearOffsets = precalculatedOffsets.get(defaultYear);
+        for(int index=1; index< defaultYearOffsets.length; index++) {
             Calendar cal_day = mjd_to_cal(curr_mjd);
             curr_mjd += 1.0;
 
@@ -476,7 +606,7 @@ public class Leapseconds {
             int month = cal_day.get(Calendar.MONTH)+1;
             int day = cal_day.get(Calendar.DAY_OF_MONTH);
 
-            result.append(month+"/"+day+"/"+year+" offset: "+offset_array[index]+NEW_LINE);
+            result.append(month+"/"+day+"/"+year+" offset: "+ defaultYearOffsets[index]+NEW_LINE);
         }
 
         return result.toString();
@@ -523,13 +653,13 @@ public class Leapseconds {
         Calendar expiry_cal = mjd_to_cal(mjd_expiry);
         int expiry_year = expiry_cal.get(Calendar.YEAR);
 
-        if(expiry_year==offset_year) {
+        if(expiry_year== defaultYear) {
             double mjd_now = mjd_today();
             if (mjd_now>mjd_expiry) {
                 return true;
             }
             return false;
-        } else if(expiry_year>offset_year) {
+        } else if(expiry_year> defaultYear) {
             return false;
         }
 
@@ -546,12 +676,15 @@ public class Leapseconds {
      */
     private void init(String leapsecond_name, int year) throws IllegalArgumentException {
 
-        if (year<1972) {
+        if (year< 1972) {
             // nist does not provide information prior to 1972
             final String err =
                 "Nist does not provide leap second info prior to 1972";
             throw new ExceptionInInitializerError(err);
         }
+
+        defaultYear = year;
+
 
         mjd_expiry = 0.0;
 
@@ -569,7 +702,6 @@ public class Leapseconds {
                                                   "' not found");
         }
 
-        offset_year = year;
 
         // The desired behavior of this class is changing
         // Do NOT complain about an expired leapseconds file, simply assume that there
@@ -582,10 +714,11 @@ public class Leapseconds {
         //    throw new ExceptionInInitializerError(err);
         //}
 
-        // generate an array of offsets from the beginning of
-        // the current calendar year to either the
-        // expiry date of the leap second file OR jan 2 of next year
-        // whichever is sooner
-        init_offset_array(year, mjd_list);
+        // For each year covered in the NIST file, as well as for the default
+        // year, generate an array of offsets from the beginning of
+        // the operative year to jan 2 of next year.
+        final int firstYear = 1972;
+        int finalYear = mjd_to_cal(mjd_expiry).get(Calendar.YEAR);
+        init_offset_array(firstYear, finalYear, defaultYear, mjd_list);
     }
 }
