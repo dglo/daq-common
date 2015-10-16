@@ -116,7 +116,7 @@ public class Leapseconds {
      * calculate the number of days in the given year
      *
      * @param int - year the year of interest with century ( ie 2012 )
-     * @returns int - days in the given year ( ie 365 or 366 )
+     * @return int - days in the given year ( ie 365 or 366 )
      */
     public int get_days_in_year(int year) {
         if (year%400 == 0) {
@@ -140,7 +140,7 @@ public class Leapseconds {
      * an instance.
      *
      * @param day_of_year A day in the year, one-based.
-     * @returns long - number of leap seconds that have occurred since the
+     * @return long - number of leap seconds that have occurred since the
      *                 beginning of the year.
      */
     public int get_leap_offset(int day_of_year) {
@@ -155,7 +155,7 @@ public class Leapseconds {
      *
      * @param year The operative year.
      * @param day_of_year A day in the specified year, one-based.
-     * @returns The number of leap seconds that have occurred since the
+     * @return The number of leap seconds that have occurred since the
      *          beginning of the operative year, or zero for years outside
      *          the capabilities of this class.
      */
@@ -180,7 +180,7 @@ public class Leapseconds {
 
     /* figure out how many days until this leapsecond file expires
      *
-     * @returns double - decimal days till leap second file expires
+     * @return double - decimal days till leap second file expires
      */
     public double daysTillExpiry() {
         return mjd_expiry - mjd_today();
@@ -236,7 +236,7 @@ public class Leapseconds {
      * number of leap seconds
      *
      * @param year - year with century
-     * @returns Long - number of seconds which makeup the year specified in the argument
+     * @return Long - number of seconds which makeup the year specified in the argument
      * @throws IllegalArgumentException  if the year is before 1972 or after the nist data expires
      */
 
@@ -432,7 +432,7 @@ public class Leapseconds {
      *
      * @param mjd_array
      * @param mjd
-     * @returns tai offset at the given mjd
+     * @return tai offset at the given mjd
      */
     private long get_tai_offset(double[] mjd_array, double mjd) {
         int offset_index;
@@ -586,7 +586,7 @@ public class Leapseconds {
 
     /*
      * toString
-     * @returns string A string representation of this class
+     * @return string A string representation of this class
      */
     public String toString() {
         StringBuilder result = new StringBuilder();
@@ -646,7 +646,7 @@ public class Leapseconds {
     /*
      * returned true if the nist leapsecond file has expired
      *
-     * @returns boolean - true if the leapsecond file is expired for the year of interest
+     * @return boolean - true if the leapsecond file is expired for the year of interest
      */
     public boolean has_expired() {
 
