@@ -42,19 +42,20 @@ public class DeployedDOM
 	 */
 	DeployedDOM(DeployedDOM dom)
 	{
-		channelId  	= dom.channelId;
+		channelId	= dom.channelId;
 		mainboardId	= dom.mainboardId;
 		numericMainboardId = dom.numericMainboardId;
-		domId 		= dom.domId;
-		name  		= dom.name;
-		hubId       = dom.hubId;
-		string 		= dom.string;
-		location 	= dom.location;
+		domId		= dom.domId;
+		name		= dom.name;
+		hubId		= dom.hubId;
+		string		= dom.string;
+		location	= dom.location;
 		x			= dom.x;
 		y			= dom.y;
-		z 			= dom.z;
+		z			= dom.z;
 	}
 
+	@Override
 	public int compareTo(DeployedDOM dom)
 	{
 		int diff = string - dom.string;
@@ -62,6 +63,13 @@ public class DeployedDOM
 			diff = location - dom.location;
 		}
 		return diff;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		return obj instanceof DeployedDOM &&
+			((DeployedDOM) obj).numericMainboardId == numericMainboardId;
 	}
 
 	public short getChannelId() { return channelId; }
@@ -91,33 +99,26 @@ public class DeployedDOM
 	public double getY() { return y; }
 	public double getZ() { return z; }
 
+	@Override
+	public int hashCode()
+	{
+		return (int) (numericMainboardId ^ (numericMainboardId >> 32));
+	}
+
 	public boolean isRealDOM()
 	{
-	    return (string >= 1 && string <= 86);
+		return (string >= 1 && string <= 86);
 	}
 
 	public boolean isIceTop()
 	{
-	    return (location >= 61 && location <= 64);
+		return (location >= 61 && location <= 64);
 	}
 
 	@Override
 	public String toString()
 	{
 		return domId + "[" + getMainboardId() + "]" + channelId + " '" + name +
-                "' at " + String.format("%02d-%02d", string, location);
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-	    return obj instanceof DeployedDOM &&
-			((DeployedDOM) obj).numericMainboardId == numericMainboardId;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return (int) (numericMainboardId ^ (numericMainboardId >> 32));
+			"' at " + String.format("%02d-%02d", string, location);
 	}
 }
