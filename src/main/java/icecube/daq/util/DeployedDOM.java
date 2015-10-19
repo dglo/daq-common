@@ -67,7 +67,7 @@ public class DeployedDOM
      * Use string number and position to compute the channel ID.
      *
      * @param string string number (1-86, 201-211)
-     * @param position string position (1-64)
+     * @param position string position (1-66)
      */
     public static final short computeChannelId(int string, int position)
     {
@@ -75,6 +75,10 @@ public class DeployedDOM
 
         if (position > 66) {
             throw new Error("Impossible position");
+        }
+
+        if (position > 64) {
+            return (short) (6000 + ((kstring - 1) * 2) + (position - 65));
         }
 
         return (short) (kstring * 64 + (position - 1));
@@ -153,6 +157,11 @@ public class DeployedDOM
     public boolean isIceTop()
     {
         return (location >= 61 && location <= 64);
+    }
+
+    public boolean isScintillator()
+    {
+        return (location >= 65 && location <= 66);
     }
 
     @Override
