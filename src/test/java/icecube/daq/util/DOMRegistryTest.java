@@ -18,7 +18,6 @@ public class DOMRegistryTest
         throws Exception
     {
         if (registry == null) {
-            //File configDir = LocatePDAQ.findConfigDirectory();
             File configDir =
                 new File(getClass().getResource("/config").getPath());
             if (!configDir.exists()) {
