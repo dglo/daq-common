@@ -22,7 +22,7 @@ public final class LocatePDAQ
      * NOTE: This is intended for use in unit tests and should probably not
      * be used in normal operation.
      */
-    public static final void clearCache()
+    public static void clearCache()
     {
         CONFIG_DIR = null;
         META_DIR = null;
@@ -35,7 +35,7 @@ public final class LocatePDAQ
      *
      * @throws IllegalArgumentException if config directory is not found
      */
-    public static File findConfigDirectory()
+    public static synchronized File findConfigDirectory()
         throws IllegalArgumentException
     {
         if (CONFIG_DIR != null) {
@@ -74,7 +74,7 @@ public final class LocatePDAQ
                     dir = tmpFile;
                 }
                 break;
-            case 4:
+            default:
                 // give up
                 done = true;
                 break;
@@ -103,7 +103,7 @@ public final class LocatePDAQ
      *
      * @return top-level directory
      */
-    public static File findTrunk()
+    public static synchronized File findTrunk()
     {
         if (META_DIR != null) {
             return META_DIR;

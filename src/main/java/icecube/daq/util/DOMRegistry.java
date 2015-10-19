@@ -69,7 +69,7 @@ public class DOMRegistry
 		return loadRegistry(f);
 	}
 
-	public static DOMRegistry loadRegistry(File path)
+	public static synchronized DOMRegistry loadRegistry(File path)
 		throws ParserConfigurationException, SAXException, IOException
 	{
 		if (cachedRegistry != null && cachedPath != null &&

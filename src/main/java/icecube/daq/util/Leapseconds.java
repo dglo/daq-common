@@ -86,7 +86,7 @@ public class Leapseconds {
         CONFIG_DIR = dir;
     }
 
-    public static File getConfigDirectory()
+    public static synchronized File getConfigDirectory()
     {
         if (CONFIG_DIR == null) {
             CONFIG_DIR = LocatePDAQ.findConfigDirectory();
