@@ -23,8 +23,10 @@ public class DOMRegistry
     /** Name of file containing all DOM data */
     public static final String DEFAULT_DOM_GEOMETRY =
         "default-dom-geometry.xml";
-    /** Total number of in-ice DOMs */
-    public static final int NCH = 87*64;
+    /** Total number of in-ice and icetop DOMs */
+    private static final int NCH = 87*64;
+    /** Maximum channel ID */
+    private static final int MAX_CHANNEL_ID = 6171;
 
     private static final Log LOG = LogFactory.getLog(DOMRegistry.class);
 
@@ -220,7 +222,8 @@ public class DOMRegistry
         if (cachedRegistry == null || cachedPath == null ||
             !path.equals(cachedPath))
         {
-            DOMRegistryParser parser = new DOMRegistryParser(path);
+            DOMRegistryParser parser =
+                new DOMRegistryParser(path, MAX_CHANNEL_ID + 1);
 
             DOMRegistry reg = parser.getRegistry();
             reg.tabulateDistances();
@@ -270,12 +273,12 @@ public class DOMRegistry
         for (int ch0 = 0; ch0 < mlist.length; ch0++)
         {
             DeployedDOM d0 = mlist[ch0];
-            if (d0.isRealDOM())
+            if (d0.isRealDOM() && !d0.isScintillator())
             {
                 for (int ch1 = 0; ch1 < ch0; ch1++)
                 {
                     DeployedDOM d1 = mlist[ch1];
-                    if (d1.isRealDOM())
+                    if (d1.isRealDOM() && !d1.isScintillator())
                     {
                         int pid = tableIndex(d0, d1);
                         if (pid >= NCH*(NCH-1)/2)

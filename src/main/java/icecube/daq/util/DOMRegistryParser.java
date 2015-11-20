@@ -24,13 +24,14 @@ class DOMRegistryParser
     private int originalString;
 
     private HashMap<Long, DeployedDOM> doms = new HashMap<Long, DeployedDOM>();
-    private DeployedDOM[] domsByChannelId = new DeployedDOM[DOMRegistry.NCH];
+    private DeployedDOM[] domsByChannelId;
 
     private DOMRegistry reg;
 
-    DOMRegistryParser(File configDir)
+    DOMRegistryParser(File configDir, int maxChannelIDs)
         throws ParserConfigurationException, SAXException, IOException
     {
+        domsByChannelId = new DeployedDOM[maxChannelIDs];
         reg = new DOMRegistry(doms, domsByChannelId);
 
         if (configDir == null || !configDir.exists()) {

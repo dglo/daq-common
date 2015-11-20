@@ -154,6 +154,11 @@ public class DeployedDOM
         return (string >= 1 && string <= 86);
     }
 
+    public boolean isInIce()
+    {
+        return (location >= 1 && location <= 60);
+    }
+
     public boolean isIceTop()
     {
         return (location >= 61 && location <= 64);
