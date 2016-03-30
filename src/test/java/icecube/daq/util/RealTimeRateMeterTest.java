@@ -26,7 +26,7 @@ public class RealTimeRateMeterTest
 
 	RealTimeRateMeter rtm = new RealTimeRateMeter(interval);
 
-	assertEquals("Get rate0", 0.00, rtm.getRate());
+	assertEquals("Get rate0", 0.00, rtm.getRate(), 0.01);
 	assertEquals("Get Time0", 0L - interval, rtm.getTime());
 
 	final long utc = 2468L;
@@ -34,14 +34,14 @@ public class RealTimeRateMeterTest
 
 	rtm.recordEvent(utc, wt);
 
-	assertEquals("Get rate1", computeRate(0.00, interval), rtm.getRate());
+	assertEquals("Get rate1", computeRate(0.00, interval), rtm.getRate(), 0.01);
 	assertEquals("Get Time1", computeTime(utc, interval), rtm.getTime());
 
         final long utc2 = utc + 1000L;
 
 	rtm.recordEvent(utc2);
 
-	assertEquals("Get rate2", computeRate(wt, interval), rtm.getRate());
+	assertEquals("Get rate2", computeRate(wt, interval), rtm.getRate(), 0.01);
 	assertEquals("Get Time2", computeTime(utc2, interval), rtm.getTime());
     }
 }

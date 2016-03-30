@@ -18,14 +18,15 @@ public class DeployedDOMTest
 	DeployedDOM dDOM = new DeployedDOM();
 
 	assertEquals("Get ChannelID", (short)0, dDOM.getChannelId());
-	assertEquals("Get MainboardId", null, dDOM.getMainboardId());
+	assertEquals("Get MainboardId", "000000000000",
+                     dDOM.getMainboardId());
 	assertEquals("Get DomId", null, dDOM.getDomId());
 	assertEquals("Get Name", null, dDOM.getName());
 	assertEquals("Get String Major", 0, dDOM.getStringMajor());
 	assertEquals("Get String Minor", 0, dDOM.getStringMinor());
-	assertEquals("Get X", (double)0, dDOM.getX());
-	assertEquals("Get Y", (double)0, dDOM.getY());
-	assertEquals("Get Z", (double)0, dDOM.getZ());
+	assertEquals("Get X", (double)0, dDOM.getX(), 0.01);
+	assertEquals("Get Y", (double)0, dDOM.getY(), 0.01);
+	assertEquals("Get Z", (double)0, dDOM.getZ(), 0.01);
 	assertFalse("Not real DOM", dDOM.isRealDOM());
 
         final short channelId = 1234;
@@ -54,9 +55,9 @@ public class DeployedDOMTest
 	assertEquals("Get Name", name, dDOM.getName());
 	assertEquals("Get String Major", string, dDOM.getStringMajor());
 	assertEquals("Get String Minor", location, dDOM.getStringMinor());
-	assertEquals("Get X", x, dDOM.getX());
-	assertEquals("Get Y", y, dDOM.getY());
-	assertEquals("Get Z", z, dDOM.getZ());
+	assertEquals("Get X", x, dDOM.getX(), 0.01);
+	assertEquals("Get Y", y, dDOM.getY(), 0.01);
+	assertEquals("Get Z", z, dDOM.getZ(), 0.01);
 	assertTrue("Is real DOM", dDOM.isRealDOM());
 
 	DeployedDOM dDOM1 = new DeployedDOM(dDOM);
@@ -67,9 +68,9 @@ public class DeployedDOMTest
 	assertEquals("Get Name", name, dDOM1.getName());
 	assertEquals("Get String Major", string, dDOM1.getStringMajor());
 	assertEquals("Get String Minor", location, dDOM1.getStringMinor());
-	assertEquals("Get X", x, dDOM1.getX());
-	assertEquals("Get Y", y, dDOM1.getY());
-	assertEquals("Get Z", z, dDOM1.getZ());
+	assertEquals("Get X", x, dDOM1.getX(), 0.01);
+	assertEquals("Get Y", y, dDOM1.getY(), 0.01);
+	assertEquals("Get Z", z, dDOM1.getZ(), 0.01);
 	assertTrue("Is real DOM", dDOM1.isRealDOM());
 
 	assertNotNull("Get hash code", dDOM1.hashCode());

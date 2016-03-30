@@ -17,11 +17,26 @@ public final class LocatePDAQ
         "icecube.daq.component.configDir";
 
     /**
+     * Clear all cached paths.
+     *
+     * NOTE: This is intended for use in unit tests and should probably not
+     * be used in normal operation.
+     */
+    public static void clearCache()
+    {
+        CONFIG_DIR = null;
+        META_DIR = null;
+    }
+
+    /**
      * Find the pDAQ run configuration directory.
      *
      * @return configuration directory
+     *
+     * @throws IllegalArgumentException if config directory is not found
      */
-    public static final File findConfigDirectory()
+    public static synchronized File findConfigDirectory()
+        throws IllegalArgumentException
     {
         if (CONFIG_DIR != null) {
             return CONFIG_DIR;
@@ -46,20 +61,20 @@ public final class LocatePDAQ
                 }
                 break;
             case 2:
-                // check user-specified pDAQ distribution directory
-                File tmpFile = findTrunk("config");
-                if (tmpFile != null) {
-                    dir = tmpFile;
-                }
-                break;
-            case 3:
                 // check home directory
                 final String homeDir = System.getenv("HOME");
                 if (homeDir != null && homeDir.length() > 0) {
                     dir = new File(homeDir, "config");
                 }
                 break;
-            case 4:
+            case 3:
+                // check user-specified pDAQ distribution directory
+                File tmpFile = findTrunk("config");
+                if (tmpFile != null) {
+                    dir = tmpFile;
+                }
+                break;
+            default:
                 // give up
                 done = true;
                 break;
@@ -88,7 +103,7 @@ public final class LocatePDAQ
      *
      * @return top-level directory
      */
-    public static final File findTrunk()
+    public static synchronized File findTrunk()
     {
         if (META_DIR != null) {
             return META_DIR;
@@ -113,7 +128,7 @@ public final class LocatePDAQ
      * @return pDAQ subdirectory (or <tt>null</tt> if trunk or subdirectory
      *                            is not found)
      */
-    public static final File findTrunk(String subdir)
+    public static File findTrunk(String subdir)
     {
         boolean done = false;
         for (int i = 0; !done; i++) {
@@ -177,9 +192,9 @@ public final class LocatePDAQ
     /**
      * Set the configuration directory location.
      *
-     * @param dir path to configuration directory
+     * @param path path to configuration directory
      */
-    public static final void setConfigDirectory(String path)
+    public static void setConfigDirectory(String path)
     {
         if (path == null || path.equals("")) {
             throw new IllegalArgumentException("Path argument is not set");

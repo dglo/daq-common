@@ -64,7 +64,7 @@ public class ANSIEscapeCode
         return escapeString(color + 30);
     }
 
-    private static final String escapeString(int code)
+    private static String escapeString(int code)
     {
         String substr;
         if (code <= 0) {

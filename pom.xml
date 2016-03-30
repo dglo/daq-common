@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>daq-common</artifactId>
   <packaging>jar</packaging>
-  <name>daq-common</name>
+  <name>Common utility classes</name>
   <description>The ${project.name} sub-system of the Surface Data Acquisition system for the IceCube Project.</description>
 
   <scm>
@@ -33,8 +33,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.zeromq</groupId>
-      <artifactId>jzmq</artifactId>
+      <groupId>javax.xml.parsers</groupId>
+      <artifactId>jaxp-api</artifactId>
     </dependency>
   </dependencies>
 </project>

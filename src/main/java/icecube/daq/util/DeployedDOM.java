@@ -7,85 +7,172 @@ package icecube.daq.util;
  */
 
 public class DeployedDOM
+    implements Comparable<DeployedDOM>
 {
-	short channelId;
-	String mainboardId;
-	long numericMainboardId;
-	String domId;
-	String name;
-	/** component ID of the hub to which this channel is connected */
-	int hubId;     
-	/** Logical string ID - note can be > 86 for test system and sim DOMs */ 
-	int string;
-	/** Modules' location along the string */
-	int location;
-	double x;
-	double y;
-	double z;
+    short channelId;
+    String mainboardId;
+    long numericMainboardId;
+    String domId;
+    String name;
+    /** component ID of the hub to which this channel is connected */
+    int hubId;
+    /** Logical string ID - note can be > 86 for test system and sim DOMs */
+    int string;
+    /** Modules' location along the string */
+    int location;
+    double x;
+    double y;
+    double z;
 
-	/** Constructor only for package peers */
-	DeployedDOM() { }
+    /** Public constructor */
+    public DeployedDOM(long mbId, int string, int location)
+    {
+        numericMainboardId = mbId;
+        this.string = string;
+        this.location = location;
+    }
 
-	/**
-	 * Copy construtor.
-	 */
-	DeployedDOM(DeployedDOM dom)
-	{
-		channelId  	= dom.channelId;
-		mainboardId	= dom.mainboardId;
-		numericMainboardId = dom.numericMainboardId;
-		domId 		= dom.domId;
-		name  		= dom.name;
-		hubId       = dom.hubId;
-		string 		= dom.string;
-		location 	= dom.location;
-		x			= dom.x;
-		y			= dom.y;
-		z 			= dom.z;
-	}
+    /** Constructor only for package peers */
+    DeployedDOM() { }
 
-	public short getChannelId() { return channelId; }
+    /**
+     * Copy construtor.
+     */
+    DeployedDOM(DeployedDOM dom)
+    {
+        channelId = dom.channelId;
+        mainboardId = dom.mainboardId;
+        numericMainboardId = dom.numericMainboardId;
+        domId = dom.domId;
+        name = dom.name;
+        hubId = dom.hubId;
+        string = dom.string;
+        location = dom.location;
+        x = dom.x;
+        y = dom.y;
+        z = dom.z;
+    }
 
-	public String getMainboardId() { return mainboardId; }
-	
-	public long getNumericMainboardId() { return numericMainboardId; }
+    @Override
+    public int compareTo(DeployedDOM dom)
+    {
+        int diff = string - dom.string;
+        if (diff == 0) {
+            diff = location - dom.location;
+        }
+        return diff;
+    }
 
-	public String getDomId() { return domId; }
+    /**
+     * Use string number and position to compute the channel ID.
+     *
+     * @param string string number (1-86, 201-211)
+     * @param position string position (1-66)
+     */
+    public static final short computeChannelId(int string, int position)
+    {
+        final int kstring = string % 1000;
 
-	public String getName() { return name; }
+        if (position > 66) {
+            throw new Error("Impossible position");
+        }
 
-	public int getHubId() { return hubId; }
-	
-	public int getStringMajor() { return string; }
+        if (position > 64) {
+            return (short) (6000 + ((kstring - 1) * 2) + (position - 65));
+        }
 
-	public int getStringMinor() { return location; }
+        return (short) (kstring * 64 + (position - 1));
+    }
 
-	public double getX() { return x; }
-	public double getY() { return y; }
-	public double getZ() { return z; }
+    @Override
+    public boolean equals(Object obj)
+    {
+        return obj instanceof DeployedDOM &&
+            ((DeployedDOM) obj).numericMainboardId == numericMainboardId;
+    }
 
-	public boolean isRealDOM()
-	{
-	    return (string >= 1 && string <= 86);
-	}
+    public short getChannelId() {
+        return channelId;
+    }
 
-	@Override
-	public String toString()
-	{
-	    return domId + "[" + mainboardId + "]" + channelId + " '" + name +
-                "' at " + String.format("%02d-%02d", string, location);
-	}
+    public String getDomId() {
+        return domId;
+    }
 
-	@Override
-	public boolean equals(Object obj)
-	{
-	    return (obj instanceof DeployedDOM &&
-	            ((DeployedDOM) obj).mainboardId.equals(mainboardId));
-	}
+    public int getHubId() {
+        return hubId;
+    }
 
-	@Override
-	public int hashCode()
-	{
-	     return mainboardId.hashCode();
-	}
+    public String getMainboardId()
+    {
+        if (mainboardId == null) {
+            mainboardId = String.format("%012x", numericMainboardId);
+        }
+
+        return mainboardId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public long getNumericMainboardId() {
+        return numericMainboardId;
+    }
+
+    public String getOmId()
+    {
+        return String.format("(%d, %d)", string, location);
+    }
+
+    public int getStringMajor() {
+        return string;
+    }
+
+    public int getStringMinor() {
+        return location;
+    }
+
+    public double getX() {
+        return x;
+    }
+    public double getY() {
+        return y;
+    }
+    public double getZ() {
+        return z;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return (int) (numericMainboardId ^ (numericMainboardId >> 32));
+    }
+
+    public boolean isRealDOM()
+    {
+        return (string >= 1 && string <= 86);
+    }
+
+    public boolean isInIce()
+    {
+        return (location >= 1 && location <= 60);
+    }
+
+    public boolean isIceTop()
+    {
+        return (location >= 61 && location <= 64);
+    }
+
+    public boolean isScintillator()
+    {
+        return (location >= 65 && location <= 66);
+    }
+
+    @Override
+    public String toString()
+    {
+        return domId + "[" + getMainboardId() + "]" + channelId + " '" + name +
+            "' at " + getOmId();
+    }
 }
