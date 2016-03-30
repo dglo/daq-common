@@ -27,9 +27,16 @@ public class DeployedDOM
     /** Public constructor */
     public DeployedDOM(long mbId, int string, int location)
     {
+        this(mbId, string, location, string);
+    }
+
+    /** Public constructor */
+    public DeployedDOM(long mbId, int string, int location, int hubId)
+    {
         numericMainboardId = mbId;
         this.string = string;
         this.location = location;
+        this.hubId = hubId;
     }
 
     /** Constructor only for package peers */
@@ -73,7 +80,12 @@ public class DeployedDOM
     {
         final int kstring = string % 1000;
 
-        if (position > 66) {
+        if (kstring < 0 || kstring > 86) {
+            // "string" 0 is for things like AMANDA and IceACT
+            throw new Error("Impossible string");
+        }
+
+        if (position < 1 || position > 66) {
             throw new Error("Impossible position");
         }
 
@@ -149,11 +161,6 @@ public class DeployedDOM
         return (int) (numericMainboardId ^ (numericMainboardId >> 32));
     }
 
-    public boolean isRealDOM()
-    {
-        return (string >= 1 && string <= 86);
-    }
-
     public boolean isInIce()
     {
         return (location >= 1 && location <= 60);
@@ -164,6 +171,11 @@ public class DeployedDOM
         return (location >= 61 && location <= 64);
     }
 
+    public boolean isRealDOM()
+    {
+        return (string >= 1 && string <= 86);
+    }
+
     public boolean isScintillator()
     {
         return (location >= 65 && location <= 66);
@@ -172,7 +184,12 @@ public class DeployedDOM
     @Override
     public String toString()
     {
-        return domId + "[" + getMainboardId() + "]" + channelId + " '" + name +
-            "' at " + getOmId();
+        final String prodStr = (domId == null ? "" : domId);
+        final String chanStr = (channelId == 0 ? "" :
+                                Integer.toString(channelId));
+        final String nameStr = (name == null ? "" : " '" + name + "'");
+
+        return prodStr + "[" + getMainboardId() + "]" + chanStr + nameStr +
+            " at " + getOmId();
     }
 }

@@ -12,7 +12,30 @@
     </dom>
   </string>
   <string>
-    <number>38</number>
+    <number>10</number>
+    <dom>
+      <position>1</position>
+      <channelId>640</channelId>
+      <mainBoardId>98b7b6b98e9f</mainBoardId>
+      <name>Banshee</name>
+      <productionId>UP7P2542</productionId>
+      <xCoordinate>35.54</xCoordinate>
+      <yCoordinate>-364.83</yCoordinate>
+      <zCoordinate>497.71</zCoordinate>
+    </dom>
+    <dom>
+      <position>60</position>
+      <channelId>699</channelId>
+      <mainBoardId>4696f5e99e5d</mainBoardId>
+      <name>Ballet</name>
+      <productionId>TP7P2487</productionId>
+      <xCoordinate>35.54</xCoordinate>
+      <yCoordinate>-364.83</yCoordinate>
+      <zCoordinate>-506.51</zCoordinate>
+    </dom>
+  </string>
+  <string>
+    <number>37</number>
     <dom>
       <position>60</position>
       <channelId>2427</channelId>
