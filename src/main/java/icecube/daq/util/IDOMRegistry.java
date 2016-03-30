@@ -23,6 +23,19 @@ public interface IDOMRegistry
      */
     DeployedDOM getDom(short channelId);
     /**
+     * Return the set of all DOMs on a hub.
+     * @param hubId hub ID
+     * @return set of DOMs
+     */
+    Set<DeployedDOM> getDomsOnHub(int hubId);
+    /**
+     * Return the set of all DOMs (including icetop DOMs) associated with a
+     * string.
+     * @param string string number
+     * @return set of DOMs
+     */
+    Set<DeployedDOM> getDomsOnString(int string);
+    /**
      * Look up string number given mainboard ID
      * @param mbid DOM mainboard ID
      * @return string number (or <tt>-1</tt> if mainboard ID was not found)

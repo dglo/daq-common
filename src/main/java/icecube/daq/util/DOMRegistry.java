@@ -140,11 +140,34 @@ public class DOMRegistry
         return dom.domId;
     }
 
+    /**
+     * Return the set of all DOMs on a hub.  Note that IceTop DOMs are on
+     * an icetop hub and will not be returned with the DOMS on an in-ice hub.
+     * @param hubId hub ID
+     * @return set of DOMs
+     */
     public Set<DeployedDOM> getDomsOnHub(int hubId)
     {
         HashSet<DeployedDOM> rlist = new HashSet<DeployedDOM>(60);
         for (DeployedDOM dom : doms.values()) {
             if (hubId == dom.hubId) {
+                rlist.add(dom);
+            }
+        }
+
+        return rlist;
+    }
+
+    /**
+     * Return the set of all DOMs associated with a string.
+     * @param string string number
+     * @return set of DOMs
+     */
+    public Set<DeployedDOM> getDomsOnString(int string)
+    {
+        HashSet<DeployedDOM> rlist = new HashSet<DeployedDOM>(66);
+        for (DeployedDOM dom : doms.values()) {
+            if (string == dom.string) {
                 rlist.add(dom);
             }
         }
