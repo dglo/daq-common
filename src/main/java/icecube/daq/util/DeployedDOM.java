@@ -24,6 +24,9 @@ public class DeployedDOM
     double y;
     double z;
 
+    /** Cached deployment location string (e.g. "1-1", "83-60", etc.) */
+    private String deployLoc;
+
     /** Public constructor */
     public DeployedDOM(long mbId, int string, int location)
     {
@@ -105,6 +108,15 @@ public class DeployedDOM
 
     public short getChannelId() {
         return channelId;
+    }
+
+    public String getDeploymentLocation()
+    {
+        if (deployLoc == null) {
+            deployLoc = String.format("%d-%d", string, location);
+        }
+
+        return deployLoc;
     }
 
     public String getDomId() {

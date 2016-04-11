@@ -57,7 +57,7 @@ class DOMData
 
     String getDeploymentLocation()
     {
-        return String.format("%2d-%2d", string, position);
+        return String.format("%d-%d", string, position);
     }
 }
 
@@ -139,10 +139,6 @@ public class DOMRegistryTest
                      (short) -1, registry.getChannelId(badMBID));
         assertLogMessage("Cannot find channel for 000000000000");
 
-        assertNull("Found location for bad MBID " + badMBID,
-                   registry.getDeploymentLocation(badMBID));
-        assertLogMessage("Cannot find location for 000000000000");
-
         assertNull("Found name for bad MBID " + badMBID,
                    registry.getDom(badMBID));
         assertNoLogMessage();
@@ -177,6 +173,8 @@ public class DOMRegistryTest
             assertEquals(dom.name, dom.string, ddom.getStringMajor());
             assertEquals(dom.name, dom.position, ddom.getStringMinor());
             assertEquals(dom.name, dom.getChannelId(), ddom.getChannelId());
+            assertEquals(dom.name, dom.getDeploymentLocation(),
+                         ddom.getDeploymentLocation());
 
             assertEquals(dom.name, registry.getName(dom.mbid));
             assertEquals(dom.name, dom.string,
@@ -185,8 +183,6 @@ public class DOMRegistryTest
                          registry.getStringMinor(dom.mbid));
             assertEquals(dom.name, dom.getChannelId(),
                          registry.getChannelId(dom.mbid));
-            assertEquals(dom.name, dom.getDeploymentLocation(),
-                         registry.getDeploymentLocation(dom.mbid));
         }
     }
 

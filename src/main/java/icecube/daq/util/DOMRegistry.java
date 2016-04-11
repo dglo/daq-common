@@ -71,20 +71,6 @@ public class DOMRegistry
         return dom.channelId;
     }
 
-    public String getDeploymentLocation(long mbid)
-    {
-        DeployedDOM dom = doms.get(mbid);
-        if (dom == null) {
-            final String errmsg =
-                String.format("Cannot find location for %012x (doms=%d)",
-                              mbid, doms.size());
-            LOG.error(errmsg);
-            return null;
-        }
-
-        return String.format("%2d-%2d", dom.string, dom.location);
-    }
-
     /**
      * Lookup DOM given mainboard Id
      * @param mbid input DOM mainboard id - the 12-char hex
