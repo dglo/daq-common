@@ -11,6 +11,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -18,10 +21,12 @@ import org.xml.sax.helpers.DefaultHandler;
 class DOMRegistryParser
     extends DefaultHandler
 {
+    private static final Log LOG = LogFactory.getLog(DOMRegistryParser.class);
+
     private StringBuilder xmlChars = new StringBuilder();
     private DeployedDOM currentDOM = new DeployedDOM();
     private int currentHubId;
-    private int originalString;
+    private int originalString = -1;
 
     private HashMap<Long, DeployedDOM> doms = new HashMap<Long, DeployedDOM>();
     private DeployedDOM[] domsByChannelId;
@@ -73,7 +78,7 @@ class DOMRegistryParser
         if (localName.equalsIgnoreCase("dom")) {
             currentDOM.hubId = currentHubId;
 
-            if (originalString > 0) {
+            if (originalString >= 0) {
                 currentDOM.string = originalString;
             } else {
                 currentDOM.string = currentHubId;
@@ -82,10 +87,11 @@ class DOMRegistryParser
             if (doms.containsKey(currentDOM.numericMainboardId)) {
                 DeployedDOM oldDOM = doms.get(currentDOM.numericMainboardId);
 
-                System.err.printf("Found multiple entries for %012x:" +
-                                  " (%d, %d) and (%d, %d)",  oldDOM.string,
-                                  oldDOM.location, currentDOM.string,
-                                  currentDOM.location);
+                LOG.error(String.format("Found multiple entries for %012x:" +
+                                        " (%d, %d) and (%d, %d)",
+                                        oldDOM.string, oldDOM.location,
+                                        currentDOM.string,
+                                        currentDOM.location));
             }
 
             doms.put(currentDOM.numericMainboardId, currentDOM);
@@ -95,14 +101,14 @@ class DOMRegistryParser
                 } else {
                     DeployedDOM oldDOM = domsByChannelId[currentDOM.channelId];
 
-                    System.err.println("DOMsByChannelId collision between " +
-                                       oldDOM.getOmId() + " and " +
-                                       currentDOM.getOmId());
+                    LOG.error("DOMsByChannelId collision between " +
+                              oldDOM.getOmId() + " and " +
+                              currentDOM.getOmId());
                 }
             }
 
             currentDOM = new DeployedDOM();
-            originalString = 0;
+            originalString = -1;
         } else if (localName.equalsIgnoreCase("position")) {
             currentDOM.location   = Integer.parseInt(txt);
         } else if (localName.equalsIgnoreCase("channelId")) {
