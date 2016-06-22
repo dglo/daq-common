@@ -8,22 +8,28 @@ import java.util.Map;
  */
 public class CodeTimer
 {
-    private long startTime;
+    private static final long UNSET = Long.MIN_VALUE;
+
+    private Object syncPoint = new Object();
+
+    private long[] startTimes;
     private long[] timeAccum;
     private long[] numAccum;
-    private long totalTime;
 
     /**
      * Create a code timer.
      *
-     * @param numTimes number of timing points
+     * @param maxTimes maximum number of timing points
      */
-    public CodeTimer(int numTimes)
+    public CodeTimer(int maxTimes)
     {
-        startTime = 0;
-        timeAccum = new long[numTimes];
-        numAccum = new long[numTimes];
-        totalTime = 0;
+        timeAccum = new long[maxTimes];
+        numAccum = new long[maxTimes];
+
+        startTimes = new long[maxTimes];
+        for (int i = 0; i < startTimes.length; i++) {
+            startTimes[i] = UNSET;
+        }
     }
 
     /**
@@ -43,9 +49,28 @@ public class CodeTimer
         timeAccum[num] += time;
         numAccum[num]++;
 
-        totalTime = 0;
-
         return time;
+    }
+
+    public void dumpActive()
+    {
+        StringBuilder buf = null;
+        for (int i = 0; i < startTimes.length; i++) {
+            if (startTimes[i] == UNSET) {
+                continue;
+            }
+
+            if (buf == null) {
+                buf = new StringBuilder("Active: ");
+            } else {
+                buf.append(", ");
+            }
+            buf.append(i);
+        }
+
+        if (buf != null) {
+            System.err.println(buf.toString());
+        }
     }
 
     /**
@@ -67,9 +92,9 @@ public class CodeTimer
     public String getStats(String name)
     {
         // find last non-zero field
-        int lastIdx = numAccum.length - 1;
-        while (lastIdx >= 0) {
-            if (numAccum[lastIdx] > 0) {
+        int lastIdx = numAccum.length;
+        while (lastIdx > 0) {
+            if (numAccum[lastIdx - 1] > 0) {
                 break;
             }
 
@@ -97,51 +122,49 @@ public class CodeTimer
      */
     public String getStats(String[] title)
     {
-        if (title.length > timeAccum.length) {
-            throw new Error("Expected no more than " + timeAccum.length +
-                            " titles, got " + title.length);
-        } else if (title.length < timeAccum.length) {
-            int lastIdx = numAccum.length - 1;
-            while (lastIdx >= 0) {
-                if (numAccum[lastIdx] > 0) {
-                    break;
-                }
-
-                lastIdx--;
-            }
-
-            if (title.length < lastIdx) {
-                throw new Error("Expected at least " + lastIdx +
+        synchronized (syncPoint) {
+            if (title.length > timeAccum.length) {
+                throw new Error("Expected no more than " + timeAccum.length +
                                 " titles, got " + title.length);
-            }
-        }
+            } else if (title.length < timeAccum.length) {
+                int lastIdx = numAccum.length - 1;
+                while (lastIdx >= 0) {
+                    if (numAccum[lastIdx] > 0) {
+                        break;
+                    }
 
-        if (totalTime == 0) {
-            for (int i = 0; i < title.length; i++) {
-                totalTime += timeAccum[i];
-            }
-        }
-
-        StringBuilder buf = new StringBuilder();
-
-        boolean needSpace = false;
-        for (int i = 0; i < title.length; i++) {
-            if (numAccum[i] > 0) {
-                if (!needSpace) {
-                    needSpace = true;
-                } else {
-                    buf.append('\n');
+                    lastIdx--;
                 }
 
-                buf.append(getStats(title[i], timeAccum[i], numAccum[i],
-                                    totalTime));
+                if (title.length < lastIdx) {
+                    throw new Error("Expected at least " + lastIdx +
+                                    " titles, got " + title.length);
+                }
             }
-        }
-        if (buf.length() > 0) {
-            buf.append('\n').append("TotalTime: ").append(totalTime);
-        }
 
-        return buf.toString();
+            final long totalTime = getTotalTime();
+
+            StringBuilder buf = new StringBuilder();
+
+            boolean needSpace = false;
+            for (int i = 0; i < title.length; i++) {
+                if (numAccum[i] > 0) {
+                    if (!needSpace) {
+                        needSpace = true;
+                    } else {
+                        buf.append('\n');
+                    }
+
+                    buf.append(getStats(title[i], timeAccum[i], numAccum[i],
+                                        totalTime));
+                }
+            }
+            if (buf.length() > 0) {
+                buf.append('\n').append("TotalTime: ").append(totalTime);
+            }
+
+            return buf.toString();
+        }
     }
 
     /**
@@ -158,13 +181,10 @@ public class CodeTimer
             throw new Error("Illegal timer #" + num);
         }
 
-        if (totalTime == 0) {
-            for (int i = 0; i < timeAccum.length; i++) {
-                totalTime += timeAccum[i];
-            }
+        synchronized (syncPoint) {
+            final long totalTime = getTotalTime();
+            return getStats(title, timeAccum[num], numAccum[num], totalTime);
         }
-
-        return getStats(title, timeAccum[num], numAccum[num], totalTime);
     }
 
     /**
@@ -173,11 +193,11 @@ public class CodeTimer
      * @param title name of timing point
      * @param time accumulated time
      * @param num index of timing point
-     * @param totalTime total time used to calculate percent value
      *
      * @return description of timing point
      */
-    public String getStats(String title, long time, long num, long totalTime)
+    public static String getStats(String title, long time, long num,
+                                  long totalTime)
     {
         double pct;
         if (totalTime == 0) {
@@ -220,40 +240,74 @@ public class CodeTimer
      */
     public Map<String, Long> getTimes(String prefix)
     {
-        HashMap<String, Long> map = new HashMap<String, Long>();
+        synchronized (syncPoint) {
+            HashMap<String, Long> map = new HashMap<String, Long>();
 
-        // find last non-zero field
-        int lastIdx = numAccum.length - 1;
-        while (lastIdx >= 0) {
-            if (numAccum[lastIdx] > 0) {
-                break;
+            // find last non-zero field
+            int lastIdx = numAccum.length - 1;
+            while (lastIdx >= 0) {
+                if (numAccum[lastIdx] > 0) {
+                    break;
+                }
+
+                lastIdx--;
             }
 
-            lastIdx--;
-        }
+            // build list of fields
+            for (int i = 0; i <= lastIdx; i++) {
+                map.put(String.format("%s#%d", prefix, i), timeAccum[i]);
+            }
 
-        // build list of fields
-        for (int i = 0; i <= lastIdx; i++) {
-            map.put(String.format("%s#%d", prefix, i), timeAccum[i]);
+            return map;
         }
+    }
 
-        return map;
+    /**
+     * Get the total of all times
+     *
+     * @return total time
+     */
+    public long getTotalTime()
+    {
+        synchronized (syncPoint) {
+            long totalTime = 0;
+            for (int i = 0; i < timeAccum.length; i++) {
+                totalTime += timeAccum[i];
+            }
+            return totalTime;
+        }
     }
 
     /**
      * Is the timer running?
      */
-    public boolean isRunning()
+    public boolean isRunning(int num)
     {
-        return startTime > 0;
+        synchronized (syncPoint) {
+            if (num < 0 || num >= startTimes.length) {
+                throw new Error("Illegal timer #" + num);
+            }
+
+            return startTimes[num] != UNSET;
+        }
     }
 
     /**
      * Start current timing slice.
+     *
+     * @param num index of timing point
      */
-    public final void start()
+    public final void start(int num)
     {
-        startTime = System.nanoTime();
+        synchronized (syncPoint) {
+            if (num < 0 || num >= startTimes.length) {
+                throw new Error("Illegal timer #" + num);
+            } else if (startTimes[num] != UNSET) {
+                throw new Error("Timer#" + num + " is already running!");
+            }
+
+            startTimes[num] = System.nanoTime();
+        }
     }
 
     /**
@@ -266,20 +320,20 @@ public class CodeTimer
      */
     public final long stop(int num)
     {
-        if (num < 0 || num >= timeAccum.length) {
-            throw new Error("Illegal timer #" + num);
-        } else if (startTime == 0) {
-            throw new Error("No timer running");
+        synchronized (syncPoint) {
+            if (num < 0 || num >= timeAccum.length) {
+                throw new Error("Illegal timer #" + num);
+            } else if (startTimes[num] == UNSET) {
+                throw new Error("No timer running");
+            }
+
+            final long time = System.nanoTime() - startTimes[num];
+            startTimes[num] = UNSET;
+
+            timeAccum[num] += time;
+            numAccum[num]++;
+
+            return time;
         }
-
-        final long time = System.nanoTime() - startTime;
-        startTime = 0;
-
-        timeAccum[num] += time;
-        numAccum[num]++;
-
-        totalTime = 0;
-
-        return time;
     }
 }
