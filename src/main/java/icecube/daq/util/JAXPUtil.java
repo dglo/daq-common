@@ -89,8 +89,6 @@ public abstract class JAXPUtil
         }
 
         NodeList kids = elem.getChildNodes();
-        String text = elem.getTextContent();
-
         if (kids == null || kids.getLength() == 0) {
             out.println("/>");
         } else {
