@@ -1,7 +1,7 @@
 /*
  * class: CmdInterface
  *
- * Version $Id: DAQCmdInterface.java 13263 2011-08-12 19:44:57Z dglo $
+ * Version $Id: DAQCmdInterface.java 16180 2016-07-18 21:15:20Z dglo $
  *
  * Date: March 8 2004
  *
@@ -13,7 +13,7 @@ package icecube.daq.common;
 /**
  * This class defines constants that are used through the DAQ software.
  *
- * @version $Id: DAQCmdInterface.java 13263 2011-08-12 19:44:57Z dglo $
+ * @version $Id: DAQCmdInterface.java 16180 2016-07-18 21:15:20Z dglo $
  * @author mcp
  */
 public interface DAQCmdInterface
@@ -55,8 +55,6 @@ public interface DAQCmdInterface
             "replayHub";
     String DAQ_SIMULATION_HUB =
             "simHub";
-    String DAQ_TRACK_ENGINE =
-            "trackEngine";
 
     String SOURCE = "source";
     String SINK = "sink";
