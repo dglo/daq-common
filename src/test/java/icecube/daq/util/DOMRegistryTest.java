@@ -66,7 +66,7 @@ public class DOMRegistryTest
     private static final MockAppender appender =
         new MockAppender(/*org.apache.log4j.Level.ALL*/)/*.setVerbose(true)*/;
 
-    private static DOMRegistry registry;
+    private static IDOMRegistry registry;
 
     private DOMData[] domData = new DOMData[] {
         new DOMData(0x98b7b6b98e9fL, 10, 1, "Banshee", "UP7P2542"),
@@ -144,7 +144,7 @@ public class DOMRegistryTest
         assertNoLogMessage();
 
         assertNull("Found DOM ID for bad MBID " + badMBID,
-                   registry.getDomId(badMBID));
+                   registry.getProductionId(badMBID));
         assertLogMessage("Cannot fetch DOM entry for 000000000000");
 
         assertNull("Found name for bad MBID " + badMBID,

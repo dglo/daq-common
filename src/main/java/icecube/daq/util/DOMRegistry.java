@@ -108,25 +108,6 @@ public class DOMRegistry
     }
 
     /**
-     * Lookup DOM Id given mainboard Id
-     * @param mbid DOM mainboard id
-     * @return 8-char DOM Id - like TP5Y0515
-     */
-    public String getDomId(long mbid)
-    {
-        DeployedDOM dom = doms.get(mbid);
-        if (dom == null) {
-            final String errmsg =
-                String.format("Cannot fetch DOM entry for %012x (doms=%d)",
-                              mbid, doms.size());
-            LOG.error(errmsg);
-            return null;
-        }
-
-        return dom.domId;
-    }
-
-    /**
      * Return the set of all DOMs on a hub.  Note that IceTop DOMs are on
      * an icetop hub and will not be returned with the DOMS on an in-ice hub.
      * @param hubId hub ID
@@ -180,6 +161,25 @@ public class DOMRegistry
         return dom.name;
     }
 
+    /**
+     * Lookup production Id given mainboard Id
+     * @param mbid DOM mainboard id
+     * @return 8-char production Id (e.g. TP5Y0515)
+     */
+    public String getProductionId(long mbid)
+    {
+        DeployedDOM dom = doms.get(mbid);
+        if (dom == null) {
+            final String errmsg =
+                String.format("Cannot fetch DOM entry for %012x (doms=%d)",
+                              mbid, doms.size());
+            LOG.error(errmsg);
+            return null;
+        }
+
+        return dom.domId;
+    }
+
     public int getStringMajor(long mbid)
     {
         DeployedDOM dom = doms.get(mbid);
@@ -213,19 +213,19 @@ public class DOMRegistry
         return doms.keySet();
     }
 
-    public static DOMRegistry loadRegistry()
+    public static IDOMRegistry loadRegistry()
         throws ParserConfigurationException, SAXException, IOException
     {
         return loadRegistry(LocatePDAQ.findConfigDirectory());
     }
 
-    public static DOMRegistry loadRegistry(String path)
+    public static IDOMRegistry loadRegistry(String path)
         throws ParserConfigurationException, SAXException, IOException
     {
         return loadRegistry(new File(path));
     }
 
-    public static synchronized DOMRegistry loadRegistry(File path)
+    public static synchronized IDOMRegistry loadRegistry(File path)
         throws ParserConfigurationException, SAXException, IOException
     {
         if (cachedRegistry == null || cachedPath == null ||

@@ -36,6 +36,18 @@ public interface IDOMRegistry
      */
     Set<DeployedDOM> getDomsOnString(int string);
     /**
+     * Lookup name of DOM given mainboard Id.
+     * @param mbid DOM mainboard id.
+     * @return DOM name
+     */
+    String getName(long mbid);
+    /**
+     * Lookup production Id given mainboard Id
+     * @param mbid DOM mainboard id
+     * @return 8-char production Id (e.g. TP5Y0515)
+     */
+    String getProductionId(long mbid);
+    /**
      * Look up string number given mainboard ID
      * @param mbid DOM mainboard ID
      * @return string number (or <tt>-1</tt> if mainboard ID was not found)
