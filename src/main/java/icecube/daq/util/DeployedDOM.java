@@ -12,7 +12,7 @@ public class DeployedDOM
     short channelId;
     String mainboardId;
     long numericMainboardId;
-    String domId;
+    String prodId;
     String name;
     /** component ID of the hub to which this channel is connected */
     int hubId;
@@ -53,7 +53,7 @@ public class DeployedDOM
         channelId = dom.channelId;
         mainboardId = dom.mainboardId;
         numericMainboardId = dom.numericMainboardId;
-        domId = dom.domId;
+        prodId = dom.prodId;
         name = dom.name;
         hubId = dom.hubId;
         string = dom.string;
@@ -119,8 +119,8 @@ public class DeployedDOM
         return deployLoc;
     }
 
-    public String getDomId() {
-        return domId;
+    public String getProductionId() {
+        return prodId;
     }
 
     public int getHubId() {
@@ -201,7 +201,7 @@ public class DeployedDOM
     @Override
     public String toString()
     {
-        final String prodStr = (domId == null ? "" : domId);
+        final String prodStr = (prodId == null ? "" : prodId);
         final String chanStr = (channelId == 0 ? "" :
                                 Integer.toString(channelId));
         final String nameStr = (name == null ? "" : " '" + name + "'");

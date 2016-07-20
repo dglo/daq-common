@@ -177,7 +177,7 @@ public class DOMRegistry
             return null;
         }
 
-        return dom.domId;
+        return dom.prodId;
     }
 
     public int getStringMajor(long mbid)

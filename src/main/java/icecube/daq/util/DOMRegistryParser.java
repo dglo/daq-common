@@ -120,7 +120,7 @@ class DOMRegistryParser
         } else if (localName.equalsIgnoreCase("name")) {
             currentDOM.name = txt;
         } else if (localName.equalsIgnoreCase("productionId")) {
-            currentDOM.domId = txt;
+            currentDOM.prodId = txt;
         } else if (localName.equalsIgnoreCase("xCoordinate")) {
             currentDOM.x = Double.parseDouble(txt);
         } else if (localName.equalsIgnoreCase("yCoordinate")) {
