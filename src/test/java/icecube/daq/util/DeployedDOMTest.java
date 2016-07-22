@@ -17,13 +17,15 @@ public class DeployedDOMTest
     {
 	DeployedDOM dDOM = new DeployedDOM();
 
-	assertEquals("Get ChannelID", (short)0, dDOM.getChannelId());
+	assertEquals("Get ChannelID", Short.MIN_VALUE, dDOM.getChannelId());
 	assertEquals("Get MainboardId", "000000000000",
                      dDOM.getMainboardId());
 	assertEquals("Get DomId", null, dDOM.getProductionId());
 	assertEquals("Get Name", null, dDOM.getName());
-	assertEquals("Get String Major", 0, dDOM.getStringMajor());
-	assertEquals("Get String Minor", 0, dDOM.getStringMinor());
+	assertEquals("Get String Major",
+				 DeployedDOM.NO_VALUE, dDOM.getStringMajor());
+	assertEquals("Get String Minor",
+				 DeployedDOM.NO_VALUE, dDOM.getStringMinor());
 	assertEquals("Get X", (double)0, dDOM.getX(), 0.01);
 	assertEquals("Get Y", (double)0, dDOM.getY(), 0.01);
 	assertEquals("Get Z", (double)0, dDOM.getZ(), 0.01);

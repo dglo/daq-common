@@ -5,6 +5,14 @@ import java.util.Set;
 public interface IDOMRegistry
 {
     /**
+     * get distance in meters between pair of DOMs
+     */
+    double distanceBetweenDOMs(DeployedDOM dom0, DeployedDOM dom1);
+    /**
+     * get distance in meters between pair of DOMs
+     */
+    double distanceBetweenDOMs(long mbid0, long mbid1);
+    /**
      * Look up channel ID given mainboard ID
      * @param mbid DOM mainboard ID
      * @return channel Id (or <tt>-1</tt> if mainboard ID was not found)
@@ -69,8 +77,4 @@ public interface IDOMRegistry
      * @return number of known mainboard IDs
      */
     int size();
-    /**
-     * get distance in meters between pair of DOMs
-     */
-    double distanceBetweenDOMs(long mbid0, long mbid1);
 }

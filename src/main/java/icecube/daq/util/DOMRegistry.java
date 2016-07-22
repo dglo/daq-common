@@ -46,10 +46,17 @@ public class DOMRegistry
         distanceTable = new double[NCH*(NCH-1)/2];
     }
 
+    @Deprecated
     public double distanceBetweenDOMs(long mbid0, long mbid1)
     {
         if (mbid0 == mbid1) return 0.0;
-        return distanceTable[tableIndex(doms.get(mbid0), doms.get(mbid1))];
+        return distanceBetweenDOMs(doms.get(mbid0), doms.get(mbid1));
+    }
+
+    public double distanceBetweenDOMs(DeployedDOM dom0, DeployedDOM dom1)
+    {
+        if (dom0.equals(dom1)) return 0.0;
+        return distanceTable[tableIndex(dom0, dom1)];
     }
 
     /**
@@ -282,14 +289,20 @@ public class DOMRegistry
         for (int ch0 = 0; ch0 < mlist.length; ch0++)
         {
             DeployedDOM d0 = mlist[ch0];
-            if (d0.isRealDOM() && !d0.isScintillator())
+            if (d0.isRealDOM() && !d0.isScintillator() && !d0.isIceACT())
             {
                 for (int ch1 = 0; ch1 < ch0; ch1++)
                 {
                     DeployedDOM d1 = mlist[ch1];
-                    if (d1.isRealDOM() && !d1.isScintillator())
+                    if (d1.isRealDOM() && !d1.isScintillator() &&
+                        !d0.isIceACT())
                     {
                         int pid = tableIndex(d0, d1);
+                        if (pid < 0) {
+                            System.err.println("TblIdx " + d0 + "//" + d1 +
+                                               " -> " + pid);
+                            continue;
+                        }
                         if (pid >= NCH*(NCH-1)/2)
                         {
                             System.err.println("ERROR - d0/d1: " + ch0 + "/" +

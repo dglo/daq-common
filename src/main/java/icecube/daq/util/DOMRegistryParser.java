@@ -25,8 +25,8 @@ class DOMRegistryParser
 
     private StringBuilder xmlChars = new StringBuilder();
     private DeployedDOM currentDOM = new DeployedDOM();
-    private int currentHubId;
-    private int originalString = -1;
+    private int currentHubId = DeployedDOM.NO_VALUE;
+    private int originalString = DeployedDOM.NO_VALUE;
 
     private HashMap<Long, DeployedDOM> doms = new HashMap<Long, DeployedDOM>();
     private DeployedDOM[] domsByChannelId;
@@ -76,12 +76,38 @@ class DOMRegistryParser
         super.endElement(uri, localName, qName);
         String txt = xmlChars.toString().trim();
         if (localName.equalsIgnoreCase("dom")) {
+            if (currentHubId < 0) {
+                throw new Error("Unknown hub ID for " + currentDOM);
+            }
+
             currentDOM.hubId = currentHubId;
 
             if (originalString >= 0) {
                 currentDOM.string = originalString;
             } else {
                 currentDOM.string = currentHubId;
+            }
+
+            if (currentDOM.location < 0) {
+                throw new Error("Unknown location for " + currentDOM);
+            }
+
+            if (currentDOM.isRealDOM()) {
+                short xchan;
+                try {
+                    xchan = DeployedDOM.computeChannelId(currentDOM.string,
+                                                         currentDOM.location);
+                } catch (Error err) {
+                    LOG.error("Cannot compute channel ID for " +
+                              currentDOM, err);
+                    xchan = currentDOM.channelId;
+                }
+
+                if (xchan != currentDOM.channelId) {
+                    LOG.error("DOM " + currentDOM +
+                              " channel ID updated to " + xchan);
+                    currentDOM.channelId = xchan;
+                }
             }
 
             if (doms.containsKey(currentDOM.numericMainboardId)) {
@@ -95,20 +121,26 @@ class DOMRegistryParser
             }
 
             doms.put(currentDOM.numericMainboardId, currentDOM);
-            if (currentDOM.isRealDOM()) {
-                if (domsByChannelId[currentDOM.channelId] == null) {
-                    domsByChannelId[currentDOM.channelId] = currentDOM;
-                } else {
+            if (currentDOM.isRealDOM() || currentDOM.isScintillator() ||
+                currentDOM.isIceACT())
+            {
+                if (currentDOM.channelId < 0 ||
+                    currentDOM.channelId >= domsByChannelId.length)
+                {
+                    LOG.error("Not adding " + currentDOM +
+                              " to doms->channel lookup table");
+                } else if (domsByChannelId[currentDOM.channelId] != null) {
                     DeployedDOM oldDOM = domsByChannelId[currentDOM.channelId];
 
                     LOG.error("DOMsByChannelId collision between " +
-                              oldDOM.getOmId() + " and " +
-                              currentDOM.getOmId());
+                              oldDOM + " and " + currentDOM);
+                } else {
+                    domsByChannelId[currentDOM.channelId] = currentDOM;
                 }
             }
 
             currentDOM = new DeployedDOM();
-            originalString = -1;
+            originalString = DeployedDOM.NO_VALUE;
         } else if (localName.equalsIgnoreCase("position")) {
             currentDOM.location   = Integer.parseInt(txt);
         } else if (localName.equalsIgnoreCase("channelId")) {
@@ -131,6 +163,8 @@ class DOMRegistryParser
             currentHubId = Integer.parseInt(txt);
         } else if (localName.equals("originalString")) {
             originalString = Integer.parseInt(txt);
+        } else if (localName.equals("string")) {
+            currentHubId = DeployedDOM.NO_VALUE;
         }
     }
 
