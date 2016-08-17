@@ -25,6 +25,13 @@ public interface IDOMRegistry
      */
     DeployedDOM getDom(long mbId);
     /**
+     * Lookup DOM given string and position.
+     * @param major string number
+     * @param minor dom position (1-64)
+     * @return deployed DOM information
+     */
+    DeployedDOM getDom(int major, int minor);
+    /**
      * Lookup DOM based on channelID
      * @param channelId - 64*string + (module-1)
      * @return DeployedDOM object
