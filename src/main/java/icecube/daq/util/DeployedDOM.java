@@ -167,25 +167,6 @@ public class DeployedDOM
         return numericMainboardId;
     }
 
-    public String getOmId()
-    {
-        String majorStr;
-        if (string == NO_VALUE) {
-            majorStr = "??";
-        } else {
-            majorStr = Integer.toString(string);
-        }
-
-        String minorStr;
-        if (location == NO_VALUE) {
-            minorStr = "??";
-        } else {
-            minorStr = Integer.toString(location);
-        }
-
-        return "(" + majorStr + ", " + minorStr + ")";
-    }
-
     public int getStringMajor() {
         return string;
     }
@@ -246,7 +227,22 @@ public class DeployedDOM
         final String nameStr = (name == null ? "" : " '" + name + "'");
         final String hubStr = (hubId == string ? "" : " hub " + hubId);
 
+        final String majorStr;
+        if (string == NO_VALUE) {
+            majorStr = "??";
+        } else {
+            majorStr = Integer.toString(string);
+        }
+
+        final String minorStr;
+        if (location == NO_VALUE) {
+            minorStr = "??";
+        } else {
+            minorStr = Integer.toString(location);
+        }
+
+        final String omId = "(" + majorStr + ", " + minorStr + ")";
         return prodStr + "[" + getMainboardId() + "]" + chanStr + nameStr +
-            " at " + getOmId() + hubStr;
+            " at " + omId + hubStr;
     }
 }

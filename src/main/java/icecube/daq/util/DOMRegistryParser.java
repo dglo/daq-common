@@ -114,10 +114,10 @@ class DOMRegistryParser
                 DeployedDOM oldDOM = doms.get(currentDOM.numericMainboardId);
 
                 LOG.error(String.format("Found multiple entries for %012x:" +
-                                        " (%d, %d) and (%d, %d)",
-                                        oldDOM.string, oldDOM.location,
-                                        currentDOM.string,
-                                        currentDOM.location));
+                                        " %s and %s",
+                                        currentDOM.numericMainboardId,
+                                        oldDOM.getDeploymentLocation(),
+                                        currentDOM.getDeploymentLocation()));
             }
 
             doms.put(currentDOM.numericMainboardId, currentDOM);
