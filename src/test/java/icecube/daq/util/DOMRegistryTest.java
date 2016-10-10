@@ -165,7 +165,7 @@ public class DOMRegistryTest
         throws Exception
     {
         for (DOMData dom : domData) {
-            DeployedDOM ddom = registry.getDom(dom.mbid);
+            DOMInfo ddom = registry.getDom(dom.mbid);
             assertNotNull("Could not find " + dom.name, ddom);
             assertEquals(dom.name, ddom.getName());
             assertEquals(dom.name, dom.mbid, ddom.getNumericMainboardId());
@@ -193,12 +193,12 @@ public class DOMRegistryTest
         for (int ich = 65; ich < 64*87; ich++)
         {
 
-            DeployedDOM d1 = registry.getDom((short) ich);
+            DOMInfo d1 = registry.getDom((short) ich);
             if (d1 != null)
             {
             for (int jch = 64; jch < ich; jch++)
                 {
-                    DeployedDOM d2 = registry.getDom((short) jch);
+                    DOMInfo d2 = registry.getDom((short) jch);
                     if (d2 != null)
                     {
                         double dx = d2.x - d1.x;
@@ -217,12 +217,12 @@ public class DOMRegistryTest
         throws Exception
     {
         final int hubId = 10;
-        Set<DeployedDOM> doms = registry.getDomsOnHub(hubId);
+        Set<DOMInfo> doms = registry.getDomsOnHub(hubId);
 
         int num = 0;
         for (DOMData dom : domData) {
             if (dom.hub == hubId) {
-                DeployedDOM ddom = registry.getDom(dom.mbid);
+                DOMInfo ddom = registry.getDom(dom.mbid);
 
                 assertTrue("Cannot find " + dom.name + " on hub " + hubId,
                            doms.contains(ddom));
@@ -238,12 +238,12 @@ public class DOMRegistryTest
         throws Exception
     {
         final int string = 10;
-        Set<DeployedDOM> doms = registry.getDomsOnString(string);
+        Set<DOMInfo> doms = registry.getDomsOnString(string);
 
         int num = 0;
         for (DOMData dom : domData) {
             if (dom.string == string) {
-                DeployedDOM ddom = registry.getDom(dom.mbid);
+                DOMInfo ddom = registry.getDom(dom.mbid);
 
                 assertTrue("Cannot find " + dom.name + " on string " + string,
                            doms.contains(ddom));

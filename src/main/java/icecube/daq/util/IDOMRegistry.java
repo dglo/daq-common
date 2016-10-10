@@ -7,7 +7,7 @@ public interface IDOMRegistry
     /**
      * get distance in meters between pair of DOMs
      */
-    double distanceBetweenDOMs(DeployedDOM dom0, DeployedDOM dom1);
+    double distanceBetweenDOMs(DOMInfo dom0, DOMInfo dom1);
     /**
      * get distance in meters between pair of DOMs
      */
@@ -23,33 +23,33 @@ public interface IDOMRegistry
      * @param mbId DOM mainboard id
      * @return deployed DOM information
      */
-    DeployedDOM getDom(long mbId);
+    DOMInfo getDom(long mbId);
     /**
      * Lookup DOM given string and position.
      * @param major string number
      * @param minor dom position (1-64)
      * @return deployed DOM information
      */
-    DeployedDOM getDom(int major, int minor);
+    DOMInfo getDom(int major, int minor);
     /**
      * Lookup DOM based on channelID
      * @param channelId - 64*string + (module-1)
-     * @return DeployedDOM object
+     * @return DOMInfo object
      */
-    DeployedDOM getDom(short channelId);
+    DOMInfo getDom(short channelId);
     /**
      * Return the set of all DOMs on a hub.
      * @param hubId hub ID
      * @return set of DOMs
      */
-    Set<DeployedDOM> getDomsOnHub(int hubId);
+    Set<DOMInfo> getDomsOnHub(int hubId);
     /**
      * Return the set of all DOMs (including icetop DOMs) associated with a
      * string.
      * @param string string number
      * @return set of DOMs
      */
-    Set<DeployedDOM> getDomsOnString(int string);
+    Set<DOMInfo> getDomsOnString(int string);
     /**
      * Lookup name of DOM given mainboard Id.
      * @param mbid DOM mainboard id.

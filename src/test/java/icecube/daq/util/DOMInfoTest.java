@@ -9,13 +9,13 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import junit.framework.*;
 
-public class DeployedDOMTest
+public class DOMInfoTest
 {
     @Test
     public void testCreate()
 	throws Exception
     {
-	DeployedDOM dDOM = new DeployedDOM();
+	DOMInfo dDOM = new DOMInfo();
 
 	assertEquals("Get ChannelID", Short.MIN_VALUE, dDOM.getChannelId());
 	assertEquals("Get MainboardId", "000000000000",
@@ -23,9 +23,9 @@ public class DeployedDOMTest
 	assertEquals("Get DomId", null, dDOM.getProductionId());
 	assertEquals("Get Name", null, dDOM.getName());
 	assertEquals("Get String Major",
-				 DeployedDOM.NO_VALUE, dDOM.getStringMajor());
+				 DOMInfo.NO_VALUE, dDOM.getStringMajor());
 	assertEquals("Get String Minor",
-				 DeployedDOM.NO_VALUE, dDOM.getStringMinor());
+				 DOMInfo.NO_VALUE, dDOM.getStringMinor());
 	assertEquals("Get X", (double)0, dDOM.getX(), 0.01);
 	assertEquals("Get Y", (double)0, dDOM.getY(), 0.01);
 	assertEquals("Get Z", (double)0, dDOM.getZ(), 0.01);
@@ -62,7 +62,7 @@ public class DeployedDOMTest
 	assertEquals("Get Z", z, dDOM.getZ(), 0.01);
 	assertTrue("Is real DOM", dDOM.isRealDOM());
 
-	DeployedDOM dDOM1 = new DeployedDOM(dDOM);
+	DOMInfo dDOM1 = new DOMInfo(dDOM);
 
 	assertEquals("Get ChannelID", channelId, dDOM1.getChannelId());
 	assertEquals("Get MainboardId", mainboardId, dDOM1.getMainboardId());

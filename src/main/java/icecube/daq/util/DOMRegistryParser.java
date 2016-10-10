@@ -24,19 +24,19 @@ class DOMRegistryParser
     private static final Log LOG = LogFactory.getLog(DOMRegistryParser.class);
 
     private StringBuilder xmlChars = new StringBuilder();
-    private DeployedDOM currentDOM = new DeployedDOM();
-    private int currentHubId = DeployedDOM.NO_VALUE;
-    private int originalString = DeployedDOM.NO_VALUE;
+    private DOMInfo currentDOM = new DOMInfo();
+    private int currentHubId = DOMInfo.NO_VALUE;
+    private int originalString = DOMInfo.NO_VALUE;
 
-    private HashMap<Long, DeployedDOM> doms = new HashMap<Long, DeployedDOM>();
-    private DeployedDOM[] domsByChannelId;
+    private HashMap<Long, DOMInfo> doms = new HashMap<Long, DOMInfo>();
+    private DOMInfo[] domsByChannelId;
 
     private DOMRegistry reg;
 
     DOMRegistryParser(File configDir, int maxChannelIDs)
         throws ParserConfigurationException, SAXException, IOException
     {
-        domsByChannelId = new DeployedDOM[maxChannelIDs];
+        domsByChannelId = new DOMInfo[maxChannelIDs];
         reg = new DOMRegistry(doms, domsByChannelId);
 
         if (configDir == null || !configDir.exists()) {
@@ -95,7 +95,7 @@ class DOMRegistryParser
             if (currentDOM.isRealDOM()) {
                 short xchan;
                 try {
-                    xchan = DeployedDOM.computeChannelId(currentDOM.string,
+                    xchan = DOMInfo.computeChannelId(currentDOM.string,
                                                          currentDOM.location);
                 } catch (Error err) {
                     LOG.error("Cannot compute channel ID for " +
@@ -111,7 +111,7 @@ class DOMRegistryParser
             }
 
             if (doms.containsKey(currentDOM.numericMainboardId)) {
-                DeployedDOM oldDOM = doms.get(currentDOM.numericMainboardId);
+                DOMInfo oldDOM = doms.get(currentDOM.numericMainboardId);
 
                 LOG.error(String.format("Found multiple entries for %012x:" +
                                         " %s and %s",
@@ -130,7 +130,7 @@ class DOMRegistryParser
                     LOG.error("Not adding " + currentDOM +
                               " to doms->channel lookup table");
                 } else if (domsByChannelId[currentDOM.channelId] != null) {
-                    DeployedDOM oldDOM = domsByChannelId[currentDOM.channelId];
+                    DOMInfo oldDOM = domsByChannelId[currentDOM.channelId];
 
                     LOG.error("DOMsByChannelId collision between " +
                               oldDOM + " and " + currentDOM);
@@ -139,8 +139,8 @@ class DOMRegistryParser
                 }
             }
 
-            currentDOM = new DeployedDOM();
-            originalString = DeployedDOM.NO_VALUE;
+            currentDOM = new DOMInfo();
+            originalString = DOMInfo.NO_VALUE;
         } else if (localName.equalsIgnoreCase("position")) {
             currentDOM.location   = Integer.parseInt(txt);
         } else if (localName.equalsIgnoreCase("channelId")) {
@@ -164,7 +164,7 @@ class DOMRegistryParser
         } else if (localName.equals("originalString")) {
             originalString = Integer.parseInt(txt);
         } else if (localName.equals("string")) {
-            currentHubId = DeployedDOM.NO_VALUE;
+            currentHubId = DOMInfo.NO_VALUE;
         }
     }
 

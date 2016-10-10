@@ -32,12 +32,12 @@ public class DOMRegistry
 
     private static File cachedPath;
     private static DOMRegistry cachedRegistry;
-    private HashMap<Long, DeployedDOM> doms;
-    private DeployedDOM[] domsByChannelId;
+    private HashMap<Long, DOMInfo> doms;
+    private DOMInfo[] domsByChannelId;
     private double[] distanceTable;
 
-    protected DOMRegistry(HashMap<Long, DeployedDOM> doms,
-                          DeployedDOM[] domsByChannelId)
+    protected DOMRegistry(HashMap<Long, DOMInfo> doms,
+                          DOMInfo[] domsByChannelId)
     {
         this.doms = doms;
         this.domsByChannelId = domsByChannelId;
@@ -53,7 +53,7 @@ public class DOMRegistry
         return distanceBetweenDOMs(doms.get(mbid0), doms.get(mbid1));
     }
 
-    public double distanceBetweenDOMs(DeployedDOM dom0, DeployedDOM dom1)
+    public double distanceBetweenDOMs(DOMInfo dom0, DOMInfo dom1)
     {
         if (dom0.equals(dom1)) return 0.0;
         return distanceTable[tableIndex(dom0, dom1)];
@@ -66,7 +66,7 @@ public class DOMRegistry
      */
     public short getChannelId(long mbid)
     {
-        DeployedDOM dom = doms.get(mbid);
+        DOMInfo dom = doms.get(mbid);
         if (dom == null) {
             final String errmsg =
                 String.format("Cannot find channel for %012x (doms=%d)",
@@ -83,7 +83,7 @@ public class DOMRegistry
      * @param mbid input DOM mainboard id - the 12-char hex
      * @return deployed DOM information
      */
-    public DeployedDOM getDom(long mbid)
+    public DOMInfo getDom(long mbid)
     {
         return doms.get(mbid);
     }
@@ -94,17 +94,17 @@ public class DOMRegistry
      * @param minor dom position (1-64)
      * @return deployed DOM information
      */
-    public DeployedDOM getDom(int major, int minor)
+    public DOMInfo getDom(int major, int minor)
     {
-        return getDom(DeployedDOM.computeChannelId(major, minor));
+        return getDom(DOMInfo.computeChannelId(major, minor));
     }
 
     /**
      * Lookup DOM based on channelID
      * @param ch channel ID - 64*string + (module-1)
-     * @return DeployedDOM object
+     * @return DOMInfo object
      */
-    public DeployedDOM getDom(short ch)
+    public DOMInfo getDom(short ch)
     {
         if (ch < 0 || ch >= domsByChannelId.length) {
             LOG.error("Cannot fetch DOM entry for channel " + ch +
@@ -120,10 +120,10 @@ public class DOMRegistry
      * @param hubId hub ID
      * @return set of DOMs
      */
-    public Set<DeployedDOM> getDomsOnHub(int hubId)
+    public Set<DOMInfo> getDomsOnHub(int hubId)
     {
-        HashSet<DeployedDOM> rlist = new HashSet<DeployedDOM>(60);
-        for (DeployedDOM dom : doms.values()) {
+        HashSet<DOMInfo> rlist = new HashSet<DOMInfo>(60);
+        for (DOMInfo dom : doms.values()) {
             if (hubId == dom.hubId) {
                 rlist.add(dom);
             }
@@ -137,10 +137,10 @@ public class DOMRegistry
      * @param string string number
      * @return set of DOMs
      */
-    public Set<DeployedDOM> getDomsOnString(int string)
+    public Set<DOMInfo> getDomsOnString(int string)
     {
-        HashSet<DeployedDOM> rlist = new HashSet<DeployedDOM>(66);
-        for (DeployedDOM dom : doms.values()) {
+        HashSet<DOMInfo> rlist = new HashSet<DOMInfo>(66);
+        for (DOMInfo dom : doms.values()) {
             if (string == dom.string) {
                 rlist.add(dom);
             }
@@ -156,7 +156,7 @@ public class DOMRegistry
      */
     public String getName(long mbid)
     {
-        DeployedDOM dom = doms.get(mbid);
+        DOMInfo dom = doms.get(mbid);
         if (dom == null) {
             final String errmsg =
                 String.format("Cannot find name for %012x (doms=%d)",
@@ -175,7 +175,7 @@ public class DOMRegistry
      */
     public String getProductionId(long mbid)
     {
-        DeployedDOM dom = doms.get(mbid);
+        DOMInfo dom = doms.get(mbid);
         if (dom == null) {
             final String errmsg =
                 String.format("Cannot fetch DOM entry for %012x (doms=%d)",
@@ -189,7 +189,7 @@ public class DOMRegistry
 
     public int getStringMajor(long mbid)
     {
-        DeployedDOM dom = doms.get(mbid);
+        DOMInfo dom = doms.get(mbid);
         if (dom == null) {
             final String errmsg =
                 String.format("Cannot find string major for %012x (doms=%d)",
@@ -203,7 +203,7 @@ public class DOMRegistry
 
     public int getStringMinor(long mbid)
     {
-        DeployedDOM dom = doms.get(mbid);
+        DOMInfo dom = doms.get(mbid);
         if (dom == null) {
             final String errmsg =
                 String.format("Cannot find string minor for %012x (doms=%d)",
@@ -268,7 +268,7 @@ public class DOMRegistry
      *
      * @return index into DOM arrays
      */
-    private static int tableIndex(DeployedDOM d1, DeployedDOM d2)
+    private static int tableIndex(DOMInfo d1, DOMInfo d2)
     {
         int ch1 = d1.channelId;
         int ch2 = d2.channelId;
@@ -285,15 +285,15 @@ public class DOMRegistry
 
     private void tabulateDistances()
     {
-        DeployedDOM[] mlist = doms.values().toArray(new DeployedDOM[0]);
+        DOMInfo[] mlist = doms.values().toArray(new DOMInfo[0]);
         for (int ch0 = 0; ch0 < mlist.length; ch0++)
         {
-            DeployedDOM d0 = mlist[ch0];
+            DOMInfo d0 = mlist[ch0];
             if (d0.isRealDOM() && !d0.isScintillator() && !d0.isIceACT())
             {
                 for (int ch1 = 0; ch1 < ch0; ch1++)
                 {
-                    DeployedDOM d1 = mlist[ch1];
+                    DOMInfo d1 = mlist[ch1];
                     if (d1.isRealDOM() && !d1.isScintillator() &&
                         !d0.isIceACT())
                     {

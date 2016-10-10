@@ -6,8 +6,8 @@ package icecube.daq.util;
  * @author krokodil
  */
 
-public class DeployedDOM
-    implements Comparable<DeployedDOM>
+public class DOMInfo
+    implements Comparable<DOMInfo>
 {
     public static final int NO_VALUE = Integer.MIN_VALUE;
 
@@ -30,13 +30,13 @@ public class DeployedDOM
     private String deployLoc;
 
     /** Public constructor */
-    public DeployedDOM(long mbId, int string, int location)
+    public DOMInfo(long mbId, int string, int location)
     {
         this(mbId, string, location, string);
     }
 
     /** Public constructor */
-    public DeployedDOM(long mbId, int string, int location, int hubId)
+    public DOMInfo(long mbId, int string, int location, int hubId)
     {
         numericMainboardId = mbId;
         this.string = string;
@@ -47,12 +47,12 @@ public class DeployedDOM
     }
 
     /** Constructor only for package peers */
-    DeployedDOM() { }
+    DOMInfo() { }
 
     /**
      * Copy construtor.
      */
-    DeployedDOM(DeployedDOM dom)
+    DOMInfo(DOMInfo dom)
     {
         channelId = dom.channelId;
         mainboardId = dom.mainboardId;
@@ -68,7 +68,7 @@ public class DeployedDOM
     }
 
     @Override
-    public int compareTo(DeployedDOM dom)
+    public int compareTo(DOMInfo dom)
     {
         int diff = string - dom.string;
         if (diff == 0) {
@@ -125,8 +125,8 @@ public class DeployedDOM
     @Override
     public boolean equals(Object obj)
     {
-        return obj instanceof DeployedDOM &&
-            ((DeployedDOM) obj).numericMainboardId == numericMainboardId;
+        return obj instanceof DOMInfo &&
+            ((DOMInfo) obj).numericMainboardId == numericMainboardId;
     }
 
     public short getChannelId() {
