@@ -67,13 +67,6 @@ public final class LocatePDAQ
                     dir = new File(homeDir, "config");
                 }
                 break;
-            case 3:
-                // check user-specified pDAQ distribution directory
-                File tmpFile = findTrunk("config");
-                if (tmpFile != null) {
-                    dir = tmpFile;
-                }
-                break;
             default:
                 // give up
                 done = true;
@@ -109,27 +102,6 @@ public final class LocatePDAQ
             return META_DIR;
         }
 
-        File dir = findTrunk(null);
-
-        if (dir != null) {
-            META_DIR = dir;
-            return META_DIR;
-        }
-
-        throw new IllegalArgumentException("Cannot find pDAQ trunk directory");
-    }
-
-    /**
-     * Find the subdirectory of a pDAQ directory (or just the pDAQ trunk if
-     * <tt>subdir</tt> is <tt>null</tt>)
-     *
-     * @param subdir subdirectory to look for
-     *
-     * @return pDAQ subdirectory (or <tt>null</tt> if trunk or subdirectory
-     *                            is not found)
-     */
-    public static File findTrunk(String subdir)
-    {
         boolean done = false;
         for (int i = 0; !done; i++) {
             File dir = null;
@@ -181,12 +153,13 @@ public final class LocatePDAQ
                     (new File(dir, "target").isDirectory() ||
                      new File(dir, "StringHub").isDirectory()))
                 {
-                    return dir;
+                    META_DIR = dir;
+                    return META_DIR;
                 }
             }
         }
 
-        return null;
+        throw new IllegalArgumentException("Cannot find pDAQ trunk directory");
     }
 
     /**
