@@ -73,8 +73,26 @@ public class DOMInfo
         int diff = string - dom.string;
         if (diff == 0) {
             diff = location - dom.location;
+            if (diff == 0) {
+                long ldiff = numericMainboardId - dom.numericMainboardId;
+                if (ldiff < 0) {
+                    diff = -1;
+                } else if (ldiff > 0) {
+                    diff = 1;
+                }
+            }
         }
         return diff;
+    }
+
+    /**
+     * Use DOM's string number and position to compute the channel ID.
+     *
+     * @return channel ID
+     */
+    public short computeChannelId()
+    {
+        return computeChannelId(string, location);
     }
 
     /**
@@ -95,6 +113,11 @@ public class DOMInfo
         }
 
         if (position < 1 || position > 66) {
+            if (kstring == 0 && (position == 91 || position == 92)) {
+                // grandfather in ancient AMANDA "DOM" positions
+                return -1;
+            }
+
             throw new Error("Impossible position " + position +
                             " for string " + string);
         }
@@ -223,7 +246,7 @@ public class DOMInfo
     {
         final String prodStr = (prodId == null ? "" : prodId);
         final String chanStr = (channelId == Short.MIN_VALUE ? "" :
-                                Integer.toString(channelId));
+                                "ch#" + channelId);
         final String nameStr = (name == null ? "" : " '" + name + "'");
         final String hubStr = (hubId == string ? "" : " hub " + hubId);
 

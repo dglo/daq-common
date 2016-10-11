@@ -25,13 +25,9 @@ public class DOMRegistry
         "default-dom-geometry.xml";
     /** Total number of in-ice and icetop DOMs */
     private static final int NCH = 87*64;
-    /** Maximum channel ID */
-    private static final int MAX_CHANNEL_ID = 6171;
 
     private static final Log LOG = LogFactory.getLog(DOMRegistry.class);
 
-    private static File cachedPath;
-    private static DOMRegistry cachedRegistry;
     private HashMap<Long, DOMInfo> doms;
     private DOMInfo[] domsByChannelId;
     private double[] distanceTable;
@@ -46,17 +42,21 @@ public class DOMRegistry
         distanceTable = new double[NCH*(NCH-1)/2];
     }
 
-    @Deprecated
-    public double distanceBetweenDOMs(long mbid0, long mbid1)
+    public Iterable<DOMInfo> allDOMs()
     {
-        if (mbid0 == mbid1) return 0.0;
-        return distanceBetweenDOMs(doms.get(mbid0), doms.get(mbid1));
+        return doms.values();
     }
 
     public double distanceBetweenDOMs(DOMInfo dom0, DOMInfo dom1)
     {
         if (dom0.equals(dom1)) return 0.0;
-        return distanceTable[tableIndex(dom0, dom1)];
+        return distanceBetweenDOMs(dom0.channelId, dom1.channelId);
+    }
+
+    public double distanceBetweenDOMs(short chan0, short chan1)
+    {
+        if (chan0 == chan1) return 0.0;
+        return distanceTable[tableIndex(chan0, chan1)];
     }
 
     /**
@@ -215,42 +215,6 @@ public class DOMRegistry
         return dom.getStringMinor();
     }
 
-    public Set<Long> keys()
-    {
-        return doms.keySet();
-    }
-
-    public static IDOMRegistry loadRegistry()
-        throws ParserConfigurationException, SAXException, IOException
-    {
-        return loadRegistry(LocatePDAQ.findConfigDirectory());
-    }
-
-    public static IDOMRegistry loadRegistry(String path)
-        throws ParserConfigurationException, SAXException, IOException
-    {
-        return loadRegistry(new File(path));
-    }
-
-    public static synchronized IDOMRegistry loadRegistry(File path)
-        throws ParserConfigurationException, SAXException, IOException
-    {
-        if (cachedRegistry == null || cachedPath == null ||
-            !path.equals(cachedPath))
-        {
-            DOMRegistryParser parser =
-                new DOMRegistryParser(path, MAX_CHANNEL_ID + 1);
-
-            DOMRegistry reg = parser.getRegistry();
-            reg.tabulateDistances();
-
-            cachedPath = path;
-            cachedRegistry = reg;
-        }
-
-        return cachedRegistry;
-    }
-
     /**
      * get the number of known mainboard IDs
      * @return number of known mainboard IDs
@@ -263,16 +227,13 @@ public class DOMRegistry
     /**
      * Return the tightly packed pair for the two DOMs
      *
-     * @param d1 first DOM
-     * @param d2 second DOM
+     * @param ch1 first DOM channel ID
+     * @param ch2 second DOM channel ID
      *
      * @return index into DOM arrays
      */
-    private static int tableIndex(DOMInfo d1, DOMInfo d2)
+    private static int tableIndex(int ch1, int ch2)
     {
-        int ch1 = d1.channelId;
-        int ch2 = d2.channelId;
-
         if (ch1 < ch2) {
             // swap ch1 and ch2
             int tmp = ch2;
@@ -283,7 +244,7 @@ public class DOMRegistry
         return ch2 * NCH + ch1 - (ch2+1)*(ch2+2)/2;
     }
 
-    private void tabulateDistances()
+    void tabulateDistances()
     {
         DOMInfo[] mlist = doms.values().toArray(new DOMInfo[0]);
         for (int ch0 = 0; ch0 < mlist.length; ch0++)
@@ -297,7 +258,7 @@ public class DOMRegistry
                     if (d1.isRealDOM() && !d1.isScintillator() &&
                         !d0.isIceACT())
                     {
-                        int pid = tableIndex(d0, d1);
+                        int pid = tableIndex(d0.channelId, d1.channelId);
                         if (pid < 0) {
                             System.err.println("TblIdx " + d0 + "//" + d1 +
                                                " -> " + pid);

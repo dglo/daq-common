@@ -117,7 +117,7 @@ public class DOMRegistryTest
                 throw new IllegalArgumentException(msg);
             }
 
-            registry = DOMRegistry.loadRegistry(configDir);
+            registry = DOMRegistryFactory.load(configDir);
         }
     }
 
@@ -205,7 +205,7 @@ public class DOMRegistryTest
                         double dy = d2.y - d1.y;
                         double dz = d2.z - d1.z;
                         double dist = Math.sqrt(dx*dx+dy*dy+dz*dz);
-                        assertEquals(dist, registry.distanceBetweenDOMs(d1.numericMainboardId, d2.numericMainboardId), 0.001);
+                        assertEquals(dist, registry.distanceBetweenDOMs(d1, d2), 0.001);
                     }
                 }
             }

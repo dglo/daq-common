@@ -4,6 +4,17 @@ import java.util.Set;
 
 public interface IDOMRegistry
 {
+    /** Name of file containing all DOM data */
+    String DEFAULT_DOM_GEOMETRY = "default-dom-geometry.xml";
+    /** Name of SQLite file containing all DOM data */
+    String DEFAULT_DOM_DATABASE = ".default-dom-geometry.db";
+
+    /**
+     * Return information for all DOMs
+     * @return iterable for all DOMs
+     */
+    Iterable<DOMInfo> allDOMs()
+        throws DOMRegistryException;
     /**
      * get distance in meters between pair of DOMs
      */
@@ -11,7 +22,7 @@ public interface IDOMRegistry
     /**
      * get distance in meters between pair of DOMs
      */
-    double distanceBetweenDOMs(long mbid0, long mbid1);
+    double distanceBetweenDOMs(short chan0, short chan1);
     /**
      * Look up channel ID given mainboard ID
      * @param mbid DOM mainboard ID
@@ -21,35 +32,39 @@ public interface IDOMRegistry
     /**
      * Lookup DOM given mainboard Id
      * @param mbId DOM mainboard id
-     * @return deployed DOM information
+     * @return DOM information (<tt>null</tt> if not found)
      */
     DOMInfo getDom(long mbId);
     /**
      * Lookup DOM given string and position.
      * @param major string number
      * @param minor dom position (1-64)
-     * @return deployed DOM information
+     * @return DOM information (<tt>null</tt> if not found)
      */
     DOMInfo getDom(int major, int minor);
     /**
      * Lookup DOM based on channelID
      * @param channelId - 64*string + (module-1)
-     * @return DOMInfo object
+     * @return DOM information (<tt>null</tt> if not found)
      */
     DOMInfo getDom(short channelId);
     /**
      * Return the set of all DOMs on a hub.
      * @param hubId hub ID
      * @return set of DOMs
+     * @throws DOMRegistryException if there is a problem
      */
-    Set<DOMInfo> getDomsOnHub(int hubId);
+    Set<DOMInfo> getDomsOnHub(int hubId)
+        throws DOMRegistryException;
     /**
      * Return the set of all DOMs (including icetop DOMs) associated with a
      * string.
      * @param string string number
      * @return set of DOMs
+     * @throws DOMRegistryException if there is a problem
      */
-    Set<DOMInfo> getDomsOnString(int string);
+    Set<DOMInfo> getDomsOnString(int string)
+        throws DOMRegistryException;
     /**
      * Lookup name of DOM given mainboard Id.
      * @param mbid DOM mainboard id.
@@ -75,13 +90,10 @@ public interface IDOMRegistry
      */
     int getStringMinor(long mbid);
     /**
-     * get the set of all known mainboard IDs
-     * @return all known mainboard IDs
-     */
-    Set<Long> keys();
-    /**
      * get the number of known mainboard IDs
      * @return number of known mainboard IDs
+     * @throws DOMRegistryException if there is a problem
      */
-    int size();
+    int size()
+        throws DOMRegistryException;
 }
