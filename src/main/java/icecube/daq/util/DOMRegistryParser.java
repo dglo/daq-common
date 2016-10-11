@@ -44,7 +44,7 @@ class DOMRegistryParser
                                             configDir + "\" does not exist");
         }
 
-        File file = new File(configDir, DOMRegistry.DEFAULT_DOM_GEOMETRY);
+        File file = new File(configDir, IDOMRegistry.DEFAULT_DOM_GEOMETRY);
         if (!file.exists()) {
             throw new FileNotFoundException("Registry does not exist in \"" +
                                             file + "\"");
@@ -56,6 +56,7 @@ class DOMRegistryParser
             factory.setNamespaceAware(true);
             SAXParser parser = factory.newSAXParser();
             parser.parse(is, this);
+            reg.tabulateDistances();
         } finally {
             is.close();
         }

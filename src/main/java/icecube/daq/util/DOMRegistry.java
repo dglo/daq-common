@@ -1,28 +1,19 @@
 package icecube.daq.util;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.xml.sax.SAXException;
-
 /**
- * The DOM registry is a utility class for looking up DOM information.
+ * Cache of DOM-related data
  * @author krokodil
  */
 public class DOMRegistry
     implements IDOMRegistry
 {
-    /** Name of file containing all DOM data */
-    public static final String DEFAULT_DOM_GEOMETRY =
-        "default-dom-geometry.xml";
     /** Total number of in-ice and icetop DOMs */
     private static final int NCH = 87*64;
 
@@ -42,6 +33,10 @@ public class DOMRegistry
         distanceTable = new double[NCH*(NCH-1)/2];
     }
 
+    /**
+     * Return information for all DOMs
+     * @return iterable for all DOMs
+     */
     public Iterable<DOMInfo> allDOMs()
     {
         return doms.values();
@@ -227,8 +222,8 @@ public class DOMRegistry
     /**
      * Return the tightly packed pair for the two DOMs
      *
-     * @param ch1 first DOM channel ID
-     * @param ch2 second DOM channel ID
+     * @param ch1 first channel ID
+     * @param ch2 second channel ID
      *
      * @return index into DOM arrays
      */

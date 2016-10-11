@@ -27,21 +27,18 @@ public final class DOMRegistryFactory
 
     public static IDOMRegistry load()
         throws DOMRegistryException
-        //throws ParserConfigurationException, SAXException, IOException
     {
         return load(LocatePDAQ.findConfigDirectory());
     }
 
     public static IDOMRegistry load(String path)
         throws DOMRegistryException
-        //throws ParserConfigurationException, SAXException, IOException
     {
         return load(new File(path));
     }
 
     public static synchronized IDOMRegistry load(File path)
         throws DOMRegistryException
-        //throws ParserConfigurationException, SAXException, IOException
     {
         if (cachedRegistry == null || cachedPath == null ||
             !path.equals(cachedPath))
@@ -57,11 +54,8 @@ public final class DOMRegistryFactory
                 throw new DOMRegistryException("Cannot parse " + path, ioe);
             }
 
-            DOMRegistry reg = parser.getRegistry();
-            reg.tabulateDistances();
-
+            cachedRegistry = parser.getRegistry();
             cachedPath = path;
-            cachedRegistry = reg;
         }
 
         return cachedRegistry;
