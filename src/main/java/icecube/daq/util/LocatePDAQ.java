@@ -67,6 +67,14 @@ public final class LocatePDAQ
                     dir = new File(homeDir, "config");
                 }
                 break;
+            case 3:
+                // check inside pDAQ build directory
+                //  (should only be used for Jenkins builds)
+                final File trunkDir = findTrunk();
+                if (trunkDir != null && trunkDir.length() > 0) {
+                    dir = new File(trunkDir, "config");
+                }
+                break;
             default:
                 // give up
                 done = true;
