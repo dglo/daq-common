@@ -58,12 +58,13 @@ public class MockAppender
     public void assertLogMessage(String message)
     {
         if (getNumberOfMessages() < 1) {
-            throw new Error("No log messages found, expected " + message);
+            throw new AssertionError("No log messages found, expected " +
+                                     message);
         } else {
             final String logMsg = (String) removeEvent(0).getMessage();
             if (!logMsg.startsWith(message)) {
-                throw new Error("Expected log message \"" + message +
-                                "\" not \"" + logMsg + "\"");
+                throw new AssertionError("Expected log message \"" + message +
+                                         "\" not \"" + logMsg + "\"");
             }
         }
     }
@@ -85,10 +86,11 @@ public class MockAppender
 
             try {
                 if (getNumberOfMessages() == 1) {
-                    throw new Error(foundStr + "unexpected log message: " +
-                                    getMessage(0));
+                    throw new AssertionError(foundStr +
+                                             "unexpected log message: " +
+                                             getMessage(0));
                 } else {
-                    throw new Error(foundStr + getNumberOfMessages() +
+                    throw new AssertionError(foundStr + getNumberOfMessages() +
                                     " unexpected log messages, first" +
                                     " message: " + getMessage(0));
                 }
