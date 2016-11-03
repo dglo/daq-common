@@ -1,10 +1,8 @@
-package icecube.daq.common.test;
+package icecube.daq.common;
 
-import icecube.daq.common.IDAQAppender;
-
+import java.io.PrintStream;
 import java.util.ArrayList;
 
-import org.apache.log4j.Appender;
 import org.apache.log4j.Layout;
 import org.apache.log4j.Level;
 import org.apache.log4j.spi.ErrorHandler;
@@ -57,6 +55,29 @@ public class MockAppender
         throw new Error("Unimplemented");
     }
 
+    public void assertLogMessage(String message)
+    {
+        if (getNumberOfMessages() < 1) {
+            throw new Error("No log messages found, expected " + message);
+        } else {
+            final String logMsg = (String) removeEvent(0).getMessage();
+            if (!logMsg.startsWith(message)) {
+                throw new Error("Expected log message \"" + message +
+                                "\" not \"" + logMsg + "\"");
+            }
+        }
+    }
+
+    public void assertNoLogMessages()
+    {
+        if (getNumberOfMessages() != 0) {
+            clear();
+            throw new Error("Found " + getNumberOfMessages() +
+                            " unexpected log messages, first message: " +
+                            getMessage(0));
+        }
+    }
+
     /**
      * Clear the cached logging events.
      */
@@ -94,7 +115,7 @@ public class MockAppender
             }
 
             if (verbose) {
-                dumpEvent(evt);
+                dumpEvent(System.err, evt);
             }
         }
     }
@@ -104,17 +125,27 @@ public class MockAppender
      *
      * @param evt logging event
      */
-    private void dumpEvent(LoggingEvent evt)
+    public void dumpEvent(int i)
+    {
+        dumpEvent(System.err, getEvent(i));
+    }
+
+    /**
+     * Dump a logging event to the specified output destination
+     *
+     * @param out output destination
+     * @param evt logging event
+     */
+    private void dumpEvent(PrintStream out, LoggingEvent evt)
     {
         LocationInfo loc = evt.getLocationInformation();
 
-        System.out.println(evt.getLoggerName() + " " + evt.getLevel() +
-                           " [" + loc.fullInfo + "] " +
-                           evt.getMessage());
+        out.println(evt.getLoggerName() + " " + evt.getLevel() + " [" +
+                    loc.fullInfo + "] " + evt.getMessage());
 
         String[] stack = evt.getThrowableStrRep();
         for (int i = 0; stack != null && i < stack.length; i++) {
-            System.out.println("> " + stack[i]);
+            out.println("> " + stack[i]);
         }
     }
 
@@ -219,6 +250,15 @@ public class MockAppender
     public void reconnect()
     {
         // do nothing
+    }
+
+    private LoggingEvent removeEvent(int idx)
+    {
+        if (idx < 0 || idx > eventList.size()) {
+            throw new IllegalArgumentException("Bad index " + idx);
+        }
+
+        return eventList.remove(idx);
     }
 
     /**

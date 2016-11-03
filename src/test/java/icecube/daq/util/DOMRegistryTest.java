@@ -1,6 +1,6 @@
 package icecube.daq.util;
 
-import icecube.daq.common.test.MockAppender;
+import icecube.daq.common.MockAppender;
 
 import java.io.File;
 import java.util.Set;
@@ -77,29 +77,6 @@ public class DOMRegistryTest
         new DOMData(0x7ce3bc68a2d6L, 210, 51, 63, "Sakigake", "AP8P3026"),
     };
 
-    private void assertLogMessage(String message)
-    {
-        try {
-            assertEquals("Bad number of log messages", 1,
-                         appender.getNumberOfMessages());
-            String logMsg = (String) appender.getMessage(0);
-            assertTrue("Unexpected log message " + logMsg,
-                       logMsg.startsWith(message));
-        } finally {
-            appender.clear();
-        }
-    }
-
-    private void assertNoLogMessage()
-    {
-        try {
-            assertEquals("Bad number of log messages", 0,
-                         appender.getNumberOfMessages());
-        } finally {
-            appender.clear();
-        }
-    }
-
     @Before
     public void setUp()
         throws Exception
@@ -125,8 +102,7 @@ public class DOMRegistryTest
     public void tearDown()
         throws Exception
     {
-        assertEquals("Bad number of log messages",
-                     0, appender.getNumberOfMessages());
+        appender.assertNoLogMessages();
     }
 
     @Test
@@ -137,27 +113,32 @@ public class DOMRegistryTest
 
         assertEquals("Found channel ID for bad MBID " + badMBID,
                      (short) -1, registry.getChannelId(badMBID));
-        assertLogMessage("Cannot find channel for 000000000000");
+        appender.assertLogMessage("Cannot find channel for 000000000000");
+        appender.assertNoLogMessages();
 
         assertNull("Found name for bad MBID " + badMBID,
                    registry.getDom(badMBID));
-        assertNoLogMessage();
+        appender.assertNoLogMessages();
 
         assertNull("Found DOM ID for bad MBID " + badMBID,
                    registry.getProductionId(badMBID));
-        assertLogMessage("Cannot fetch DOM entry for 000000000000");
+        appender.assertLogMessage("Cannot fetch DOM entry for 000000000000");
+        appender.assertNoLogMessages();
 
         assertNull("Found name for bad MBID " + badMBID,
                    registry.getName(badMBID));
-        assertLogMessage("Cannot find name for 000000000000");
+        appender.assertLogMessage("Cannot find name for 000000000000");
+        appender.assertNoLogMessages();
 
         assertEquals("Found major number for bad MBID " + badMBID,
                      -1, registry.getStringMajor(badMBID));
-        assertLogMessage("Cannot find string major for 000000000000");
+        appender.assertLogMessage("Cannot find string major for 000000000000");
+        appender.assertNoLogMessages();
 
         assertEquals("Found minor number for bad MBID " + badMBID,
                      -1, registry.getStringMinor(badMBID));
-        assertLogMessage("Cannot find string minor for 000000000000");
+        appender.assertLogMessage("Cannot find string minor for 000000000000");
+        appender.assertNoLogMessages();
     }
 
     @Test
