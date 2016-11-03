@@ -70,11 +70,31 @@ public class MockAppender
 
     public void assertNoLogMessages()
     {
+        assertNoLogMessages(null);
+    }
+
+    public void assertNoLogMessages(String description)
+    {
         if (getNumberOfMessages() != 0) {
-            clear();
-            throw new Error("Found " + getNumberOfMessages() +
-                            " unexpected log messages, first message: " +
-                            getMessage(0));
+            String foundStr;
+            if (description == null) {
+                foundStr = "Found ";
+            } else {
+                foundStr = "For [" + description + "], found ";
+            }
+
+            try {
+                if (getNumberOfMessages() == 1) {
+                    throw new Error(foundStr + "unexpected log message: " +
+                                    getMessage(0));
+                } else {
+                    throw new Error(foundStr + getNumberOfMessages() +
+                                    " unexpected log messages, first" +
+                                    " message: " + getMessage(0));
+                }
+            } finally {
+                clear();
+            }
         }
     }
 
