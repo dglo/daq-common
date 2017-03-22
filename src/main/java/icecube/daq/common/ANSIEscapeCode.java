@@ -4,16 +4,6 @@ public class ANSIEscapeCode
 {
     public static final String OFF = escapeString(0);
 
-    private static final int BLACK = 0;
-    private static final int RED = 1;
-    private static final int GREEN = 2;
-    private static final int YELLOW = 3;
-    private static final int BLUE = 4;
-    private static final int MAGENTA = 5;
-    private static final int CYAN = 6;
-    private static final int WHITE = 7;
-    private static final int DEFAULT = 9;
-
     public static final String BOLD_ON = escapeString(1);
     public static final String ITALIC_ON = escapeString(3);
     public static final String UNDERLINE_ON = escapeString(4);
@@ -24,44 +14,42 @@ public class ANSIEscapeCode
     public static final String UNDERLINE_OFF = escapeString(24);
     public static final String INVERTED_OFF = escapeString(27);
 
-    public static final String FG_BLACK = foregroundColor(BLACK);
-    public static final String FG_RED = foregroundColor(RED);
-    public static final String FG_GREEN = foregroundColor(GREEN);
-    public static final String FG_YELLOW = foregroundColor(YELLOW);
-    public static final String FG_BLUE = foregroundColor(BLUE);
-    public static final String FG_MAGENTA = foregroundColor(MAGENTA);
-    public static final String FG_CYAN = foregroundColor(CYAN);
-    public static final String FG_WHITE = foregroundColor(WHITE);
-    public static final String FG_DEFAULT = foregroundColor(DEFAULT);
+    public static final String FG_BLACK = foregroundColor(ANSIColor.BLACK);
+    public static final String FG_RED = foregroundColor(ANSIColor.RED);
+    public static final String FG_GREEN = foregroundColor(ANSIColor.GREEN);
+    public static final String FG_YELLOW = foregroundColor(ANSIColor.YELLOW);
+    public static final String FG_BLUE = foregroundColor(ANSIColor.BLUE);
+    public static final String FG_MAGENTA = foregroundColor(ANSIColor.MAGENTA);
+    public static final String FG_CYAN = foregroundColor(ANSIColor.CYAN);
+    public static final String FG_WHITE = foregroundColor(ANSIColor.WHITE);
+    public static final String FG_DEFAULT = foregroundColor(ANSIColor.DEFAULT);
 
-    public static final String BG_BLACK = backgroundColor(BLACK);
-    public static final String BG_RED = backgroundColor(RED);
-    public static final String BG_GREEN = backgroundColor(GREEN);
-    public static final String BG_YELLOW = backgroundColor(YELLOW);
-    public static final String BG_BLUE = backgroundColor(BLUE);
-    public static final String BG_MAGENTA = backgroundColor(MAGENTA);
-    public static final String BG_CYAN = backgroundColor(CYAN);
-    public static final String BG_WHITE = backgroundColor(WHITE);
-    public static final String BG_DEFAULT = backgroundColor(DEFAULT);
+    public static final String BG_BLACK = backgroundColor(ANSIColor.BLACK);
+    public static final String BG_RED = backgroundColor(ANSIColor.RED);
+    public static final String BG_GREEN = backgroundColor(ANSIColor.GREEN);
+    public static final String BG_YELLOW = backgroundColor(ANSIColor.YELLOW);
+    public static final String BG_BLUE = backgroundColor(ANSIColor.BLUE);
+    public static final String BG_MAGENTA = backgroundColor(ANSIColor.MAGENTA);
+    public static final String BG_CYAN = backgroundColor(ANSIColor.CYAN);
+    public static final String BG_WHITE = backgroundColor(ANSIColor.WHITE);
+    public static final String BG_DEFAULT = backgroundColor(ANSIColor.DEFAULT);
 
-    public static final String backgroundColor(int color)
+    public static final String backgroundColor(ANSIColor color)
     {
-        if (color < 0 || color > 9) {
-            throw new IllegalArgumentException("Color must be between" +
-                                               " 0 and 9, not " + color);
+        if (color == null) {
+            throw new NullPointerException("Color cannot be null");
         }
 
-        return escapeString(color + 40);
+        return escapeString(color.getCode() + 40);
     }
 
-    public static final String foregroundColor(int color)
+    public static final String foregroundColor(ANSIColor color)
     {
-        if (color < 0 || color > 9) {
-            throw new IllegalArgumentException("Color must be between" +
-                                               " 0 and 9, not " + color);
+        if (color == null) {
+            throw new NullPointerException("Color cannot be null");
         }
 
-        return escapeString(color + 30);
+        return escapeString(color.getCode() + 30);
     }
 
     private static String escapeString(int code)
@@ -70,7 +58,6 @@ public class ANSIEscapeCode
         if (code <= 0) {
             substr = "";
         } else {
-            //substr = "0;" + code;
             substr = Integer.toString(code);
         }
 
