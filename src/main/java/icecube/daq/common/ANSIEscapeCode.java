@@ -1,5 +1,8 @@
 package icecube.daq.common;
 
+/**
+ * Utilities to manage ANSI escape codes
+ */
 public class ANSIEscapeCode
 {
     public static final String OFF = escapeString(0);
@@ -34,6 +37,13 @@ public class ANSIEscapeCode
     public static final String BG_WHITE = backgroundColor(ANSIColor.WHITE);
     public static final String BG_DEFAULT = backgroundColor(ANSIColor.DEFAULT);
 
+    /**
+     * Return the ANSI escape string to set the background color
+     *
+     * @param color ANSI color
+     *
+     * @return escape code string which will set the background color
+     */
     public static final String backgroundColor(ANSIColor color)
     {
         if (color == null) {
@@ -43,6 +53,13 @@ public class ANSIEscapeCode
         return escapeString(color.getCode() + 40);
     }
 
+    /**
+     * Return the ANSI escape string to set the foreground color
+     *
+     * @param color ANSI color
+     *
+     * @return escape code string which will set the foreground color
+     */
     public static final String foregroundColor(ANSIColor color)
     {
         if (color == null) {
@@ -52,6 +69,13 @@ public class ANSIEscapeCode
         return escapeString(color.getCode() + 30);
     }
 
+    /**
+     * Build an ANSI escape code string
+     *
+     * @param code value to encode
+     *
+     * @return escape code string
+     */
     private static String escapeString(int code)
     {
         String substr;
