@@ -1,30 +1,36 @@
 package icecube.daq.util;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
 
+public class LeapsecondsTest
+{
+    private static File nistDir;
 
-public class leapsecondsTest {
-    private static File nist_dir;
+    private static final String DEFAULT_FILENAME = "leap-seconds.3629577600";
 
     @Before
     public void setUp()
     {
-        File config_dir = new File(getClass().getResource("/config").getPath());
-        if (!config_dir.exists()) {
+        File configDir = new File(System.getenv("HOME"), "config");
+        if (!configDir.exists()) {
             throw new IllegalArgumentException("Cannot find config" +
                                                " directory under " +
                                                getClass().getResource("/"));
         }
 
-        nist_dir = new File(config_dir, "nist");
-        if (!nist_dir.exists()) {
+        nistDir = new File(configDir, "nist");
+        if (!nistDir.exists()) {
             throw new IllegalArgumentException("Cannot find config/nist" +
                                                " directory under " +
                                                getClass().getResource("/"));
@@ -34,63 +40,51 @@ public class leapsecondsTest {
     public Leapseconds load(String fname, int year)
         throws IllegalArgumentException
     {
-        File config_file = new File(nist_dir, fname);
-        if (!config_file.exists()) {
+        File configFile = new File(nistDir, fname);
+        if (!configFile.exists()) {
             throw new IllegalArgumentException("Cannot find file \"" + fname +
                                                "\"");
         }
 
-        return new Leapseconds(config_file.getPath(), year);
+        return new Leapseconds(configFile, year);
     }
 
     /* test that you get an exception if the leapseconds file is missing
      */
     @Test
-    public void testMissingFile() {
+    public void testMissingFile()
+    {
         boolean pass=false;
         try {
             Leapseconds test = load("junk1234156", 1972);
-            if (test == null) {
-                return;
-            }
+            fail("Should not be able to load bad file");
         } catch (IllegalArgumentException e) {
-            pass=true;
-        }
-        assertTrue(pass);
-    }
-
-    /* test that the get_days_in_year method works
-     */
-    @Test
-    public void testDaysInYear() {
-        int leap_years[] = { 2016, 2012, 2008, 2004, 2000, 1996, 1992, 1988,
-                             1984, 1980, 1976, 1972 };
-
-        int years[] = { 2015, 2014, 2013, 2011, 2010, 2009, 2007, 2006, 2005,
-                        2003, 2002, 2001, 1999, 1998, 1997, 1995, 1994, 1993 };
-
-        Leapseconds test = load("leap-seconds.3535228800", 1972);
-        if (test == null) {
-            return;
-        }
-
-        for(int index=0; index< leap_years.length; index++) {
-            assertTrue(test.get_days_in_year(leap_years[index])==366);
-        }
-
-        for(int index=0; index<years.length; index++) {
-            assertTrue(test.get_days_in_year(years[index])==365);
+            // ignore failures
         }
     }
 
-
-    /* test that you get an exception for an old year
-     */
     @Test
-    public void testOldYear() {
+    public void testDaysInYear()
+    {
+        for (int year = 1972; year <= 2017; year++) {
+            int expDays;
+            if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) {
+                expDays = 366;
+            } else {
+                expDays = 365;
+            }
+
+            assertEquals("For year " + year, expDays,
+                         Leapseconds.getDaysInYear(year));
+        }
+    }
+
+    @Test
+    public void testOldYear()
+    {
         try {
-            Leapseconds test = load("leap-seconds.3535228800", 1960);
-            fail("Year before 1972 was allowed.");
+            Leapseconds test = load(DEFAULT_FILENAME, 1960);
+            fail("Default year preceded 1972");
         } catch (ExceptionInInitializerError e) {
             //desired
         }
@@ -99,15 +93,16 @@ public class leapsecondsTest {
 
     /* This USED to thrown an exception for a future year
      * It's supposed to assume no leapseconds have occurred in time
-     * for which we have no information.  make sure that we 
+     * for which we have no information.  make sure that we
      * do NOT get an exception
-     * 
+     *
      */
     @Test
-    public void testFutureYear() {
+    public void testFutureYear()
+    {
         try {
             Leapseconds test = load("leap-seconds.3535228800", 3020);
-            assertNotNull("Future year was not supported.",test);
+            assertNotNull("Future year was not supported.", test);
         } catch (IllegalArgumentException e) {
            fail("Future year was not supported.");
         }
@@ -131,26 +126,28 @@ public class leapsecondsTest {
      * 2011
      */
     @Test
-    public void testZeroLeapOffsetYears() {
-
+    public void testZeroLeapOffsetYears()
+    {
         /* years with no leap seconds
          */
-        int years[] = { 1984, 1986, 1987, 1989, 1995,
-                        1998, 2000, 2001, 2002, 2003,
-                        2004, 2005, 2007, 2008, 2010,
-                        2011 };
+        int years[] = {
+            1984, 1986, 1987, 1989, 1995, 1998, 2000, 2001, 2002, 2003,
+            2004, 2005, 2007, 2008, 2010, 2011
+        };
 
-        for(int index=0; index< years.length; index++) {
-            int year = years[index];
+        for(int yindex = 0; yindex < years.length; yindex++) {
+            int year = years[yindex];
 
-            Leapseconds test = load("leap-seconds.3535228800", year);
+            Leapseconds test = load(DEFAULT_FILENAME, year);
             if (test == null) {
-                return;
+                fail("Could not load " + DEFAULT_FILENAME);
             }
 
-            int limit = test.get_days_in_year(year)+1;
-            for(int index2=0; index2<limit; index2++) {
-                assertTrue(test.get_leap_offset(index)==0L);
+            int maxDays = test.getDaysInYear(year)+1;
+            for(int day = 0; day < maxDays; day++) {
+                final int offset = test.getLeapOffset(year, day);
+                assertEquals("Bad offset " + offset + " for " + year +
+                             " day#" + day, offset, 0L);
             }
         }
     }
@@ -160,110 +157,115 @@ public class leapsecondsTest {
      * june 30
      */
     @Test
-    public void test2012() {
-        Leapseconds test = load("leap-seconds.3535228800", 2012);
+    public void test2012()
+    {
+        final int year2012 = 2012;
+
+        Leapseconds test = load(DEFAULT_FILENAME, year2012);
         if (test == null) {
-            return;
+            fail("Could not load " + DEFAULT_FILENAME);
         }
 
-        double jan1mjd = test.mjd(2012, 1, 1.0);
-        double jul1mjd = test.mjd(2012, 7, 1.);
-        double jan1mjd2013 = test.mjd(2013, 1, 1.);
+        MJD jan1mjd = new MJD(year2012, 1, 1);
+        MJD jul1mjd = new MJD(year2012, 7, 1);
+        MJD jan1mjd2013 = new MJD(year2012 + 1, 1, 1);
 
         /* should be 0 from jan 1 to one day before jul1 */
         // +1 because the offset array is 1 based
         // as the gps clock starts the first day of year at 1
-        int limit = (int)(jul1mjd-jan1mjd)+1;
-        for(int index=0; index<limit; index++) {
-            assertTrue(test.get_leap_offset(index)==0L);
+        int dayJul1 = (int) (jul1mjd.value() - jan1mjd.value()) + 1;
+        for(int day = 0; day < dayJul1; day++) {
+            final int leapSecs = test.getLeapOffset(day);
+            assertEquals("For day " + day, 0, leapSecs);
         }
 
         /* should go from 0 to 1 from june 30 to jul 1
          * and stay there until jan 1 of 2013
          */
-        int limit_jan1 = (int)(jan1mjd2013 - jan1mjd)+1;
-        for(int index=limit; index<=limit_jan1; index++) {
-            assertTrue(test.get_leap_offset(index)==1L);
+        int dayJan1 = (int) (jan1mjd2013.value() - jan1mjd.value()) + 1;
+        for(int day = dayJul1; day <= dayJan1; day++) {
+            final int leapSecs = test.getLeapOffset(day);
+            assertEquals("For day " + day, 1, leapSecs);
         }
     }
 
-
-    /* test seconds-seconds_in_year method
-     */
-
     @Test
-    public void test_seconds_in_year() {
-        Leapseconds test = load("leap-seconds.3535228800", 1972);
-        if (test == null) {
-            return;
-        }
+    public void testNextYear()
+    {
+        Leapseconds test = Leapseconds.getInstance();
 
-        assertTrue(test.seconds_in_year(2008)==31622401L);
-        assertTrue(test.seconds_in_year(2011)==31536000L);
-        assertTrue(test.seconds_in_year(1997)==31536001L);
-        assertTrue(test.seconds_in_year(2007)==31536000L);
-        assertTrue(test.seconds_in_year(1972)==31622402L);
-
-        boolean caught_exception = false;
-        try {
-            test.seconds_in_year(1970);
-        } catch (IllegalArgumentException e) {
-            caught_exception=true;
-        }
-
-        assertTrue(caught_exception);
-
-	// the desired behaviour of the leapsecond class has changed
-	// we are supposed to assume no leap second has occurred past
-	// the end of a file expiration, test that we don't get an
-	// exception for a future year
-
-        caught_exception=false;
-        try {
-            test.seconds_in_year(2020);
-        } catch (IllegalArgumentException e) {
-            caught_exception=true;
-        }
-
-        assertFalse(caught_exception);
+        final int lsecs = test.getLeapOffset(366);
+        assertEquals("Bad number of leap seconds for next year", lsecs,
+                     test.getLeapOffset(test.getDefaultYear() + 1, 366));
     }
 
+    @Test
+    public void testSecondsInYear()
+    {
+        Leapseconds test = load(DEFAULT_FILENAME, 1972);
+        if (test == null) {
+            fail("Could not load " + DEFAULT_FILENAME);
+        }
 
-    /* that 1972 worked correctly
-     * only year with 2 leap seconds
+        assertEquals(test.getTotalSeconds(2008) , 31622401L);
+        assertEquals(test.getTotalSeconds(2011) , 31536000L);
+        assertEquals(test.getTotalSeconds(1997) , 31536001L);
+        assertEquals(test.getTotalSeconds(2007) , 31536000L);
+        assertEquals(test.getTotalSeconds(1972) , 31622402L);
+
+        try {
+            test.getTotalSeconds(1970);
+            fail("This should not succeed");
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // expect this to fail
+        }
+
+        try {
+            test.getTotalSeconds(2020);
+            fail("This should not succeed");
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // expect this to fail
+        }
+    }
+
+    /**
+     * 1972 is the only year with 2 leap seconds
      */
     @Test
-    public void test1972() {
-        Leapseconds test = load("leap-seconds.3535228800", 1972);
+    public void test1972()
+    {
+        Leapseconds test = load(DEFAULT_FILENAME, 1972);
         if (test == null) {
-            return;
+            fail("Could not load " + DEFAULT_FILENAME);
         }
 
         /* calculate the interesting day of year numbers */
-        double jan1mjd = test.mjd(1972, 1, 1.);
-        double jul1mjd = test.mjd(1972, 7, 1.);
-        double jan1mjd1973 = test.mjd(1973, 1, 1.);
+        MJD jan1 = new MJD(1972, 1, 1);
+        MJD jul1 = new MJD(1972, 7, 1);
+        MJD jan11973 = new MJD(1973, 1, 1);
 
         /* should be 0 from jan 1 to one day before jul1 */
         // +1 because the offset array is 1 based
         // as the gps clock starts the first day of year at 1
-        int limit = (int)(jul1mjd-jan1mjd)+1;
-        for(int index=0; index<limit; index++) {
-            assertTrue(test.get_leap_offset(index)==0L);
+        int limit = (int) (jul1.value() - jan1.value()) + 1;
+        for(int day = 0; day < limit; day++) {
+            assertEquals("For day " + day + " (limit " + limit + ")",
+                         0L, test.getLeapOffset(day));
         }
 
         /* should go from 0 to 1 from june 30 to jul 1
          * and stay there until jan 1 of 1973
          */
-        int limit_jan1 = (int)(jan1mjd1973 - jan1mjd)+1;
-        for(int index=limit; index<limit_jan1; index++) {
-            assertTrue(test.get_leap_offset(index)==1L);
+        int limit_jan1 = (int)(jan11973.value() - jan1.value()) + 1;
+        for(int day = limit; day < limit_jan1; day++) {
+            assertEquals("For day " + day + " (limit " + limit_jan1 + ")",
+                         1, test.getLeapOffset(day));
         }
 
         /* should go from 1 to 2 at jan 1 offset
          */
-        assertTrue(test.get_leap_offset(limit_jan1)==2L);
-
+        assertEquals("For day " + limit_jan1,
+                     2, test.getLeapOffset(limit_jan1));
     }
 
     @Test
@@ -274,10 +276,11 @@ public class leapsecondsTest {
         // access to pre-calculated offsets for all years covered in
         // the NIST file in a single instantiation
         //
-        final int DEFAULT_YEAR = 1992;
-        Leapseconds subject = load("leap-seconds.3629577600", DEFAULT_YEAR);
-
-        assertEquals("Default year", DEFAULT_YEAR, subject.defaultYear);
+        final int defaultYear = 1992;
+        Leapseconds subject = load(DEFAULT_FILENAME, defaultYear);
+        if (subject == null) {
+            fail("Could not load " + DEFAULT_FILENAME);
+        }
 
         // hardcoded know leap second data as of July 2015, omitting
         // 1972 because there were 2 leap seconds
@@ -327,29 +330,31 @@ public class leapsecondsTest {
         leaps.put(2014, 999); // no leap second
         leaps.put(2015, 182); // leap second June 30th.
 
-        for(int year=1973; year<=2015; year++)
-        {
+        for (int year = 1973; year <= 2015; year++) {
             //unusual year-plus-two-day implementation in leapsecond class
-            for(int day=1; day<=subject.get_days_in_year(year) + 2; day++)
-            {
-                int predicted = (day>=leaps.get(year)) ? 1 : 0;
-                int actual = subject.get_leap_offset(year, day);
-                String msg = String.format("Bad leap offset for day [%d]" +
-                        " of year [%d]", day, year);
+            for(int day = 1; day <= subject.getDaysInYear(year) + 2; day++) {
+                int predicted = (day >= leaps.get(year)) ? 1 : 0;
+                int actual = subject.getLeapOffset(year, day);
+                String msg = String.format("Bad leap offset for day %d of " +
+                                           " year %d", day, year);
                 assertEquals(msg, predicted, actual);
             }
         }
 
         // test the default year of this instantiation
-        for(int day=1; day<=subject.get_days_in_year(DEFAULT_YEAR) + 2; day++)
+        for (int day = 1; day <= subject.getDaysInYear(defaultYear) + 2;
+             day++)
         {
-            int predicted = (day>=leaps.get(DEFAULT_YEAR)) ? 1 : 0;
-            int actual = subject.get_leap_offset(day);
-            String msg = String.format("Bad leap offset for day [%d]" +
-                    " of year [%d]", day, DEFAULT_YEAR);
+            int predicted = (day>=leaps.get(defaultYear)) ? 1 : 0;
+            int actual = subject.getLeapOffset(day);
+            String msg = String.format("Bad leap offset for day %d of " +
+                                       " year [%d]", day, defaultYear);
             assertEquals(msg, predicted, actual);
         }
+    }
 
-
+    public static final void main(String[] args)
+    {
+        org.junit.runner.JUnitCore.main("LeapsecondsTest");
     }
 }
