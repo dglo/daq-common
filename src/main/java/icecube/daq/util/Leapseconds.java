@@ -55,6 +55,10 @@ public class Leapseconds
     private MJD expiry;
 
     /**
+     * Path to file used to populate this instance
+     */
+    private File file;
+    /**
      * Default year for lookups that do not specify the year, in normal
      * usage this will be the current year.
      */
@@ -98,7 +102,8 @@ public class Leapseconds
             throw new ExceptionInInitializerError(err);
         }
 
-        defaultYear = year;
+        this.file = file;
+        this.defaultYear = year;
 
         // parse the leapseconds file to initialize this object
         new NISTParser(this).parse(file, defaultYear);
@@ -164,28 +169,18 @@ public class Leapseconds
     }
 
     /**
-     * Get the last year covered by the NIST file
-     *
-     * @return expiration year
-     */
-    public int getExpiryYear()
-    {
-        return expiry.toCalendar().get(Calendar.YEAR);
-    }
-
-    /**
      * Return the singleton instance of the Leapseconds class.
      *
      * @return shared leapsecond data object
      */
     public static synchronized Leapseconds getInstance()
     {
-        if (instance == null) {
-            if (configDir == null) {
-                // look for the pDAQ configuration directory
-                configDir = LocatePDAQ.findConfigDirectory();
-            }
+        if (configDir == null) {
+            // look for the pDAQ configuration directory
+            configDir = LocatePDAQ.findConfigDirectory();
+        }
 
+        if (instance == null || !instance.isConfigDirectory(configDir)) {
             instance = new Leapseconds(new File(configDir,
                                                 "nist/leapseconds-latest"));
         }
@@ -207,7 +202,7 @@ public class Leapseconds
      */
     public int getLeapOffset(int dayOfYear)
     {
-        return getLeapOffset(defaultYear, dayOfYear);
+        return getLeapOffset(dayOfYear, defaultYear);
     }
 
     /**
@@ -219,14 +214,14 @@ public class Leapseconds
      * this class for years prior to 1972 and years beyond the expiration
      * of the NIST file.
      *
-     * @param year The operative year.
      * @param dayOfYear A day in the specified year, one-based.
+     * @param year The operative year.
      *
      * @return The number of leap seconds that have occurred since the
      *         beginning of the operative year, or zero for years outside
      *         the capabilities of this class.
      */
-    public int getLeapOffset(final int year, int dayOfYear)
+    public int getLeapOffset(int dayOfYear, final int year)
     {
         // get the index into the leapOffsets array for the specified year
         int yrIndex = year - baseOffsetYear;
@@ -273,12 +268,18 @@ public class Leapseconds
             return true;
         }
 
-        int year = getExpiryYear();
+        final int year = expiry.toCalendar().get(Calendar.YEAR);
         if (year == defaultYear) {
             return MJD.now().isAfter(expiry);
         }
 
         return year < defaultYear;
+    }
+
+    private boolean isConfigDirectory(File configDir)
+    {
+        return file != null && configDir != null &&
+            file.toString().startsWith(configDir.toString());
     }
 
     /**
@@ -301,23 +302,16 @@ public class Leapseconds
     }
 
     /**
-     * Used by NISTParser to record the NIST file's expiration date
-     *
-     * @param expiry expiration date
-     */
-    protected void setExpiration(MJD expiry)
-    {
-        this.expiry = expiry;
-    }
-
-    /**
      * Used by NISTParser to initialize the core data
      *
+     * @param expiry expiration date
      * @param baseOffsetYear the first year of data included in leapOffsets
      * @param leapOffsets cached leapsecond data for many years
      */
-    protected void setData(int baseOffsetYear, LeapOffsets[] leapOffsets)
+    protected void setData(MJD expiry, int baseOffsetYear,
+                           LeapOffsets[] leapOffsets)
     {
+        this.expiry = expiry;
         this.baseOffsetYear = baseOffsetYear;
         this.leapOffsets = leapOffsets;
     }
@@ -357,9 +351,10 @@ class NISTParser
         this.lsObject = lsObject;
     }
 
-    void initObject(int defaultYear, Map<MJD, Integer> taiMap)
+    private void initObject(int defaultYear, MJD expiry,
+                            Map<MJD, Integer> taiMap)
     {
-        final int expireYear = lsObject.getExpiryYear();
+        final int expireYear = expiry.toCalendar().get(Calendar.YEAR);
 
         int finalYear;
         if (defaultYear > expireYear) {
@@ -454,7 +449,7 @@ class NISTParser
             }
         }
 
-        lsObject.setData(baseOffsetYear, leapOffsets);
+        lsObject.setData(expiry, baseOffsetYear, leapOffsets);
     }
 
     public void parse(File file, int defaultYear)
@@ -468,11 +463,12 @@ class NISTParser
                                                   file + "' not found");
         }
 
-        // create a mapping from MJD to tai offset
+        // create a mapping from MJD to TAI offset
         Map<MJD, Integer> taiMap = new HashMap<MJD, Integer>();
 
+        MJD expiry;
         try {
-            parseLines(rdr, taiMap);
+            expiry = parseLines(rdr, taiMap);
         } catch (LeapsecondException lsex) {
             throw new ExceptionInInitializerError(lsex);
         } finally {
@@ -483,7 +479,7 @@ class NISTParser
             }
         }
 
-        initObject(defaultYear, taiMap);
+        initObject(defaultYear, expiry, taiMap);
     }
 
     /*
@@ -496,7 +492,7 @@ class NISTParser
      *
      * @throws LeapsecondException if there is a problem with the file
      */
-    private void parseLines(BufferedReader rdr, Map<MJD, Integer> taiMap)
+    private MJD parseLines(BufferedReader rdr, Map<MJD, Integer> taiMap)
         throws LeapsecondException
     {
         MJD expiry = null;
@@ -519,8 +515,9 @@ class NISTParser
             }
 
             if (line.charAt(0) == '#') {
-                // is this the expiry line?
+                // found a comment line
                 if (line.length() > 4 && line.charAt(1) == '@') {
+                    // but it's really the expiration date
                     long val = Long.parseLong(line.substring(3).trim());
                     expiry = new MJD(val);
                 }
@@ -535,6 +532,8 @@ class NISTParser
                 int offset = Integer.parseInt(match.group(2));
 
                 taiMap.put(pt, offset);
+
+                continue;
             }
         }
 
@@ -545,7 +544,7 @@ class NISTParser
             throw new LeapsecondException("No leapsecond data found");
         }
 
-        lsObject.setExpiration(expiry);
+        return expiry;
     }
 }
 

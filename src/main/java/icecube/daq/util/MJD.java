@@ -163,16 +163,6 @@ class MJD
     }
 
     /**
-     * Base MJD value
-     *
-     * @return MJD value
-     */
-    double value()
-    {
-        return value;
-    }
-
-    /**
      * Hash code for this MJD value
      *
      * @return smooshed MJD value
@@ -308,6 +298,16 @@ class MJD
     }
 
     /**
+     * Base MJD value
+     *
+     * @return MJD value
+     */
+    double value()
+    {
+        return value;
+    }
+
+    /**
      * Return debugging string
      *
      * @return debugging string
@@ -315,5 +315,11 @@ class MJD
     public String toString()
     {
         return "MJD(" + value + ")";
+    }
+
+    public static final void main(String[] args)
+    {
+        for (int i = 0; i < args.length; i++) {
+        }
     }
 }

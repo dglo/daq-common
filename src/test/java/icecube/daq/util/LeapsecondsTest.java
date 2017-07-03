@@ -145,7 +145,7 @@ public class LeapsecondsTest
 
             int maxDays = test.getDaysInYear(year)+1;
             for(int day = 0; day < maxDays; day++) {
-                final int offset = test.getLeapOffset(year, day);
+                final int offset = test.getLeapOffset(day, year);
                 assertEquals("Bad offset " + offset + " for " + year +
                              " day#" + day, offset, 0L);
             }
@@ -196,7 +196,7 @@ public class LeapsecondsTest
 
         final int lsecs = test.getLeapOffset(366);
         assertEquals("Bad number of leap seconds for next year", lsecs,
-                     test.getLeapOffset(test.getDefaultYear() + 1, 366));
+                     test.getLeapOffset(366, test.getDefaultYear() + 1));
     }
 
     @Test
@@ -334,7 +334,7 @@ public class LeapsecondsTest
             //unusual year-plus-two-day implementation in leapsecond class
             for(int day = 1; day <= subject.getDaysInYear(year) + 2; day++) {
                 int predicted = (day >= leaps.get(year)) ? 1 : 0;
-                int actual = subject.getLeapOffset(year, day);
+                int actual = subject.getLeapOffset(day, year);
                 String msg = String.format("Bad leap offset for day %d of " +
                                            " year %d", day, year);
                 assertEquals(msg, predicted, actual);
