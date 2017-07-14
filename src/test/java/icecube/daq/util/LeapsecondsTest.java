@@ -22,7 +22,8 @@ public class LeapsecondsTest
     @Before
     public void setUp()
     {
-        File configDir = new File(System.getenv("HOME"), "config");
+        File configDir =
+            new File(getClass().getResource("/config").getPath());
         if (!configDir.exists()) {
             throw new IllegalArgumentException("Cannot find config" +
                                                " directory under " +
@@ -35,6 +36,9 @@ public class LeapsecondsTest
                                                " directory under " +
                                                getClass().getResource("/"));
         }
+
+        System.setProperty(LocatePDAQ.CONFIG_DIR_PROPERTY,
+                           configDir.getAbsolutePath());
     }
 
     public Leapseconds load(String fname, int year)

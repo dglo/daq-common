@@ -7,14 +7,14 @@ import java.io.File;
  */
 public final class LocatePDAQ
 {
+    /** Name of property holding path for pDAQ configuration directory */
+    public static final String CONFIG_DIR_PROPERTY =
+        "icecube.daq.component.configDir";
+
     /** Cached configuration directory */
     private static File CONFIG_DIR;
     /** Cached pDAQ trunk directory */
     private static File META_DIR;
-
-    /** Name of property holding path for pDAQ configuration directory */
-    private static final String CONFIG_DIR_PROPERTY =
-        "icecube.daq.component.configDir";
 
     /**
      * Clear all cached paths.
