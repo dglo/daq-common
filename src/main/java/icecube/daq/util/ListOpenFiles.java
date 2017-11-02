@@ -430,7 +430,7 @@ class RegularFileData
     extends FileData
 {
     private static final Pattern pat =
-        Pattern.compile("(\\d+,\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(.*\\S)\\s*$");
+        Pattern.compile("(\\d+,\\d+)\\s+(\\d+)?\\s+(\\d+)\\s+(.*\\S)\\s*$");
 
     private String device;
     private int size;
