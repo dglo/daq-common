@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -137,6 +138,11 @@ public class Leapseconds
         return expiry.value() - MJD.now().value();
     }
 
+    public File file()
+    {
+        return file;
+    }
+
     /**
      * Calculate the number of days in the given year
      *
@@ -186,6 +192,17 @@ public class Leapseconds
         }
 
         return instance;
+    }
+
+    /**
+     * Return the absolute path of the file pointed to by the
+     * 'leapseconds-latest' symlink
+     */
+    public static Path getLatestPath()
+        throws IOException
+    {
+        File file = getInstance().file();
+        return file.toPath().toRealPath();
     }
 
     /**
