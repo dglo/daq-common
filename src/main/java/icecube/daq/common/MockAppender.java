@@ -2,9 +2,12 @@ package icecube.daq.common;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Enumeration;
 
+import org.apache.log4j.Category;
 import org.apache.log4j.Layout;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.log4j.spi.ErrorHandler;
 import org.apache.log4j.spi.Filter;
 import org.apache.log4j.spi.LocationInfo;
@@ -16,6 +19,8 @@ import org.apache.log4j.spi.LoggingEvent;
 public class MockAppender
     implements IDAQAppender
 {
+    private static final Logger LOG = Logger.getLogger(MockAppender.class);
+
     /** minimum level of log messages which will be print. */
     private Level minLevel;
     /** <tt>true</tt> if messages should be printed as well as cached. */
@@ -220,9 +225,24 @@ public class MockAppender
         return minLevel;
     }
 
+    /**
+     * Get error message from the specified logging event
+     *
+     * @return error message
+     */
     public Object getMessage(int idx)
     {
         return getEvent(idx).getMessage();
+    }
+
+    /**
+     * Get log level from the specified logging event
+     *
+     * @return error message
+     */
+    public Level getMessageLevel(int idx)
+    {
+        return getEvent(idx).getLevel();
     }
 
     /**
@@ -331,6 +351,13 @@ public class MockAppender
     public MockAppender setLevel(Level lvl)
     {
         minLevel = lvl;
+
+        // set log level in all active loggers
+        Enumeration current = LOG.getLoggerRepository().getCurrentLoggers();
+        while (current.hasMoreElements()) {
+            Category logger = (Category) current.nextElement();
+            logger.setLevel(lvl);
+        }
 
         return this;
     }
