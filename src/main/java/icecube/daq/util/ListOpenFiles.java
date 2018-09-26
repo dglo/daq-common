@@ -237,8 +237,8 @@ class IPv4FileData
 
     public String toString()
     {
-        return "IPv4[" + device + "/" + sizeOff + "/" + node + "/" + name + "/" +
-            state + "]";
+        return "IPv4[" + device + "/" + sizeOff + "/" + node + "/" + name +
+            "/" + state + "]";
     }
 }
 
@@ -310,8 +310,8 @@ class IPv6FileData
 
     public String toString()
     {
-        return "IPv6[" + device + "/" + sizeOff + "/" + node + "/" + name + "/" +
-            state + "]";
+        return "IPv6[" + device + "/" + sizeOff + "/" + node + "/" + name +
+            "/" + state + "]";
     }
 }
 
