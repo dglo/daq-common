@@ -37,17 +37,20 @@ public class DOMRegistry
      * Return information for all DOMs
      * @return iterable for all DOMs
      */
+    @Override
     public Iterable<DOMInfo> allDOMs()
     {
         return doms.values();
     }
 
+    @Override
     public double distanceBetweenDOMs(DOMInfo dom0, DOMInfo dom1)
     {
         if (dom0.equals(dom1)) return 0.0;
         return distanceBetweenDOMs(dom0.channelId, dom1.channelId);
     }
 
+    @Override
     public double distanceBetweenDOMs(short chan0, short chan1)
     {
         if (chan0 == chan1) return 0.0;
@@ -59,6 +62,7 @@ public class DOMRegistry
      * @param mbid DOM mainboard ID
      * @return channel Id (or <tt>-1</tt> if mainboard ID was not found)
      */
+    @Override
     public short getChannelId(long mbid)
     {
         DOMInfo dom = doms.get(mbid);
@@ -78,6 +82,7 @@ public class DOMRegistry
      * @param mbid input DOM mainboard id - the 12-char hex
      * @return deployed DOM information
      */
+    @Override
     public DOMInfo getDom(long mbid)
     {
         return doms.get(mbid);
@@ -89,6 +94,7 @@ public class DOMRegistry
      * @param minor dom position (1-64)
      * @return deployed DOM information
      */
+    @Override
     public DOMInfo getDom(int major, int minor)
     {
         return getDom(DOMInfo.computeChannelId(major, minor));
@@ -99,6 +105,7 @@ public class DOMRegistry
      * @param ch channel ID - 64*string + (module-1)
      * @return DOMInfo object
      */
+    @Override
     public DOMInfo getDom(short ch)
     {
         if (ch < 0 || ch >= domsByChannelId.length) {
@@ -115,6 +122,7 @@ public class DOMRegistry
      * @param hubId hub ID
      * @return set of DOMs
      */
+    @Override
     public Set<DOMInfo> getDomsOnHub(int hubId)
     {
         HashSet<DOMInfo> rlist = new HashSet<DOMInfo>(60);
@@ -132,6 +140,7 @@ public class DOMRegistry
      * @param string string number
      * @return set of DOMs
      */
+    @Override
     public Set<DOMInfo> getDomsOnString(int string)
     {
         HashSet<DOMInfo> rlist = new HashSet<DOMInfo>(66);
@@ -149,6 +158,7 @@ public class DOMRegistry
      * @param mbid DOM mainboard id.
      * @return DOM name
      */
+    @Override
     public String getName(long mbid)
     {
         DOMInfo dom = doms.get(mbid);
@@ -168,6 +178,7 @@ public class DOMRegistry
      * @param mbid DOM mainboard id
      * @return 8-char production Id (e.g. TP5Y0515)
      */
+    @Override
     public String getProductionId(long mbid)
     {
         DOMInfo dom = doms.get(mbid);
@@ -182,6 +193,7 @@ public class DOMRegistry
         return dom.prodId;
     }
 
+    @Override
     public int getStringMajor(long mbid)
     {
         DOMInfo dom = doms.get(mbid);
@@ -196,6 +208,7 @@ public class DOMRegistry
         return dom.getStringMajor();
     }
 
+    @Override
     public int getStringMinor(long mbid)
     {
         DOMInfo dom = doms.get(mbid);
@@ -214,6 +227,7 @@ public class DOMRegistry
      * get the number of known mainboard IDs
      * @return number of known mainboard IDs
      */
+    @Override
     public int size()
     {
         return doms.size();

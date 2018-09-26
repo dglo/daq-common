@@ -95,6 +95,7 @@ public class FlasherboardConfiguration
         return rate;
     }
 
+    @Override
     public String toString()
     {
         return "FlasherboardConfiguration[" + mbid + ",bri=" + brightness +

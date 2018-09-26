@@ -80,6 +80,7 @@ class DirectoryFileData
         name = m.group(4);
     }
 
+    @Override
     int compareData(FileData data)
     {
         if (!(data instanceof DirectoryFileData)) {
@@ -102,6 +103,7 @@ class DirectoryFileData
         return val;
     }
 
+    @Override
     public String toString()
     {
         return "DIR[" + device + "/" + size + "/" + node + "/" + name + "]";
@@ -141,6 +143,7 @@ class FIFOFileData
         name = m.group(4);
     }
 
+    @Override
     int compareData(FileData data)
     {
         if (!(data instanceof FIFOFileData)) {
@@ -163,6 +166,7 @@ class FIFOFileData
         return val;
     }
 
+    @Override
     public String toString()
     {
         return "FIFO[" + device + "/" + size + "/" + node + "/" + name + "]";
@@ -200,6 +204,7 @@ class IPv4FileData
         }
     }
 
+    @Override
     int compareData(FileData data)
     {
         if (!(data instanceof IPv4FileData)) {
@@ -235,6 +240,7 @@ class IPv4FileData
         return val;
     }
 
+    @Override
     public String toString()
     {
         return "IPv4[" + device + "/" + sizeOff + "/" + node + "/" + name +
@@ -273,6 +279,7 @@ class IPv6FileData
         }
     }
 
+    @Override
     int compareData(FileData data)
     {
         if (!(data instanceof IPv6FileData)) {
@@ -308,6 +315,7 @@ class IPv6FileData
         return val;
     }
 
+    @Override
     public String toString()
     {
         return "IPv6[" + device + "/" + sizeOff + "/" + node + "/" + name +
@@ -344,6 +352,7 @@ class KQueueFileData
         state = m.group(2);
     }
 
+    @Override
     int compareData(FileData data)
     {
         if (!(data instanceof KQueueFileData)) {
@@ -360,6 +369,7 @@ class KQueueFileData
         return val;
     }
 
+    @Override
     public String toString()
     {
         return "KQUEUE[" + count + "/" + state + "]";
@@ -392,6 +402,7 @@ class PipeFileData
         }
     }
 
+    @Override
     int compareData(FileData data)
     {
         if (!(data instanceof PipeFileData)) {
@@ -420,6 +431,7 @@ class PipeFileData
         return val;
     }
 
+    @Override
     public String toString()
     {
         return "PIPE[" + device + "/" + size + "]";
@@ -466,6 +478,7 @@ class RegularFileData
         name = m.group(4);
     }
 
+    @Override
     int compareData(FileData data)
     {
         if (!(data instanceof RegularFileData)) {
@@ -488,6 +501,7 @@ class RegularFileData
         return val;
     }
 
+    @Override
     public String toString()
     {
         return "REG[" + device + "/" + size + "/" + node + "/" + name + "]";
@@ -533,6 +547,7 @@ class SpecialFileData
         name = m.group(5);
     }
 
+    @Override
     int compareData(FileData data)
     {
         if (!(data instanceof SpecialFileData)) {
@@ -555,6 +570,7 @@ class SpecialFileData
         return val;
     }
 
+    @Override
     public String toString()
     {
         return "CHR[" + device + "/" + sizeOff + "/" + node + "/" + name + "]";
@@ -591,6 +607,7 @@ class SystemDomainSocketData
         back = m.group(4);
     }
 
+    @Override
     int compareData(FileData data)
     {
         if (!(data instanceof SystemDomainSocketData)) {
@@ -610,6 +627,7 @@ class SystemDomainSocketData
         return val;
     }
 
+    @Override
     public String toString()
     {
         return "SysDomSock[" + front + "/" + middle + "/" + back + "]";
@@ -640,6 +658,7 @@ class UnixFileData
         name = m.group(3);
     }
 
+    @Override
     int compareData(FileData data)
     {
         if (!(data instanceof UnixFileData)) {
@@ -659,6 +678,7 @@ class UnixFileData
         return val;
     }
 
+    @Override
     public String toString()
     {
         return "UNIX[" + device + "/" + size + "/" + name + "]";
@@ -698,6 +718,7 @@ class ZeroFileData
         name = m.group(3);
     }
 
+    @Override
     int compareData(FileData data)
     {
         if (!(data instanceof ZeroFileData)) {
@@ -720,6 +741,7 @@ class ZeroFileData
         return val;
     }
 
+    @Override
     public String toString()
     {
         return "Zero[" + device + "/" + size + "/" + node + "/" + name + "]";

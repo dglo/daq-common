@@ -114,6 +114,7 @@ class MJD
      *
      * @return the usual values (-1, 0, 1)
      */
+    @Override
     public int compareTo(MJD other)
     {
         long val = longValue() - other.longValue();
@@ -153,6 +154,7 @@ class MJD
      *
      * @return <tt>true</tt> if both objects represent the same date/time
      */
+    @Override
     public boolean equals(Object obj)
     {
         if (obj == null || !(obj instanceof MJD)) {
@@ -167,6 +169,7 @@ class MJD
      *
      * @return smooshed MJD value
      */
+    @Override
     public int hashCode()
     {
         return (int) (longValue() % (long) Integer.MAX_VALUE);
@@ -312,6 +315,7 @@ class MJD
      *
      * @return debugging string
      */
+    @Override
     public String toString()
     {
         return "MJD(" + value + ")";

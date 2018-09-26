@@ -181,6 +181,7 @@ public class ColoredAppender
     /**
      * Unimplemented.
      */
+    @Override
     public void clearFilters()
     {
         throw new Error("Unimplemented");
@@ -189,6 +190,7 @@ public class ColoredAppender
     /**
      * Nothing needs to be done here.
      */
+    @Override
     public void close()
     {
         // don't need to do anything
@@ -300,6 +302,7 @@ public class ColoredAppender
      *
      * @return ???
      */
+    @Override
     public String getName()
     {
         throw new Error("Unimplemented");
@@ -344,6 +347,7 @@ public class ColoredAppender
      *
      * @return ???
      */
+    @Override
     public boolean requiresLayout()
     {
         throw new Error("Unimplemented");
@@ -408,6 +412,7 @@ public class ColoredAppender
      *
      * @param s0 ???
      */
+    @Override
     public void setName(String s0)
     {
         throw new Error("Unimplemented");

@@ -116,6 +116,7 @@ public class MockAppender
     /**
      * Unimplemented.
      */
+    @Override
     public void clearFilters()
     {
         throw new Error("Unimplemented");
@@ -124,6 +125,7 @@ public class MockAppender
     /**
      * Nothing needs to be done here.
      */
+    @Override
     public void close()
     {
         // don't need to do anything
@@ -220,6 +222,7 @@ public class MockAppender
      *
      * @return logging level
      */
+    @Override
     public Level getLevel()
     {
         return minLevel;
@@ -250,6 +253,7 @@ public class MockAppender
      *
      * @return ???
      */
+    @Override
     public String getName()
     {
         throw new Error("Unimplemented");
@@ -265,6 +269,7 @@ public class MockAppender
      *
      * @return <tt>true</tt> if this appender is connected
      */
+    @Override
     public boolean isConnected()
     {
         return true;
@@ -280,6 +285,7 @@ public class MockAppender
      *
      * @return <tt>true</tt> if this appender uses the host:port
      */
+    @Override
     public boolean isConnected(String logHost, int logPort, String liveHost,
                                int livePort)
     {
@@ -289,6 +295,7 @@ public class MockAppender
     /**
      * Reconnect to the remote socket.
      */
+    @Override
     public void reconnect()
     {
         // do nothing
@@ -308,6 +315,7 @@ public class MockAppender
      *
      * @return ???
      */
+    @Override
     public boolean requiresLayout()
     {
         throw new Error("Unimplemented");
@@ -367,6 +375,7 @@ public class MockAppender
      *
      * @param s0 ???
      */
+    @Override
     public void setName(String s0)
     {
         throw new Error("Unimplemented");

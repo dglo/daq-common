@@ -338,6 +338,7 @@ public class Leapseconds
      *
      * @return A string representation of this class
      */
+    @Override
     public String toString()
     {
         StringBuilder result = new StringBuilder();

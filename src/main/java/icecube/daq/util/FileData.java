@@ -18,6 +18,7 @@ public abstract class FileData
 
     abstract int compareData(FileData data);
 
+    @Override
     public int compareTo(Object obj)
     {
         if (obj == null) {
@@ -44,6 +45,7 @@ public abstract class FileData
         return val;
     }
 
+    @Override
     public boolean equals(Object obj)
     {
         return compareTo(obj) == 0;
