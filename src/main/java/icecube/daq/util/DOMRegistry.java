@@ -4,8 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 /**
  * Cache of DOM-related data
@@ -17,7 +16,7 @@ public class DOMRegistry
     /** Total number of in-ice and icetop DOMs */
     private static final int NCH = 87*64;
 
-    private static final Log LOG = LogFactory.getLog(DOMRegistry.class);
+    private static final Logger LOG = Logger.getLogger(DOMRegistry.class);
 
     private HashMap<Long, DOMInfo> doms;
     private DOMInfo[] domsByChannelId;

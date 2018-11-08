@@ -11,8 +11,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -21,7 +20,7 @@ import org.xml.sax.helpers.DefaultHandler;
 class DOMRegistryParser
     extends DefaultHandler
 {
-    private static final Log LOG = LogFactory.getLog(DOMRegistryParser.class);
+    private static final Logger LOG = Logger.getLogger(DOMRegistryParser.class);
 
     private StringBuilder xmlChars = new StringBuilder();
     private DOMInfo currentDOM = new DOMInfo();
