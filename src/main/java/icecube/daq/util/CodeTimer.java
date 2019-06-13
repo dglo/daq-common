@@ -5,6 +5,21 @@ import java.util.Map;
 
 /**
  * Rudimentary profiling timer.
+ *
+ * Usage:
+ * <code>
+ *   CodeTimer timer = new CodeTimer(100);
+ *   ...
+ *   timer.start(0);
+ *   doSomething();
+ *   timer.stop(0);
+ *   ...
+ *   timer.start(1);
+ *   doOtherThing();
+ *   timer.stop(1);
+ *   ...
+ *   System.err.println(timer.getStats("SomethingOrOther"));
+ * </code>
  */
 public class CodeTimer
 {
