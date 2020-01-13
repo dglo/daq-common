@@ -6,6 +6,23 @@ import java.util.Map;
 /**
  * Rudimentary profiling timer.
  *
+ *
+ * Create a timer with<br>
+ * <code>CodeTimer timer = new CodeTimer(maxTimes)</code><br>
+ * where <code>maxTimes</code> is the maximum number of possible times.
+ * (Unused "time points" are not reported).<br>
+ * <br>
+ * For each chunk of code to be profiled, add<br>
+ * <code>timer.start(num);</code><br>
+ * before the chunk and<br>
+ * <code>timer.stop(num);</code><br>
+ * after the chunk.  Numbers start at 0 and you should use a different number
+ * for each discrete chunk of code.<br>
+ * <br>
+ * If the chunk of code can throw an exception, add this code instead:<br>
+ * <code>try { timer.start(num);</code><br>
+ * and<br>
+ * <code>} finally { timer.stop(num); }</code>
  * Usage:
  * <code>
  *   CodeTimer timer = new CodeTimer(100);
