@@ -184,7 +184,7 @@ public class MeterContent implements Content
         return acc.toArray(new MeterField[acc.size()]);
     }
 
-    static enum MeterField
+    public static enum MeterField
     {
         MSGIN(String.format("%-12s", "msgin"))
                 {
@@ -207,8 +207,7 @@ public class MeterContent implements Content
                     {
                         long delta = current.msgIn - last.msgIn;
                         long mps =
-                                (long) (((float)delta / BYTES_PER_MB) /
-                                        secondsInterval);
+                                (long) (((float)delta) / secondsInterval);
                         sb.append(String.format("%-12d", mps));
                     }
                 },
@@ -233,8 +232,7 @@ public class MeterContent implements Content
                     {
                         long delta = current.msgOut - last.msgOut;
                         long mps =
-                                (long) (((float)delta / BYTES_PER_MB) /
-                                        secondsInterval);
+                                (long) (((float)delta) / secondsInterval);
                         sb.append(String.format("%-12d", mps));
                     }
                 },
@@ -338,6 +336,7 @@ public class MeterContent implements Content
                         sb.append(String.format("%-24d", current.utcOut));
                     }
                 },
+        // UTC timespan of data in a buffered meter
         UTC_DELAY_MILLIS(String.format("%-12s", "delms"))
                 {
                     @Override
@@ -349,6 +348,26 @@ public class MeterContent implements Content
                         long delta = current.utcIn - last.utcOut;
                         sb.append(String.format("%-12d", delta/UTC_PER_MILLIS));
                     }
+                },
+        // Absolute delay between system clock and data
+        UTC_ABSOLUTE_DELAY_MILLIS(String.format("%-12s", "agems"))
+                {
+
+                    ICLClock utcClock = new ICLClock();
+
+                    @Override
+                    public void content(final StringBuilder sb,
+                                        final Metered.Sample last,
+                                        final Metered.Sample current,
+                                        final float secondsInterval)
+                    {
+                        long utcNow = utcClock.now();
+                        long utcOut = last.utcOut;
+                        long delta = utcNow - utcOut;
+
+                        sb.append(String.format("%-12d", delta/UTC_PER_MILLIS));
+                    }
+
                 },
         DATA_MILLIS_PER_SEC_IN(String.format("%-12s", "millipsint"))
                 {
