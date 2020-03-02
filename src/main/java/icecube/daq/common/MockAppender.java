@@ -1,12 +1,13 @@
-package icecube.daq.common.test;
+package icecube.daq.common;
 
-import icecube.daq.common.IDAQAppender;
-
+import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Enumeration;
 
-import org.apache.log4j.Appender;
+import org.apache.log4j.Category;
 import org.apache.log4j.Layout;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.log4j.spi.ErrorHandler;
 import org.apache.log4j.spi.Filter;
 import org.apache.log4j.spi.LocationInfo;
@@ -18,6 +19,8 @@ import org.apache.log4j.spi.LoggingEvent;
 public class MockAppender
     implements IDAQAppender
 {
+    private static final Logger LOG = Logger.getLogger(MockAppender.class);
+
     /** minimum level of log messages which will be print. */
     private Level minLevel;
     /** <tt>true</tt> if messages should be printed as well as cached. */
@@ -57,6 +60,51 @@ public class MockAppender
         throw new Error("Unimplemented");
     }
 
+    public void assertLogMessage(String message)
+    {
+        if (getNumberOfMessages() < 1) {
+            throw new AssertionError("No log messages found, expected " +
+                                     message);
+        } else {
+            final String logMsg = (String) removeEvent(0).getMessage();
+            if (!logMsg.startsWith(message)) {
+                throw new AssertionError("Expected log message \"" + message +
+                                         "\" not \"" + logMsg + "\"");
+            }
+        }
+    }
+
+    public void assertNoLogMessages()
+    {
+        assertNoLogMessages(null);
+    }
+
+    public void assertNoLogMessages(String description)
+    {
+        if (getNumberOfMessages() != 0) {
+            String foundStr;
+            if (description == null) {
+                foundStr = "Found ";
+            } else {
+                foundStr = "For [" + description + "], found ";
+            }
+
+            try {
+                if (getNumberOfMessages() == 1) {
+                    throw new AssertionError(foundStr +
+                                             "unexpected log message: " +
+                                             getMessage(0));
+                } else {
+                    throw new AssertionError(foundStr + getNumberOfMessages() +
+                                    " unexpected log messages, first" +
+                                    " message: " + getMessage(0));
+                }
+            } finally {
+                clear();
+            }
+        }
+    }
+
     /**
      * Clear the cached logging events.
      */
@@ -68,6 +116,7 @@ public class MockAppender
     /**
      * Unimplemented.
      */
+    @Override
     public void clearFilters()
     {
         throw new Error("Unimplemented");
@@ -76,6 +125,7 @@ public class MockAppender
     /**
      * Nothing needs to be done here.
      */
+    @Override
     public void close()
     {
         // don't need to do anything
@@ -94,7 +144,7 @@ public class MockAppender
             }
 
             if (verbose) {
-                dumpEvent(evt);
+                dumpEvent(System.err, evt);
             }
         }
     }
@@ -104,17 +154,27 @@ public class MockAppender
      *
      * @param evt logging event
      */
-    private void dumpEvent(LoggingEvent evt)
+    public void dumpEvent(int i)
+    {
+        dumpEvent(System.err, getEvent(i));
+    }
+
+    /**
+     * Dump a logging event to the specified output destination
+     *
+     * @param out output destination
+     * @param evt logging event
+     */
+    private void dumpEvent(PrintStream out, LoggingEvent evt)
     {
         LocationInfo loc = evt.getLocationInformation();
 
-        System.out.println(evt.getLoggerName() + " " + evt.getLevel() +
-                           " [" + loc.fullInfo + "] " +
-                           evt.getMessage());
+        out.println(evt.getLoggerName() + " " + evt.getLevel() + " [" +
+                    loc.fullInfo + "] " + evt.getMessage());
 
         String[] stack = evt.getThrowableStrRep();
         for (int i = 0; stack != null && i < stack.length; i++) {
-            System.out.println("> " + stack[i]);
+            out.println("> " + stack[i]);
         }
     }
 
@@ -162,14 +222,30 @@ public class MockAppender
      *
      * @return logging level
      */
+    @Override
     public Level getLevel()
     {
         return minLevel;
     }
 
+    /**
+     * Get error message from the specified logging event
+     *
+     * @return error message
+     */
     public Object getMessage(int idx)
     {
         return getEvent(idx).getMessage();
+    }
+
+    /**
+     * Get log level from the specified logging event
+     *
+     * @return error message
+     */
+    public Level getMessageLevel(int idx)
+    {
+        return getEvent(idx).getLevel();
     }
 
     /**
@@ -177,6 +253,7 @@ public class MockAppender
      *
      * @return ???
      */
+    @Override
     public String getName()
     {
         throw new Error("Unimplemented");
@@ -192,6 +269,7 @@ public class MockAppender
      *
      * @return <tt>true</tt> if this appender is connected
      */
+    @Override
     public boolean isConnected()
     {
         return true;
@@ -207,6 +285,7 @@ public class MockAppender
      *
      * @return <tt>true</tt> if this appender uses the host:port
      */
+    @Override
     public boolean isConnected(String logHost, int logPort, String liveHost,
                                int livePort)
     {
@@ -216,9 +295,19 @@ public class MockAppender
     /**
      * Reconnect to the remote socket.
      */
+    @Override
     public void reconnect()
     {
         // do nothing
+    }
+
+    private LoggingEvent removeEvent(int idx)
+    {
+        if (idx < 0 || idx > eventList.size()) {
+            throw new IllegalArgumentException("Bad index " + idx);
+        }
+
+        return eventList.remove(idx);
     }
 
     /**
@@ -226,6 +315,7 @@ public class MockAppender
      *
      * @return ???
      */
+    @Override
     public boolean requiresLayout()
     {
         throw new Error("Unimplemented");
@@ -270,6 +360,13 @@ public class MockAppender
     {
         minLevel = lvl;
 
+        // set log level in all active loggers
+        Enumeration current = LOG.getLoggerRepository().getCurrentLoggers();
+        while (current.hasMoreElements()) {
+            Category logger = (Category) current.nextElement();
+            logger.setLevel(lvl);
+        }
+
         return this;
     }
 
@@ -278,6 +375,7 @@ public class MockAppender
      *
      * @param s0 ???
      */
+    @Override
     public void setName(String s0)
     {
         throw new Error("Unimplemented");

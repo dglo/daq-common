@@ -7,14 +7,14 @@ import java.io.File;
  */
 public final class LocatePDAQ
 {
+    /** Name of property holding path for pDAQ configuration directory */
+    public static final String CONFIG_DIR_PROPERTY =
+        "icecube.daq.component.configDir";
+
     /** Cached configuration directory */
     private static File CONFIG_DIR;
     /** Cached pDAQ trunk directory */
     private static File META_DIR;
-
-    /** Name of property holding path for pDAQ configuration directory */
-    private static final String CONFIG_DIR_PROPERTY =
-        "icecube.daq.component.configDir";
 
     /**
      * Clear all cached paths.
@@ -68,10 +68,11 @@ public final class LocatePDAQ
                 }
                 break;
             case 3:
-                // check user-specified pDAQ distribution directory
-                File tmpFile = findTrunk("config");
-                if (tmpFile != null) {
-                    dir = tmpFile;
+                // check inside pDAQ build directory
+                //  (should only be used for Jenkins builds)
+                final File trunkDir = findTrunk();
+                if (trunkDir != null && trunkDir.length() > 0) {
+                    dir = new File(trunkDir, "config");
                 }
                 break;
             default:
@@ -109,27 +110,6 @@ public final class LocatePDAQ
             return META_DIR;
         }
 
-        File dir = findTrunk(null);
-
-        if (dir != null) {
-            META_DIR = dir;
-            return META_DIR;
-        }
-
-        throw new IllegalArgumentException("Cannot find pDAQ trunk directory");
-    }
-
-    /**
-     * Find the subdirectory of a pDAQ directory (or just the pDAQ trunk if
-     * <tt>subdir</tt> is <tt>null</tt>)
-     *
-     * @param subdir subdirectory to look for
-     *
-     * @return pDAQ subdirectory (or <tt>null</tt> if trunk or subdirectory
-     *                            is not found)
-     */
-    public static File findTrunk(String subdir)
-    {
         boolean done = false;
         for (int i = 0; !done; i++) {
             File dir = null;
@@ -181,12 +161,13 @@ public final class LocatePDAQ
                     (new File(dir, "target").isDirectory() ||
                      new File(dir, "StringHub").isDirectory()))
                 {
-                    return dir;
+                    META_DIR = dir;
+                    return META_DIR;
                 }
             }
         }
 
-        return null;
+        throw new IllegalArgumentException("Cannot find pDAQ trunk directory");
     }
 
     /**

@@ -1,6 +1,6 @@
 package icecube.daq.util;
 
-import icecube.daq.common.test.MockAppender;
+import icecube.daq.common.MockAppender;
 
 import java.io.File;
 import java.util.Set;
@@ -57,7 +57,7 @@ class DOMData
 
     String getDeploymentLocation()
     {
-        return String.format("%2d-%2d", string, position);
+        return String.format("%d-%d", string, position);
     }
 }
 
@@ -66,7 +66,7 @@ public class DOMRegistryTest
     private static final MockAppender appender =
         new MockAppender(/*org.apache.log4j.Level.ALL*/)/*.setVerbose(true)*/;
 
-    private static DOMRegistry registry;
+    private static IDOMRegistry registry;
 
     private DOMData[] domData = new DOMData[] {
         new DOMData(0x98b7b6b98e9fL, 10, 1, "Banshee", "UP7P2542"),
@@ -77,35 +77,10 @@ public class DOMRegistryTest
         new DOMData(0x7ce3bc68a2d6L, 210, 51, 63, "Sakigake", "AP8P3026"),
     };
 
-    private void assertLogMessage(String message)
-    {
-        try {
-            assertEquals("Bad number of log messages", 1,
-                         appender.getNumberOfMessages());
-            String logMsg = (String) appender.getMessage(0);
-            assertTrue("Unexpected log message " + logMsg,
-                       logMsg.startsWith(message));
-        } finally {
-            appender.clear();
-        }
-    }
-
-    private void assertNoLogMessage()
-    {
-        try {
-            assertEquals("Bad number of log messages", 0,
-                         appender.getNumberOfMessages());
-        } finally {
-            appender.clear();
-        }
-    }
-
     @Before
     public void setUp()
         throws Exception
     {
-        appender.clear();
-
         BasicConfigurator.resetConfiguration();
         BasicConfigurator.configure(appender);
 
@@ -117,7 +92,7 @@ public class DOMRegistryTest
                 throw new IllegalArgumentException(msg);
             }
 
-            registry = DOMRegistry.loadRegistry(configDir);
+            registry = DOMRegistryFactory.load(configDir);
         }
     }
 
@@ -125,8 +100,7 @@ public class DOMRegistryTest
     public void tearDown()
         throws Exception
     {
-        assertEquals("Bad number of log messages",
-                     0, appender.getNumberOfMessages());
+        appender.assertNoLogMessages();
     }
 
     @Test
@@ -137,31 +111,32 @@ public class DOMRegistryTest
 
         assertEquals("Found channel ID for bad MBID " + badMBID,
                      (short) -1, registry.getChannelId(badMBID));
-        assertLogMessage("Cannot find channel for 000000000000");
-
-        assertNull("Found location for bad MBID " + badMBID,
-                   registry.getDeploymentLocation(badMBID));
-        assertLogMessage("Cannot find location for 000000000000");
+        appender.assertLogMessage("Cannot find channel for 000000000000");
+        appender.assertNoLogMessages();
 
         assertNull("Found name for bad MBID " + badMBID,
                    registry.getDom(badMBID));
-        assertNoLogMessage();
+        appender.assertNoLogMessages();
 
         assertNull("Found DOM ID for bad MBID " + badMBID,
-                   registry.getDomId(badMBID));
-        assertLogMessage("Cannot fetch DOM entry for 000000000000");
+                   registry.getProductionId(badMBID));
+        appender.assertLogMessage("Cannot fetch DOM entry for 000000000000");
+        appender.assertNoLogMessages();
 
         assertNull("Found name for bad MBID " + badMBID,
                    registry.getName(badMBID));
-        assertLogMessage("Cannot find name for 000000000000");
+        appender.assertLogMessage("Cannot find name for 000000000000");
+        appender.assertNoLogMessages();
 
         assertEquals("Found major number for bad MBID " + badMBID,
                      -1, registry.getStringMajor(badMBID));
-        assertLogMessage("Cannot find string major for 000000000000");
+        appender.assertLogMessage("Cannot find string major for 000000000000");
+        appender.assertNoLogMessages();
 
         assertEquals("Found minor number for bad MBID " + badMBID,
                      -1, registry.getStringMinor(badMBID));
-        assertLogMessage("Cannot find string minor for 000000000000");
+        appender.assertLogMessage("Cannot find string minor for 000000000000");
+        appender.assertNoLogMessages();
     }
 
     @Test
@@ -169,7 +144,7 @@ public class DOMRegistryTest
         throws Exception
     {
         for (DOMData dom : domData) {
-            DeployedDOM ddom = registry.getDom(dom.mbid);
+            DOMInfo ddom = registry.getDom(dom.mbid);
             assertNotNull("Could not find " + dom.name, ddom);
             assertEquals(dom.name, ddom.getName());
             assertEquals(dom.name, dom.mbid, ddom.getNumericMainboardId());
@@ -177,6 +152,8 @@ public class DOMRegistryTest
             assertEquals(dom.name, dom.string, ddom.getStringMajor());
             assertEquals(dom.name, dom.position, ddom.getStringMinor());
             assertEquals(dom.name, dom.getChannelId(), ddom.getChannelId());
+            assertEquals(dom.name, dom.getDeploymentLocation(),
+                         ddom.getDeploymentLocation());
 
             assertEquals(dom.name, registry.getName(dom.mbid));
             assertEquals(dom.name, dom.string,
@@ -185,8 +162,6 @@ public class DOMRegistryTest
                          registry.getStringMinor(dom.mbid));
             assertEquals(dom.name, dom.getChannelId(),
                          registry.getChannelId(dom.mbid));
-            assertEquals(dom.name, dom.getDeploymentLocation(),
-                         registry.getDeploymentLocation(dom.mbid));
         }
     }
 
@@ -197,19 +172,19 @@ public class DOMRegistryTest
         for (int ich = 65; ich < 64*87; ich++)
         {
 
-            DeployedDOM d1 = registry.getDom((short) ich);
+            DOMInfo d1 = registry.getDom((short) ich);
             if (d1 != null)
             {
             for (int jch = 64; jch < ich; jch++)
                 {
-                    DeployedDOM d2 = registry.getDom((short) jch);
+                    DOMInfo d2 = registry.getDom((short) jch);
                     if (d2 != null)
                     {
                         double dx = d2.x - d1.x;
                         double dy = d2.y - d1.y;
                         double dz = d2.z - d1.z;
                         double dist = Math.sqrt(dx*dx+dy*dy+dz*dz);
-                        assertEquals(dist, registry.distanceBetweenDOMs(d1.numericMainboardId, d2.numericMainboardId), 0.001);
+                        assertEquals(dist, registry.distanceBetweenDOMs(d1, d2), 0.001);
                     }
                 }
             }
@@ -221,12 +196,12 @@ public class DOMRegistryTest
         throws Exception
     {
         final int hubId = 10;
-        Set<DeployedDOM> doms = registry.getDomsOnHub(hubId);
+        Set<DOMInfo> doms = registry.getDomsOnHub(hubId);
 
         int num = 0;
         for (DOMData dom : domData) {
             if (dom.hub == hubId) {
-                DeployedDOM ddom = registry.getDom(dom.mbid);
+                DOMInfo ddom = registry.getDom(dom.mbid);
 
                 assertTrue("Cannot find " + dom.name + " on hub " + hubId,
                            doms.contains(ddom));
@@ -242,12 +217,12 @@ public class DOMRegistryTest
         throws Exception
     {
         final int string = 10;
-        Set<DeployedDOM> doms = registry.getDomsOnString(string);
+        Set<DOMInfo> doms = registry.getDomsOnString(string);
 
         int num = 0;
         for (DOMData dom : domData) {
             if (dom.string == string) {
-                DeployedDOM ddom = registry.getDom(dom.mbid);
+                DOMInfo ddom = registry.getDom(dom.mbid);
 
                 assertTrue("Cannot find " + dom.name + " on string " + string,
                            doms.contains(ddom));

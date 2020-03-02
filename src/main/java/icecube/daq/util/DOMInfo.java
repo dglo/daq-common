@@ -6,51 +6,58 @@ package icecube.daq.util;
  * @author krokodil
  */
 
-public class DeployedDOM
-    implements Comparable<DeployedDOM>
+public class DOMInfo
+    implements Comparable<DOMInfo>
 {
-    short channelId;
+    public static final int NO_VALUE = Integer.MIN_VALUE;
+
+    short channelId = Short.MIN_VALUE;
     String mainboardId;
     long numericMainboardId;
-    String domId;
+    String prodId;
     String name;
     /** component ID of the hub to which this channel is connected */
     int hubId;
     /** Logical string ID - note can be > 86 for test system and sim DOMs */
-    int string;
+    int string = NO_VALUE;
     /** Modules' location along the string */
-    int location;
+    int location = NO_VALUE;
     double x;
     double y;
     double z;
 
+    /** Cached deployment location string (e.g. "1-1", "83-60", etc.) */
+    private String deployLoc;
+
     /** Public constructor */
-    public DeployedDOM(long mbId, int string, int location)
+    public DOMInfo(long mbId, int string, int location)
     {
         this(mbId, string, location, string);
     }
 
     /** Public constructor */
-    public DeployedDOM(long mbId, int string, int location, int hubId)
+    public DOMInfo(long mbId, int string, int location, int hubId)
     {
         numericMainboardId = mbId;
         this.string = string;
         this.location = location;
         this.hubId = hubId;
+
+        channelId = computeChannelId(string, location);
     }
 
     /** Constructor only for package peers */
-    DeployedDOM() { }
+    DOMInfo() { }
 
     /**
      * Copy construtor.
      */
-    DeployedDOM(DeployedDOM dom)
+    DOMInfo(DOMInfo dom)
     {
         channelId = dom.channelId;
         mainboardId = dom.mainboardId;
         numericMainboardId = dom.numericMainboardId;
-        domId = dom.domId;
+        prodId = dom.prodId;
         name = dom.name;
         hubId = dom.hubId;
         string = dom.string;
@@ -61,13 +68,31 @@ public class DeployedDOM
     }
 
     @Override
-    public int compareTo(DeployedDOM dom)
+    public int compareTo(DOMInfo dom)
     {
         int diff = string - dom.string;
         if (diff == 0) {
             diff = location - dom.location;
+            if (diff == 0) {
+                long ldiff = numericMainboardId - dom.numericMainboardId;
+                if (ldiff < 0) {
+                    diff = -1;
+                } else if (ldiff > 0) {
+                    diff = 1;
+                }
+            }
         }
         return diff;
+    }
+
+    /**
+     * Use DOM's string number and position to compute the channel ID.
+     *
+     * @return channel ID
+     */
+    public short computeChannelId()
+    {
+        return computeChannelId(string, location);
     }
 
     /**
@@ -75,6 +100,8 @@ public class DeployedDOM
      *
      * @param string string number (1-86, 201-211)
      * @param position string position (1-66)
+     *
+     * @return channel ID
      */
     public static final short computeChannelId(int string, int position)
     {
@@ -82,11 +109,17 @@ public class DeployedDOM
 
         if (kstring < 0 || kstring > 86) {
             // "string" 0 is for things like AMANDA and IceACT
-            throw new Error("Impossible string");
+            throw new Error("Impossible string " + kstring);
         }
 
         if (position < 1 || position > 66) {
-            throw new Error("Impossible position");
+            if (kstring == 0 && (position == 91 || position == 92)) {
+                // grandfather in ancient AMANDA "DOM" positions
+                return -1;
+            }
+
+            throw new Error("Impossible position " + position +
+                            " for string " + string);
         }
 
         if (position > 64) {
@@ -96,19 +129,44 @@ public class DeployedDOM
         return (short) (kstring * 64 + (position - 1));
     }
 
+    /**
+     * Use channel ID to compute string number.
+     *
+     * @param chanId channel ID
+     *
+     * @return source ID
+     */
+    public static final int computeSourceId(short chanId)
+    {
+        if (chanId < 5998) {
+            return (((int) chanId) / 64);
+        }
+
+        return ((((int) chanId) - 5998) / 2);
+    }
+
     @Override
     public boolean equals(Object obj)
     {
-        return obj instanceof DeployedDOM &&
-            ((DeployedDOM) obj).numericMainboardId == numericMainboardId;
+        return obj instanceof DOMInfo &&
+            ((DOMInfo) obj).numericMainboardId == numericMainboardId;
     }
 
     public short getChannelId() {
         return channelId;
     }
 
-    public String getDomId() {
-        return domId;
+    public String getDeploymentLocation()
+    {
+        if (deployLoc == null) {
+            deployLoc = String.format("%d-%d", string, location);
+        }
+
+        return deployLoc;
+    }
+
+    public String getProductionId() {
+        return prodId;
     }
 
     public int getHubId() {
@@ -130,11 +188,6 @@ public class DeployedDOM
 
     public long getNumericMainboardId() {
         return numericMainboardId;
-    }
-
-    public String getOmId()
-    {
-        return String.format("(%d, %d)", string, location);
     }
 
     public int getStringMajor() {
@@ -166,6 +219,11 @@ public class DeployedDOM
         return (location >= 1 && location <= 60);
     }
 
+    public boolean isIceACT()
+    {
+        return (string == 0 && location == 1);
+    }
+
     public boolean isIceTop()
     {
         return (location >= 61 && location <= 64);
@@ -173,23 +231,41 @@ public class DeployedDOM
 
     public boolean isRealDOM()
     {
-        return (string >= 1 && string <= 86);
+        return (string >= 1 && string <= 86 &&
+                location >= 1 && location <= 64);
     }
 
     public boolean isScintillator()
     {
-        return (location >= 65 && location <= 66);
+        return (string >= 1 && string <= 86 &&
+                location >= 65 && location <= 66);
     }
 
     @Override
     public String toString()
     {
-        final String prodStr = (domId == null ? "" : domId);
-        final String chanStr = (channelId == 0 ? "" :
-                                Integer.toString(channelId));
+        final String prodStr = (prodId == null ? "" : prodId);
+        final String chanStr = (channelId == Short.MIN_VALUE ? "" :
+                                "ch#" + channelId);
         final String nameStr = (name == null ? "" : " '" + name + "'");
+        final String hubStr = (hubId == string ? "" : " hub " + hubId);
 
+        final String majorStr;
+        if (string == NO_VALUE) {
+            majorStr = "??";
+        } else {
+            majorStr = Integer.toString(string);
+        }
+
+        final String minorStr;
+        if (location == NO_VALUE) {
+            minorStr = "??";
+        } else {
+            minorStr = Integer.toString(location);
+        }
+
+        final String omId = "(" + majorStr + ", " + minorStr + ")";
         return prodStr + "[" + getMainboardId() + "]" + chanStr + nameStr +
-            " at " + getOmId();
+            " at " + omId + hubStr;
     }
 }

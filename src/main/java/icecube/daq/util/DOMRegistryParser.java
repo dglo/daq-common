@@ -11,6 +11,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -18,20 +21,22 @@ import org.xml.sax.helpers.DefaultHandler;
 class DOMRegistryParser
     extends DefaultHandler
 {
-    private StringBuilder xmlChars = new StringBuilder();
-    private DeployedDOM currentDOM = new DeployedDOM();
-    private int currentHubId;
-    private int originalString;
+    private static final Log LOG = LogFactory.getLog(DOMRegistryParser.class);
 
-    private HashMap<Long, DeployedDOM> doms = new HashMap<Long, DeployedDOM>();
-    private DeployedDOM[] domsByChannelId;
+    private StringBuilder xmlChars = new StringBuilder();
+    private DOMInfo currentDOM = new DOMInfo();
+    private int currentHubId = DOMInfo.NO_VALUE;
+    private int originalString = DOMInfo.NO_VALUE;
+
+    private HashMap<Long, DOMInfo> doms = new HashMap<Long, DOMInfo>();
+    private DOMInfo[] domsByChannelId;
 
     private DOMRegistry reg;
 
     DOMRegistryParser(File configDir, int maxChannelIDs)
         throws ParserConfigurationException, SAXException, IOException
     {
-        domsByChannelId = new DeployedDOM[maxChannelIDs];
+        domsByChannelId = new DOMInfo[maxChannelIDs];
         reg = new DOMRegistry(doms, domsByChannelId);
 
         if (configDir == null || !configDir.exists()) {
@@ -39,7 +44,7 @@ class DOMRegistryParser
                                             configDir + "\" does not exist");
         }
 
-        File file = new File(configDir, DOMRegistry.DEFAULT_DOM_GEOMETRY);
+        File file = new File(configDir, IDOMRegistry.DEFAULT_DOM_GEOMETRY);
         if (!file.exists()) {
             throw new FileNotFoundException("Registry does not exist in \"" +
                                             file + "\"");
@@ -51,6 +56,7 @@ class DOMRegistryParser
             factory.setNamespaceAware(true);
             SAXParser parser = factory.newSAXParser();
             parser.parse(is, this);
+            reg.tabulateDistances();
         } finally {
             is.close();
         }
@@ -71,38 +77,71 @@ class DOMRegistryParser
         super.endElement(uri, localName, qName);
         String txt = xmlChars.toString().trim();
         if (localName.equalsIgnoreCase("dom")) {
+            if (currentHubId < 0) {
+                throw new Error("Unknown hub ID for " + currentDOM);
+            }
+
             currentDOM.hubId = currentHubId;
 
-            if (originalString > 0) {
+            if (originalString >= 0) {
                 currentDOM.string = originalString;
             } else {
                 currentDOM.string = currentHubId;
             }
 
-            if (doms.containsKey(currentDOM.numericMainboardId)) {
-                DeployedDOM oldDOM = doms.get(currentDOM.numericMainboardId);
-
-                System.err.printf("Found multiple entries for %012x:" +
-                                  " (%d, %d) and (%d, %d)",  oldDOM.string,
-                                  oldDOM.location, currentDOM.string,
-                                  currentDOM.location);
+            if (currentDOM.location < 0) {
+                throw new Error("Unknown location for " + currentDOM);
             }
 
-            doms.put(currentDOM.numericMainboardId, currentDOM);
             if (currentDOM.isRealDOM()) {
-                if (domsByChannelId[currentDOM.channelId] == null) {
-                    domsByChannelId[currentDOM.channelId] = currentDOM;
-                } else {
-                    DeployedDOM oldDOM = domsByChannelId[currentDOM.channelId];
+                short xchan;
+                try {
+                    xchan = DOMInfo.computeChannelId(currentDOM.string,
+                                                         currentDOM.location);
+                } catch (Error err) {
+                    LOG.error("Cannot compute channel ID for " +
+                              currentDOM, err);
+                    xchan = currentDOM.channelId;
+                }
 
-                    System.err.println("DOMsByChannelId collision between " +
-                                       oldDOM.getOmId() + " and " +
-                                       currentDOM.getOmId());
+                if (xchan != currentDOM.channelId) {
+                    LOG.error("DOM " + currentDOM +
+                              " channel ID updated to " + xchan);
+                    currentDOM.channelId = xchan;
                 }
             }
 
-            currentDOM = new DeployedDOM();
-            originalString = 0;
+            if (doms.containsKey(currentDOM.numericMainboardId)) {
+                DOMInfo oldDOM = doms.get(currentDOM.numericMainboardId);
+
+                LOG.error(String.format("Found multiple entries for %012x:" +
+                                        " %s and %s",
+                                        currentDOM.numericMainboardId,
+                                        oldDOM.getDeploymentLocation(),
+                                        currentDOM.getDeploymentLocation()));
+            }
+
+            doms.put(currentDOM.numericMainboardId, currentDOM);
+            if (currentDOM.isRealDOM() || currentDOM.isScintillator() ||
+                currentDOM.isIceACT())
+            {
+                if (currentDOM.channelId < 0 ||
+                    currentDOM.channelId >= domsByChannelId.length)
+                {
+                    LOG.error("Not adding " + currentDOM +
+                              " to doms->channel lookup table");
+                } else if (domsByChannelId[currentDOM.channelId] != null) {
+                    DOMInfo oldDOM = domsByChannelId[currentDOM.channelId];
+
+                    LOG.error("DOMsByChannelId collision between " +
+                              oldDOM + " and " + currentDOM);
+                } else {
+                    domsByChannelId[currentDOM.channelId] = currentDOM;
+                }
+            }
+
+            currentDOM = new DOMInfo();
+            originalString = DOMInfo.NO_VALUE;
         } else if (localName.equalsIgnoreCase("position")) {
             currentDOM.location   = Integer.parseInt(txt);
         } else if (localName.equalsIgnoreCase("channelId")) {
@@ -114,7 +153,7 @@ class DOMRegistryParser
         } else if (localName.equalsIgnoreCase("name")) {
             currentDOM.name = txt;
         } else if (localName.equalsIgnoreCase("productionId")) {
-            currentDOM.domId = txt;
+            currentDOM.prodId = txt;
         } else if (localName.equalsIgnoreCase("xCoordinate")) {
             currentDOM.x = Double.parseDouble(txt);
         } else if (localName.equalsIgnoreCase("yCoordinate")) {
@@ -125,6 +164,8 @@ class DOMRegistryParser
             currentHubId = Integer.parseInt(txt);
         } else if (localName.equals("originalString")) {
             originalString = Integer.parseInt(txt);
+        } else if (localName.equals("string")) {
+            currentHubId = DOMInfo.NO_VALUE;
         }
     }
 
