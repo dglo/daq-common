@@ -55,6 +55,7 @@ public class MockAppender
      *
      * @param x0 ???
      */
+    @Override
     public void addFilter(Filter x0)
     {
         throw new Error("Unimplemented");
@@ -136,6 +137,7 @@ public class MockAppender
      *
      * @param evt logging event
      */
+    @Override
     public void doAppend(LoggingEvent evt)
     {
         if (evt.getLevel().toInt() >= minLevel.toInt()) {
@@ -183,6 +185,7 @@ public class MockAppender
      *
      * @return ???
      */
+    @Override
     public ErrorHandler getErrorHandler()
     {
         throw new Error("Unimplemented");
@@ -202,6 +205,7 @@ public class MockAppender
      *
      * @return ???
      */
+    @Override
     public Filter getFilter()
     {
         throw new Error("Unimplemented");
@@ -212,6 +216,7 @@ public class MockAppender
      *
      * @return ???
      */
+    @Override
     public Layout getLayout()
     {
         throw new Error("Unimplemented");
@@ -326,6 +331,7 @@ public class MockAppender
      *
      * @param x0 ???
      */
+    @Override
     public void setErrorHandler(ErrorHandler x0)
     {
         throw new Error("Unimplemented");
@@ -346,6 +352,7 @@ public class MockAppender
      *
      * @param x0 ???
      */
+    @Override
     public void setLayout(Layout x0)
     {
         throw new Error("Unimplemented");
